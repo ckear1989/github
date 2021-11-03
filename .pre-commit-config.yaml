@@ -17,6 +17,13 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        use_file_names: false
+    -   id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        types: [python]
+        pass_filenames: false
 -   repo: https://github.com/ambv/black
     rev: stable
     hooks:
