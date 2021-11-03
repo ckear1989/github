@@ -1,3 +1,7 @@
+"""
+Empty module docstring.
+"""
+
 import setuptools
 
 setuptools.setup(
@@ -7,6 +11,7 @@ setuptools.setup(
             "pre-commit",
             "pre-commit-hooks",
             "PyGitHub",
+            "pylint",
         ],
         "test": [],
     },
