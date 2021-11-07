@@ -1,5 +1,5 @@
 """
-Empty module docstring.
+Setup for pip package installation.
 """
 
 import setuptools
@@ -12,6 +12,7 @@ setuptools.setup(
             "pre-commit-hooks>=4.0.1",
             "PyGitHub>=1.55",
             "pylint>=2.11.1",
+            "pandas>=1.3.4",
         ],
         "test": [
             "pytest>=6.2.5",
