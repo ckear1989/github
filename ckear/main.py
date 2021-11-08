@@ -62,9 +62,8 @@ def main():
     repo_df = pd.concat(
         [get_repo_details(repo) for repo in user.get_repos()], ignore_index=True
     )
-    print(repo_df)
-    for org in user.get_orgs():
-        print(org)
+    # orgs = user.get_orgs():
+    return repo_df
 
 
 if __name__ == "__main__":

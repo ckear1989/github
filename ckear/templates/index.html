@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block head %}
+<title>My App</title>
+{% endblock %}
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center"><Hello/h1>
+    {{ table|safe }}
+    <!--
+    <div class="form">
+        <form action="/">
+            <input type="text" name="content" id="content">
+            <input type="submit" value="Add Task">
+        </form>
+    </div>
+    -->
+</div>
+{% endblock %}
