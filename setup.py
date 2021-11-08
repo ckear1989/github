@@ -13,6 +13,7 @@ setuptools.setup(
             "PyGitHub>=1.55",
             "pylint>=2.11.1",
             "pandas>=1.3.4",
+            "flask>-2.0.2",
         ],
         "test": [
             "pytest>=6.2.5",
