@@ -13,7 +13,9 @@ setuptools.setup(
             "PyGitHub>=1.55",
             "pylint>=2.11.1",
             "pandas>=1.3.4",
-            "flask>-2.0.2",
+            "flask>=2.0.2",
+            "altair>=4.1.0",
+            "gunicorn>=20.1.0",
         ],
         "test": [
             "pytest>=6.2.5",
