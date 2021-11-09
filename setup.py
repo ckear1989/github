@@ -4,8 +4,16 @@ Setup for pip package installation.
 
 import setuptools
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setuptools.setup(
-    name="github",
+    name="GitHubHealth",
+    url="https://github.com/ckear1989/github/",
+    author="Conor Kearney",
+    author_email="ckear1989@gmail.com",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     extras_require={
         "dev": [
             "pre-commit>=2.15.0",
