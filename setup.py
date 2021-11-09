@@ -29,4 +29,6 @@ setuptools.setup(
             "pytest>=6.2.5",
         ],
     },
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
 )
