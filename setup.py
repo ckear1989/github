@@ -10,6 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="GitHubHealth",
     url="https://github.com/ckear1989/github/",
+    license="MIT",
     author="Conor Kearney",
     author_email="ckear1989@gmail.com",
     long_description=long_description,
