@@ -15,9 +15,14 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     extras_require={
+        "run": [
+            "PyGitHub==1.55",
+            "pandas==1.3.4",
+            "flask==2.0.2",
+            "altair==4.1.0",
+        ],
         "dev": [
             "pre-commit>=2.15.0",
-            "pre-commit-hooks>=4.0.1",
             "PyGitHub>=1.55",
             "pylint>=2.11.1",
             "pandas>=1.3.4",
@@ -29,6 +34,7 @@ setuptools.setup(
             "pytest>=6.2.5",
         ],
     },
+    packages=setuptools.find_packages(),
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
 )

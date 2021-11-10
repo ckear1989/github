@@ -2,7 +2,7 @@
 Test connection functionality.
 """
 
-from ckear.main import get_connection
+from GitHubHealth.main import get_connection
 
 
 def test_get_connection():

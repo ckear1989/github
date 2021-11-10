@@ -4,7 +4,7 @@ Modulle for flask app.
 
 from flask import Flask, render_template
 
-from ckear.main import GitHubHealth
+from .main import GitHubHealth
 
 app = Flask(__name__)
 
