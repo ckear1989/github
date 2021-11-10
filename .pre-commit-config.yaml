@@ -11,6 +11,11 @@ repos:
     -   id: check-added-large-files
     -   id: no-commit-to-branch
         args: ["--branch", "main", "--branch", "master"]
+-   repo: https://github.com/ambv/black
+    rev: 21.10b0
+    hooks:
+    - id: black
+      language_version: python3.8
 -   repo: local
     hooks:
     -   id: pylint
@@ -30,11 +35,6 @@ repos:
             scripts/pylint-badge.sh
         language: system
         types: [python]
--   repo: https://github.com/ambv/black
-    rev: 21.10b0
-    hooks:
-    - id: black
-      language_version: python3.8
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v1.2.3
     hooks:

@@ -3,6 +3,7 @@ Test connection functionality.
 """
 
 import os
+import pytest
 
 from GitHubHealth.main import (
     ACCESS_TOKEN_VAR_NAME,
@@ -23,6 +24,7 @@ def test_get_connection_no_access_token():
     """
     gat = os.getenv(ACCESS_TOKEN_VAR_NAME)
     del os.environ[ACCESS_TOKEN_VAR_NAME]
-    assert get_connection() is None
+    with pytest.warns(UserWarning):
+        assert get_connection() is None
     os.environ[ACCESS_TOKEN_VAR_NAME] = gat
     assert get_connection() is not None

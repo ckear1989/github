@@ -4,6 +4,7 @@ Main function handles logic to connect to GitHub and select repos for analysis.
 """
 from datetime import datetime
 import os
+import warnings
 
 import altair as alt
 import pandas as pd
@@ -21,7 +22,11 @@ def get_connection(hostname=None, user=None, org=None):
     Get connection and login.
     """
     if ACCESS_TOKEN_VAR_NAME not in os.environ:
-        print(f"WARNING: environment variable {ACCESS_TOKEN_VAR_NAME} must be set.")
+        warnings.warn(
+            UserWarning(
+                f"WARNING: environment variable {ACCESS_TOKEN_VAR_NAME} must be set."
+            )
+        )
         return None
     if hostname is None:
         base_url = MainClass.DEFAULT_BASE_URL
@@ -64,8 +69,15 @@ def get_repo_details(repo):
         "repo": [repo.name],
         "private": [repo.private],
         "branch_count": [len(branch_df)],
-        "max_branch_age": [branch_df["age"].max()],
+        "max_branch_age_days": [branch_df["age"].max()],
     }
+    languages = repo.get_languages()
+    primary_language = None
+    if len(languages) > 0:
+        primary_language = sorted(languages.items(), key=lambda x: x[1], reverse=True)[
+            0
+        ][0]
+    repo_dict["primary_language"] = primary_language
     repo_df = pd.DataFrame.from_dict(repo_dict)
     return repo_df
 
@@ -117,7 +129,7 @@ class GitHubHealth:
         """
         repo_html = (
             self.repo_df.style.hide_index()
-            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age"])
+            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
             .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
             .render()
         )
