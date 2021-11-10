@@ -30,12 +30,14 @@ setuptools.setup(
             "flask>=2.0.2",
             "altair>=4.1.0",
             "gunicorn>=20.1.0",
+            "anybadge>=1.8.0",
         ],
         "test": [
             "pytest>=6.2.5",
         ],
     },
     packages=setuptools.find_packages(),
+    package_data={"": ["data/pylint.svg"]},
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
 )

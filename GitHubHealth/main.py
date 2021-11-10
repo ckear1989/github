@@ -11,6 +11,7 @@ from github import Github, MainClass
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
+ACCESS_TOKEN_VAR_NAME = "GITHUB_ACCESS_TOKEN"
 
 # pylint: disable=redefined-outer-name
 
@@ -19,6 +20,9 @@ def get_connection(hostname=None, user=None, org=None):
     """
     Get connection and login.
     """
+    if ACCESS_TOKEN_VAR_NAME not in os.environ:
+        print(f"WARNING: environment variable {ACCESS_TOKEN_VAR_NAME} must be set.")
+        return None
     if hostname is None:
         base_url = MainClass.DEFAULT_BASE_URL
     else:
