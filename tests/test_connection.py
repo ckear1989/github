@@ -28,3 +28,17 @@ def test_get_connection_no_access_token():
         assert get_connection() is None
     os.environ[ACCESS_TOKEN_VAR_NAME] = gat
     assert get_connection() is not None
+
+
+def test_get_connection_no_org():
+    """
+    Test that no org is returned if not requested.
+    Non existent org should return None with warning.
+    """
+    github_con, user, org = get_connection()
+    assert github_con is not None
+    assert user.login is not None
+    assert org is None
+    with pytest.warns(UserWarning):
+        github_con, user, org = get_connection(org="noorgcanbecallthisright")
+        assert org is None

@@ -33,15 +33,28 @@ def get_connection(hostname=None, user=None, org=None):
     else:
         base_url = f"https://{hostname}/api/v3"
     github_con = Github(
-        base_url=base_url, login_or_token=os.getenv("GITHUB_ACCESS_TOKEN")
+        base_url=base_url, login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME)
     )
+    requested_user = None
     this_user = github_con.get_user()
     this_user_name = this_user.login
     if user is not None:
         assert user == this_user_name
+    requested_user = this_user
+    requested_org = None
     if org is not None:
-        assert org in this_user.get_orgs()
-    return github_con
+        found_org = False
+        for accessable_org in this_user.get_orgs():
+            if accessable_org.login == org:
+                found_org = True
+                requested_org = accessable_org
+        if found_org is False:
+            warnings.warn(
+                UserWarning(
+                    f"WARNING: requested org {org} not found for user {this_user_name}."
+                )
+            )
+    return github_con, requested_user, requested_org
 
 
 def get_branch_details(branch):
@@ -86,8 +99,7 @@ def format_gt_red(val, red_length):
     """
     Helper function to get css style of color for cell value.
     """
-    # pylint: disable=consider-using-f-string
-    return "color: {}".format("red" if val > red_length else "black")
+    return "color: red" if val > red_length else None
 
 
 def get_user_gh_df(user):
@@ -115,8 +127,7 @@ class GitHubHealth:
         """
         Create connection and get table of repos base don user and org.
         """
-        github_con = get_connection(hostname, user, org)
-        self.user = github_con.get_user()
+        _, self.user, self.org = get_connection(hostname, user, org)
         self.username = self.user.login
         self.user_url = self.user.html_url
         self.repo_df = get_user_gh_df(self.user)
@@ -129,6 +140,9 @@ class GitHubHealth:
         """
         repo_html = (
             self.repo_df.style.hide_index()
+            .applymap(
+                lambda x: "color: red" if x is False else None, subset=["private"]
+            )
             .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
             .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
             .render()
@@ -156,6 +170,5 @@ class GitHubHealth:
 
 
 if __name__ == "__main__":
-    github_con = get_connection()
-    user = github_con.get_user()
+    github_con, user, org = get_connection()
     print(get_user_gh_df(user))
