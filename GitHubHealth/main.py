@@ -13,6 +13,7 @@ from github import Github, MainClass
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
 ACCESS_TOKEN_VAR_NAME = "GITHUB_ACCESS_TOKEN"
+TIMEOUT = 1
 
 # pylint: disable=redefined-outer-name
 
@@ -33,7 +34,9 @@ def get_connection(hostname=None, user=None, org=None):
     else:
         base_url = f"https://{hostname}/api/v3"
     github_con = Github(
-        base_url=base_url, login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME)
+        base_url=base_url,
+        login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
+        timeout=TIMEOUT,
     )
     requested_user = None
     this_user = github_con.get_user()
@@ -82,8 +85,8 @@ def get_repo_details(repo):
         "repo": [repo.name],
         "private": [repo.private],
         "branch_count": [len(branch_df)],
-        "max_branch_age_days": [branch_df["age"].max()],
         "min_branch_age_days": [branch_df["age"].min()],
+        "max_branch_age_days": [branch_df["age"].max()],
     }
     languages = repo.get_languages()
     primary_language = None
@@ -107,9 +110,13 @@ def get_user_gh_df(user):
     """
     Main method to parse repo details into pandas DataFrame.
     """
-    repo_df = pd.concat(
-        [get_repo_details(repo) for repo in user.get_repos()], ignore_index=True
-    ).sort_values(by="repo")
+    repo_df = (
+        pd.concat(
+            [get_repo_details(repo) for repo in user.get_repos()], ignore_index=True
+        )
+        .sort_values(by="repo")
+        .reset_index(drop=True)
+    )
     return repo_df
 
 
