@@ -83,6 +83,7 @@ def get_repo_details(repo):
         "private": [repo.private],
         "branch_count": [len(branch_df)],
         "max_branch_age_days": [branch_df["age"].max()],
+        "min_branch_age_days": [branch_df["age"].min()],
     }
     languages = repo.get_languages()
     primary_language = None
@@ -143,6 +144,7 @@ class GitHubHealth:
             .applymap(
                 lambda x: "color: red" if x is False else None, subset=["private"]
             )
+            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
             .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
             .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
             .render()
@@ -153,19 +155,24 @@ class GitHubHealth:
         """
         get altair plot objects as html.
         """
-        plots = []
         branch_count_plot = (
             alt.Chart(self.repo_df)
             .mark_bar()
             .encode(
                 x="repo",
                 y="branch_count",
-                # color="year:N",
-                # column="site:N"
             )
-        )
-        bcp_json = branch_count_plot.to_json()
-        plots.append(bcp_json)
+        ).properties(title="branch count by repo")
+        branch_age_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y="max_branch_age_days",
+            )
+        ).properties(title="max branch age by repo")
+        plots = [branch_count_plot, branch_age_plot]
+        plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
         self.plots = plots
 
 

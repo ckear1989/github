@@ -25,8 +25,11 @@
         {{ table|safe }}
     </div>
 
-    <div id="vis"></div>
+    <table>
     {% for plot in plots %}
+        <tr><td>
+            <div id="vis{{loop.index}}"></div>
+        </td></tr>
         <script>
         (function(vegaEmbed) {
             var embedOpt = {"mode": "vega-lite"};
@@ -39,12 +42,13 @@
                                 + '</div>');
                 throw error;
             }
-            const el = document.getElementById('vis');
-            vegaEmbed("#vis", spec, embedOpt)
+            const el = document.getElementById('vis{{loop.index}}');
+            vegaEmbed("#vis{{loop.index}}", spec, embedOpt)
               .catch(error => showError(el, error));
         })(vegaEmbed);
 
         </script>
 
     {% endfor %}
+    </table>
 {% endblock %}
