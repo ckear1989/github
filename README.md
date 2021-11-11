@@ -1,5 +1,6 @@
 # GitHubHealth
 
+[![PyPI version](https://badge.fury.io/py/GitHubHealth.svg)](https://badge.fury.io/py/GitHubHealth)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![pylint](https://github.com/ckear1989/github/blob/dev/data/pylint.svg)](https://github.com/jongracecox/anybadge)

@@ -30,7 +30,7 @@ repos:
         types: [python]
         pass_filenames: false
     -   id: pylint_badge
-        name: pylint_badge
+        name: pylint-badge
         entry:
             scripts/pylint-badge.sh
         language: system
