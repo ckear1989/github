@@ -4,8 +4,12 @@ Setup for pip package installation.
 
 import setuptools
 
+# parse README for long_description and summary
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+    description = next(
+        x for x in long_description.split("\n") if x and x[0] not in ["#", "["]
+    )
 
 setuptools.setup(
     name="GitHubHealth",
@@ -13,6 +17,7 @@ setuptools.setup(
     license="MIT",
     author="Conor Kearney",
     author_email="ckear1989@gmail.com",
+    description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[

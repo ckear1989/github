@@ -4,7 +4,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![pylint](https://github.com/ckear1989/github/blob/dev/data/pylint.svg)](https://github.com/jongracecox/anybadge)
 
-GitHubHealth is a Python library for monitoring code health in GitHub..
+GitHubHealth is a Python library for monitoring code health in GitHub.
 
 ## Installation
 
