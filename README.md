@@ -23,7 +23,7 @@ export GITHUB_ACCESS_TOKEN=<your github pat>
 
 Get repo health as pandas DataFrame.
 ```python
-from GitHubHealth.main import GitHubHealth
+from GitHubHealth import GitHubHealth
 
 my_repo_health = GitHubHealth()
 my_repo_health.repo_df
@@ -31,7 +31,7 @@ my_repo_health.repo_df
 
 Launch Flask app to view repo health tables and plots.
 ```python
-from GitHubHealth.app import app
+from GitHubHealth import app
 
 app.run()
 ```

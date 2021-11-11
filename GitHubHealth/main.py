@@ -18,7 +18,7 @@ TIMEOUT = 1
 # pylint: disable=redefined-outer-name
 
 
-def get_connection(hostname=None, user=None, org=None):
+def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
     """
     Get connection and login.
     """
@@ -36,7 +36,7 @@ def get_connection(hostname=None, user=None, org=None):
     github_con = Github(
         base_url=base_url,
         login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
-        timeout=TIMEOUT,
+        timeout=timeout,
     )
     requested_user = None
     this_user = github_con.get_user()
@@ -131,11 +131,11 @@ class GitHubHealth:
     If org is None then fall back on user retrieved from GITHUB_ACCESS_TOKEN.
     """
 
-    def __init__(self, hostname=None, user=None, org=None):
+    def __init__(self, hostname=None, user=None, org=None, timeout=TIMEOUT):
         """
         Create connection and get table of repos base don user and org.
         """
-        _, self.user, self.org = get_connection(hostname, user, org)
+        _, self.user, self.org = get_connection(hostname, user, org, timeout)
         self.username = self.user.login
         self.user_url = self.user.html_url
         self.repo_df = get_user_gh_df(self.user)
