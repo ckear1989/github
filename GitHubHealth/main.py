@@ -120,27 +120,63 @@ def get_user_gh_df(user):
     return repo_df
 
 
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=fixme
+# TODO:
+# break this into two classes
 class GitHubHealth:
     """
     Class object for GitHubHeath.
     Args:
-        hostname (str): default None
-        user (str):     default None
-        org (str):      default None
+        hostname (str)      : default None
+        user (str)          : default None
+        org (str)           : default None
+        timeout (int)       : default TIMEOUT
+        ignore_repos (list) : default None
     If user is None then try to get organisation for repo_table.
     If org is None then fall back on user retrieved from GITHUB_ACCESS_TOKEN.
     """
 
-    def __init__(self, hostname=None, user=None, org=None, timeout=TIMEOUT):
+    def __init__(
+        self, hostname=None, user=None, org=None, timeout=TIMEOUT, ignore_repos=None
+    ):
         """
         Create connection and get table of repos base don user and org.
         """
         _, self.user, self.org = get_connection(hostname, user, org, timeout)
         self.username = self.user.login
         self.user_url = self.user.html_url
-        self.repo_df = get_user_gh_df(self.user)
+        if ignore_repos is None:
+            ignore_repos = []
+        self.ignore_repos = ignore_repos
+        self.repos = []
+        self.repo_df = None
         self.repo_html = None
         self.plots = None
+
+    def get_repos(self):
+        """
+        Method to get repos as a class object.
+        """
+        assert isinstance(self.ignore_repos, list)
+        repos = [
+            repo for repo in self.user.get_repos() if repo.name not in self.ignore_repos
+        ]
+        setattr(self, "repos", repos)
+
+    def get_repo_df(self):
+        """
+        Main method to parse repo details into pandas DataFrame.
+        """
+        repo_df = (
+            pd.concat(
+                [get_repo_details(repo) for repo in self.repos], ignore_index=True
+            )
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        setattr(self, "repo_df", repo_df)
 
     def render_repo_html_table(self):
         """

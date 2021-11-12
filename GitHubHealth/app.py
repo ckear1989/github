@@ -15,6 +15,8 @@ def index():
     Control routing of app.
     """
     ghh = GitHubHealth()
+    ghh.get_repos()
+    ghh.get_repo_df()
     ghh.render_repo_html_table()
     ghh.get_plots()
     plots = ghh.plots
