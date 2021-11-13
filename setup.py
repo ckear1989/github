@@ -44,6 +44,4 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={"": ["../data/pylint.svg"]},
     include_package_data=True,
-    use_scm_version=True,
-    setup_requires=["setuptools_scm"],
 )
