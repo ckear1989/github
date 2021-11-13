@@ -8,7 +8,7 @@ click==8.0.3
 Deprecated==1.2.13
 entrypoints==0.3
 Flask==2.0.2
-GitHubHealth==0.0.5
+GitHubHealth==0.0.1dev0
 google-api-core==1.30.0
 google-api-python-client==2.9.0
 google-auth==1.31.0
