@@ -12,7 +12,7 @@ from github import Github, MainClass
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
-ACCESS_TOKEN_VAR_NAME = "GITHUB_ACCESS_TOKEN"
+ACCESS_TOKEN_VAR_NAME = "GITHUB_TOKEN"
 TIMEOUT = 1
 
 # pylint: disable=redefined-outer-name
@@ -40,16 +40,24 @@ def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
         this_user = github_con.get_user()
     else:
         assert isinstance(user, str)
-        github_con = Github(
-            base_url=base_url,
-            timeout=timeout,
-        )
-        this_user = github_con.get_user(user)
-        warnings.warn(
-            UserWarning(
-                f"WARNING: requested user {user} is not validated user.login={this_user.login}"
+        if ACCESS_TOKEN_VAR_NAME not in os.environ:
+            github_con = Github(
+                base_url=base_url,
+                timeout=timeout,
             )
-        )
+            this_user = github_con.get_user(user)
+            warnings.warn(
+                UserWarning(
+                    f"WARNING: requested user {user} is not validated user.login={this_user.login}"
+                )
+            )
+        else:
+            github_con = Github(
+                base_url=base_url,
+                login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
+                timeout=timeout,
+            )
+            this_user = github_con.get_user(user)
     this_user_name = this_user.login
     requested_org = None
     if org is not None:
@@ -142,7 +150,7 @@ class GitHubHealth:
         timeout (int)       : default TIMEOUT
         ignore_repos (list) : default None
     If user is None then try to get organisation for repo_table.
-    If org is None then fall back on user retrieved from GITHUB_ACCESS_TOKEN.
+    If org is None then fall back on user retrieved from GITHUB_TOKEN.
     """
 
     def __init__(

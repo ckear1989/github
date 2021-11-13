@@ -18,7 +18,7 @@ pip install GitHubHealth
 ## Usage
 Set access token environment variable.
 ```bash
-export GITHUB_ACCESS_TOKEN=<your github pat>
+export GITHUB_TOKEN=<your github pat>
 ```
 
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block head %}
-    <title>GitHubHealth</title>
+    <title>GitHubHealth: add user</title>
     <style>
         .error {
             color: red;
@@ -13,42 +13,9 @@
 {% endblock %}
 
 {% block body %}
-    <div class="content">
-        <h1 style="text-align: center">
-            <a href={{ url }}>
-                {{ user }}
-            </a>
-        </h1>
-    </div>
-
-    <div>
-        {{ table|safe }}
-    </div>
-
-    <table>
-    {% for plot in plots %}
-        <tr><td>
-            <div id="vis{{loop.index}}"></div>
-        </td></tr>
-        <script>
-        (function(vegaEmbed) {
-            var embedOpt = {"mode": "vega-lite"};
-            var spec = {{ plot | safe }};
-            function showError(el, error){
-                el.innerHTML = ('<div class="error" style="color:red;">'
-                                + '<p>JavaScript Error: ' + error.message + '</p>'
-                                + "<p>This usually means there's a typo in your chart specification. "
-                                + "See the javascript console for the full traceback.</p>"
-                                + '</div>');
-                throw error;
-            }
-            const el = document.getElementById('vis{{loop.index}}');
-            vegaEmbed("#vis{{loop.index}}", spec, embedOpt)
-              .catch(error => showError(el, error));
-        })(vegaEmbed);
-
-        </script>
-
-    {% endfor %}
-    </table>
+    <p>test</p>
+    <form method="POST">
+        <input name="text">
+        <input type="submit">
+    </form>
 {% endblock %}
