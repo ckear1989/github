@@ -3,5 +3,7 @@ __pycache__/
 dist/
 build/
 .eggs/
+*.whl
+app/env/
 
 pylint.txt

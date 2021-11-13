@@ -9,7 +9,7 @@ GitHubHealth is a Python library for monitoring code health in GitHub.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install GitHubHealth.
 
 ```bash
 pip install GitHubHealth
@@ -27,6 +27,8 @@ Get repo health as pandas DataFrame.
 from GitHubHealth import GitHubHealth
 
 my_repo_health = GitHubHealth()
+my_repo_health.get_repos()
+my_repo_health.get_repo_df()
 my_repo_health.repo_df
 ```
 

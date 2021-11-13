@@ -22,28 +22,35 @@ def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
     """
     Get connection and login.
     """
-    if ACCESS_TOKEN_VAR_NAME not in os.environ:
-        warnings.warn(
-            UserWarning(
-                f"WARNING: environment variable {ACCESS_TOKEN_VAR_NAME} must be set."
-            )
-        )
-        return None
     if hostname is None:
         base_url = MainClass.DEFAULT_BASE_URL
     else:
         base_url = f"https://{hostname}/api/v3"
-    github_con = Github(
-        base_url=base_url,
-        login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
-        timeout=timeout,
-    )
-    requested_user = None
-    this_user = github_con.get_user()
+    if user is None:
+        if ACCESS_TOKEN_VAR_NAME not in os.environ:
+            raise Exception(
+                f"ERROR: environment variable {ACCESS_TOKEN_VAR_NAME}"
+                " must be set if user is not given."
+            )
+        github_con = Github(
+            base_url=base_url,
+            login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
+            timeout=timeout,
+        )
+        this_user = github_con.get_user()
+    else:
+        assert isinstance(user, str)
+        github_con = Github(
+            base_url=base_url,
+            timeout=timeout,
+        )
+        this_user = github_con.get_user(user)
+        warnings.warn(
+            UserWarning(
+                f"WARNING: requested user {user} is not validated user.login={this_user.login}"
+            )
+        )
     this_user_name = this_user.login
-    if user is not None:
-        assert user == this_user_name
-    requested_user = this_user
     requested_org = None
     if org is not None:
         found_org = False
@@ -57,7 +64,7 @@ def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
                     f"WARNING: requested org {org} not found for user {this_user_name}."
                 )
             )
-    return github_con, requested_user, requested_org
+    return github_con, this_user, requested_org
 
 
 def get_branch_details(branch):

@@ -1,10 +1,10 @@
 """
-Modulle for flask app.
+Module for flask app.
 """
 
 from flask import Flask, render_template
 
-from .main import GitHubHealth
+from GitHubHealth import GitHubHealth
 
 app = Flask(__name__)
 
