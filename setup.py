@@ -17,6 +17,7 @@ setuptools.setup(
     license="MIT",
     author="Conor Kearney",
     author_email="ckear1989@gmail.com",
+    version="0.0.0.dev2",
     description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -39,6 +40,8 @@ setuptools.setup(
         ],
         "test": [
             "pytest>=6.2.5",
+            "subx>=2020.42.0",
+            "docutils>=0.18",
         ],
     },
     packages=setuptools.find_packages(),

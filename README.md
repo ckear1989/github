@@ -12,20 +12,21 @@ GitHubHealth is a Python library for monitoring code health in GitHub.
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install GitHubHealth.
 
 ```bash
+# shell
 pip install GitHubHealth
 ```
 
 ## Usage
 Set access token environment variable.
 ```bash
+# shell
 export GITHUB_TOKEN=<your github pat>
 ```
 
-
 Get repo health as pandas DataFrame.
 ```python
+# python
 from GitHubHealth import GitHubHealth
-
 my_repo_health = GitHubHealth()
 my_repo_health.get_repos()
 my_repo_health.get_repo_df()
@@ -33,10 +34,12 @@ my_repo_health.repo_df
 ```
 
 Launch Flask app to view repo health tables and plots.
-```python
-from GitHubHealth import app
 
+```python
+# python
+from GitHubHealth import app
 app.run()
+app.shutdown()
 ```
 
 ## Contributing
