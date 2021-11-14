@@ -71,3 +71,16 @@ def test_get_connection_no_org(connection_with_token):
     assert github_con is not None
     assert user is not None
     assert org is None
+
+
+def test_get_connection_non_existent_user(connection_no_token):
+    """
+    Test that no user is returned if not requested.
+    Non existent user should return None with warning.
+    """
+    assert connection_no_token is not None
+    with pytest.warns(UserWarning):
+        github_con, user, org = get_connection(user="ckear1989isafraud")
+    assert github_con is not None
+    assert user is None
+    assert org is None
