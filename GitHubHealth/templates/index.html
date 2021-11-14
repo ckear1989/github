@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block head %}
     <title>GitHubHealth: add user</title>
@@ -13,9 +14,14 @@
 {% endblock %}
 
 {% block body %}
-    <p>test</p>
-    <form method="POST">
-        <input name="text">
-        <input type="submit">
-    </form>
+    <table>
+        <tr>
+            <td>
+                {{ wtf.quick_form(gat_form) }}
+            </td>
+        </tr>
+            <td>
+                {{ wtf.quick_form(user_form) }}
+            </td>
+        </tr>
 {% endblock %}
