@@ -3,6 +3,7 @@ Setup for pip package installation.
 """
 
 import setuptools
+import setuptools_scm
 
 # parse README for long_description and summary
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -13,11 +14,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="GitHubHealth",
+    version=setuptools_scm.get_version(),
     url="https://github.com/ckear1989/github/",
     license="MIT",
     author="Conor Kearney",
     author_email="ckear1989@gmail.com",
-    version="0.0.0.dev2",
     description=description,
     long_description=long_description,
     long_description_content_type="text/markdown",

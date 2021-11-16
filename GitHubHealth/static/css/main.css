@@ -1,7 +1,10 @@
 body, html {
-    margin: 0;
     font-family: sans-serif;
     background-color: darkgray;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80em;
+    vertical-align: center;
 }
 
 .content {
@@ -18,7 +21,6 @@ table {
     margin-left: auto;
     margin-right: auto;
     border-collapse: collapse;
-    width: 70%;
 }
 
 th {
@@ -37,3 +39,11 @@ td {
 #content {
     width: 70%;
 }
+
+div.container {
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

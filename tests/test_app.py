@@ -2,11 +2,9 @@
 Test functions for app object.
 """
 
-import os
-import tempfile
+import unittest
 
 import flask
-import pkg_resources
 import pytest
 
 from GitHubHealth.app import app
@@ -19,7 +17,6 @@ def client():
     """
     Flask client for testing.
     """
-    db_fd, app.config["DATABASE"] = tempfile.mkstemp()
     app.config["TESTING"] = True
 
     with app.test_client() as client:
@@ -29,9 +26,6 @@ def client():
             pass
         yield client
 
-    os.close(db_fd)
-    os.unlink(app.config["DATABASE"])
-
 
 def test_app_creation():
     """
@@ -40,13 +34,20 @@ def test_app_creation():
     assert isinstance(app, flask.app.Flask)
 
 
-def test_run_app(client):
+class MyAppTestCase(unittest.TestCase):
     """
-    Test that app can be run.
+    Class for testing app routing and functionality.
     """
-    with open(
-        pkg_resources.resource_filename("GitHubHealth", "templates/base.html"), "rb"
-    ) as index_f:
-        base_html_head = index_f.read()[:10]
-    expected_content = client.get("/")
-    assert expected_content.data[:10] == base_html_head
+
+    def setUp(self):
+        """
+        get test client for app.
+        """
+        self.app = app.test_client()
+
+    def test_greeting(self):
+        """
+        Header of index.
+        """
+        ret_val = self.app.get("/")
+        assert ret_val.data[:15] == b"<!DOCTYPE html>"

@@ -4,7 +4,7 @@
 {% block head %}
     {{ super() }}
     {% block title %}
-        <title>GitHubHealth: search for user projects</title>
+        <title>GitHubHealth: login</title>
     {% endblock %}
 {% endblock %}
 
@@ -16,12 +16,14 @@
     {% endblock %}
 
     {% block content %}
-        {{ wtf.quick_form(user_form) }}
+        {{ wtf.quick_form(login_form) }}
         {{ super() }}
     {% endblock %}
 
     {% block scripts %}
     {% endblock %}
 <!--</div>-->
-
+    <div name="error">
+        {{ error }}
+    </div>
 {% endblock %}

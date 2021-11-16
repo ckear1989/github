@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 
@@ -10,18 +11,18 @@
 
 
 {% block body %}
-<!--<div class="container">-->
 
     {% block navbar %}
     {% endblock %}
 
     {% block content %}
-        {{ wtf.quick_form(user_form) }}
+        {{ wtf.quick_form(search_form) }}
         {{ super() }}
     {% endblock %}
 
     {% block scripts %}
     {% endblock %}
-<!--</div>-->
-
+    <div name="error">
+        {{ error }}
+    </div>
 {% endblock %}

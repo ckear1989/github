@@ -9,7 +9,10 @@ import warnings
 import altair as alt
 import pandas as pd
 from github import Github, MainClass
-from github.GithubException import UnknownObjectException
+from github.GithubException import (
+    UnknownObjectException,
+    BadCredentialsException,
+)
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
@@ -29,7 +32,7 @@ REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
 # pylint: disable=redefined-outer-name
 
 
-def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
+def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TIMEOUT):
     """
     Get connection and login.
     """
@@ -37,62 +40,27 @@ def get_connection(hostname=None, user=None, org=None, timeout=TIMEOUT):
         base_url = MainClass.DEFAULT_BASE_URL
     else:
         base_url = f"https://{hostname}/api/v3"
-    if user is None:
-        if ACCESS_TOKEN_VAR_NAME not in os.environ:
-            raise Exception(
-                f"ERROR: environment variable {ACCESS_TOKEN_VAR_NAME}"
-                " must be set if user is not given."
-            )
+    if gat is not None:
         github_con = Github(
             base_url=base_url,
-            login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
+            login_or_token=gat,
             timeout=timeout,
         )
-        this_user = github_con.get_user()
-        this_user_name = this_user.login
-    else:
-        assert isinstance(user, str)
-        if ACCESS_TOKEN_VAR_NAME not in os.environ:
+    elif user is not None:
+        if password is not None:
             github_con = Github(
                 base_url=base_url,
+                login_or_token=user,
+                password=password,
                 timeout=timeout,
-            )
-            this_user = github_con.get_user(user)
-            this_user_name = this_user.login
-            warnings.warn(
-                UserWarning(
-                    f"WARNING: requested user {user} is not validated user.login={this_user.login}"
-                )
             )
         else:
-            github_con = Github(
-                base_url=base_url,
-                login_or_token=os.getenv(ACCESS_TOKEN_VAR_NAME),
-                timeout=timeout,
-            )
-            try:
-                this_user = github_con.get_user(user)
-                this_user_name = this_user.login
-            except UnknownObjectException:
-                warnings.warn(
-                    UserWarning(f"WARNING: requested user {user} is cannot be found.")
-                )
-                this_user = None
-                this_user_name = None
-    requested_org = None
-    if org is not None:
-        found_org = False
-        for accessable_org in this_user.get_orgs():
-            if accessable_org.login == org:
-                found_org = True
-                requested_org = accessable_org
-        if found_org is False:
-            warnings.warn(
-                UserWarning(
-                    f"WARNING: requested org {org} not found for user {this_user_name}."
-                )
-            )
-    return github_con, this_user, requested_org
+            raise Exception("provide either user+password or gat")
+    else:
+        raise Exception("provide either user+password or gat")
+    this_user = github_con.get_user()
+    this_user.login
+    return github_con, this_user
 
 
 def get_branch_details(branch):
@@ -169,65 +137,73 @@ class GitHubHealth:
     Class object for GitHubHeath.
     Args:
         hostname (str)      : default None
-        user (str)          : default None
+        login (str)         : default None
+        password (str)      : default None
+        gat (str)           : default None
         org (str)           : default None
         timeout (int)       : default TIMEOUT
-        ignore_repos (list) : default None
     If user is None then try to get organisation for repo_table.
     If org is None then fall back on user retrieved from GITHUB_TOKEN.
     """
 
     def __init__(
-        self, hostname=None, user=None, org=None, timeout=TIMEOUT, ignore_repos=None
+        self, hostname=None, login=None, password=None, gat=None, timeout=TIMEOUT
     ):
         """
-        Create connection and get table of repos base don user and org.
+        Create connection based on (login+password) or (gat).
         """
-        _, self.user, self.org = get_connection(hostname, user, org, timeout)
-        self.username = user
-        public_facing_base_url = "https://github.com/"
-        if hostname is not None:
-            public_facing_base_url = f"https://{hostname}/"
-        self.user_url = f"{public_facing_base_url}/user/{user}"
-        if self.user is not None:
-            self.username = self.user.login
-            self.user_url = self.user.html_url
-        if ignore_repos is None:
-            ignore_repos = []
-        self.ignore_repos = ignore_repos
+        self.con, self.user = get_connection(hostname, login, password, gat, timeout)
+        self.username = self.user.login
+        self.user_url = self.user.html_url
         self.repos = []
         self.repo_df = None
         self.repo_html = None
         self.plots = None
 
-    def get_repos(self):
+    def get_repos(self, user, org=None, ignore_repos=None):
         """
         Method to get repos as a class object.
         """
-        assert isinstance(self.ignore_repos, list)
-        repos = []
-        if self.user is not None:
-            repos = [
+        if ignore_repos is None:
+            ignore_repos = []
+        assert isinstance(ignore_repos, list)
+        repos = {"user":[], "org":[]}
+        repos["user"] = [
+            repo
+            for repo in self.user.get_repos(user)
+            if repo.name not in ignore_repos
+        ]
+        if org is not None:
+            repos["org"] = [
                 repo
-                for repo in self.user.get_repos()
-                if repo.name not in self.ignore_repos
+                for repo in self.user.get_repos(org)
+                if repo.name not in ignore_repos
             ]
         setattr(self, "repos", repos)
 
-    def get_repo_df(self):
+    def get_repo_dfs(self):
         """
         Main method to parse repo details into pandas DataFrame.
         """
-        repo_df = REPOS_TEMPLATE_DF
-        if len(self.repos) > 0:
-            repo_df = (
-                pd.concat(
-                    [get_repo_details(repo) for repo in self.repos], ignore_index=True
-                )
-                .sort_values(by="repo")
-                .reset_index(drop=True)
+        repo_dfs = {
+            "user": REPOS_TEMPLATE_DF,
+            "org": REPOS_TEMPLATE_DF,
+        }
+        repo_dfs["user"] = (
+            pd.concat(
+                [get_repo_details(repo) for repo in self.repos["user"]], ignore_index=True
             )
-        setattr(self, "repo_df", repo_df)
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        repo_dfs["org"] = (
+            pd.concat(
+                [get_repo_details(repo) for repo in self.repos["org"]], ignore_index=True
+            )
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        setattr(self, "repo_dfs", repo_dfs)
 
     def render_repo_html_table(self):
         """
@@ -271,5 +247,5 @@ class GitHubHealth:
 
 
 if __name__ == "__main__":
-    github_con, user, org = get_connection()
+    github_con, user = get_connection()
     print(get_user_gh_df(user))

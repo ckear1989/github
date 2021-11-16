@@ -4,6 +4,6 @@ dist/
 build/
 .eggs/
 *.whl
-app/env/
+env/
 
 pylint.txt
