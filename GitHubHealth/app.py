@@ -44,7 +44,7 @@ class LoginForm(FlaskForm):
     """
 
     login_user = StringField("user login", [validators.DataRequired()])
-    password = PasswordField("password")
+    # password = PasswordField("password")
     gat = PasswordField("github token")
     # remember_me = BooleanField('Remember Me')
     login_submit = SubmitField()
@@ -85,19 +85,19 @@ def login():
     login_form = LoginForm()
     if "login_user" in session:
         if "gat" in session:
-            if "password" in session:
-                ghh = GitHubHealth(
-                    login=session["login_user"],
-                    password=session["password"],
-                    gat=session["gat"],
-                )
-                return search(ghh)
+            # if "password" in session:
+            ghh = GitHubHealth(
+                login=session["login_user"],
+                # password=session["password"],
+                gat=session["gat"],
+            )
+            return search(ghh)
     if request.method == "POST" and login_form.validate():
         login_user = login_form.login_user.data
         gat = login_form.gat.data
-        password = login_form.password.data
+        # password = login_form.password.data
         try:
-            ghh = GitHubHealth(login=login_user, password=password, gat=gat)
+            ghh = GitHubHealth(login=login_user, gat=gat)  # password=password, gat=gat)
         except BadCredentialsException as bce_error:
             LOG.debug("bad_credentials")
             return render_template(
@@ -107,7 +107,7 @@ def login():
             )
         session["login_user"] = login_user
         session["gat"] = gat
-        session["password"] = password
+        # session["password"] = password
         return search(ghh)
     return render_template(
         "login.html",
@@ -164,8 +164,10 @@ def status(ghh):
         "status.html",
         user=ghh.requested_user,
         org=ghh.requested_org,
-        table=ghh.repo_html,
-        plots=ghh.plots,
+        user_table=ghh.repo_html["user"],
+        org_table=ghh.repo_html["org"],
+        user_plots=ghh.plots["user"],
+        org_plots=ghh.plots["org"],
     )
 
 

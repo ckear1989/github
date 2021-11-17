@@ -18,28 +18,35 @@
     {% endblock %}
 
     {% block content %}
-        {% block header %}
+
+    {% if user.obj is not none %}
+        <div class="user_content">
             <a id="header" href={{ user.url }}>{{ user.name }}</a>
-        {% endblock %}
-
-        <div>
-            {{ table|safe }}
+                {{ user_table|safe }}
+            <table>
+            {% for plot in user_plots %}
+                <tr><td>
+                    <div id="vis_user_{{loop.index}}"></div>
+                </td></tr>
+            {% endfor %}
+            </table>
         </div>
+    {% endif %}
 
-        <table>
-        {% for plot in plots %}
-            <tr><td>
-                <div id="vis{{loop.index}}"></div>
-            </td></tr>
-        {% endfor %}
-        </table>
+    {% if org.obj is not none %}
         <div class="org_content">
-            <h1 style="text-align: center">
-                <a href={{ org.url }}>
-                    {{ org.name }}
-                </a>
-            </h1>
+            <a id="header" href={{ org.url }}>{{ org.name }}</a>
+                {{ org_table|safe }}
+            <table>
+            {% for plot in org_plots %}
+                <tr><td>
+                    <div id="vis_org_{{loop.index}}"></div>
+                </td></tr>
+            {% endfor %}
+            </table>
         </div>
+    {% endif %}
+
         <div id="warning"></div>
         <div id="error"></div>
 
@@ -52,25 +59,50 @@
         <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-        {% for plot in plots %}
-            <script>
-                (function(vegaEmbed) {
-                    var embedOpt = {"mode": "vega-lite"};
-                    var spec = {{ plot | safe }};
-                    function showError(el, error){
-                        el.innerHTML = ('<div class="error" style="color:red;">'
-                                        + '<p>JavaScript Error: ' + error.message + '</p>'
-                                        + "<p>This usually means there's a typo in your chart specification. "
-                                        + "See the javascript console for the full traceback.</p>"
-                                        + '</div>');
-                        throw error;
-                    }
-                    const el = document.getElementById('vis{{loop.index}}');
-                    vegaEmbed("#vis{{loop.index}}", spec, embedOpt)
-                    .catch(error => showError(el, error));
-                })(vegaEmbed);
-            </script>
-        {% endfor %}
+
+        {% if user.obj is not none %}
+            {% for plot in user_plots %}
+                <script>
+                    (function(vegaEmbed) {
+                        var embedOpt = {"mode": "vega-lite"};
+                        var spec = {{ plot | safe }};
+                        function showError(el, error){
+                            el.innerHTML = ('<div class="error" style="color:red;">'
+                                            + '<p>JavaScript Error: ' + error.message + '</p>'
+                                            + "<p>This usually means there's a typo in your chart specification. "
+                                            + "See the javascript console for the full traceback.</p>"
+                                            + '</div>');
+                            throw error;
+                        }
+                        const el = document.getElementById('vis{{loop.index}}');
+                        vegaEmbed("#vis_user_{{loop.index}}", spec, embedOpt)
+                        .catch(error => showError(el, error));
+                    })(vegaEmbed);
+                </script>
+            {% endfor %}
+        {% endif %}
+
+        {% if org.obj is not none %}
+            {% for plot in org_plots %}
+                <script>
+                    (function(vegaEmbed) {
+                        var embedOpt = {"mode": "vega-lite"};
+                        var spec = {{ plot | safe }};
+                        function showError(el, error){
+                            el.innerHTML = ('<div class="error" style="color:red;">'
+                                            + '<p>JavaScript Error: ' + error.message + '</p>'
+                                            + "<p>This usually means there's a typo in your chart specification. "
+                                            + "See the javascript console for the full traceback.</p>"
+                                            + '</div>');
+                            throw error;
+                        }
+                        const el = document.getElementById('vis{{loop.index}}');
+                        vegaEmbed("#vis_org_{{loop.index}}", spec, embedOpt)
+                        .catch(error => showError(el, error));
+                    })(vegaEmbed);
+                </script>
+            {% endfor %}
+        {% endif %}
 
     {% endblock %}
 

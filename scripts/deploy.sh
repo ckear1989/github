@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+tag=$1
+git tag $tag
+git push --tags
 conda env remove -n deploy
 conda create -n deploy python==3.8 -y
 conda activate deploy

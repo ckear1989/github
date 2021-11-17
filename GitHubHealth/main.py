@@ -15,7 +15,7 @@ from github.Organization import Organization
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
 ACCESS_TOKEN_VAR_NAME = "GITHUB_TOKEN"
-TIMEOUT = 1
+TIMEOUT = 2
 BRANCH_DF_COLUMNS = ["branch", "age"]
 BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
 REPOS_DF_COLUMNS = [
@@ -138,15 +138,9 @@ class RequestedObject:
         if isinstance(obj, AuthenticatedUser):
             self.name = self.obj.login
         if isinstance(obj, NamedUser):
-            print(self.obj.name)
-            print(self.obj.login)
             self.name = self.obj.login
         elif isinstance(obj, Organization):
             self.name = self.obj.name
-        elif obj is None:
-            self.name = "None"
-        print(type(self.obj))
-        print(self.name)
         self.url = url
         self.repos = []
 
@@ -201,7 +195,7 @@ class GitHubHealth:
         self.user_url = self.user.html_url
         self.repos = []
         self.repo_dfs = {}
-        self.repo_html = None
+        self.repo_html = {}
         self.plots = None
         self.requested_user = None
         self.requested_org = None
@@ -283,7 +277,7 @@ class GitHubHealth:
                 ],
             },
         ]
-        repo_html = (
+        user_repo_html = (
             self.repo_dfs["user"]
             .style.hide_index()
             .set_table_styles(table_styles)
@@ -296,7 +290,21 @@ class GitHubHealth:
             .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
             .render()
         )
-        self.repo_html = repo_html
+        org_repo_html = (
+            self.repo_dfs["org"]
+            .style.hide_index()
+            .set_table_styles(table_styles)
+            .applymap(
+                lambda x: "font-weight: bold" if x is False else None,
+                subset=["private"],
+            )
+            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
+            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
+            .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
+            .render()
+        )
+        repo_html = {"user": user_repo_html, "org": org_repo_html}
+        setattr(self, "repo_html", repo_html)
 
     def get_plots(self):
         """
@@ -318,9 +326,28 @@ class GitHubHealth:
                 y="max_branch_age_days",
             )
         ).properties(title="max branch age by repo")
-        plots = [branch_count_plot, branch_age_plot]
-        plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
-        self.plots = plots
+        user_plots = [branch_count_plot, branch_age_plot]
+        user_plots = [x.configure_view(discreteWidth=300).to_json() for x in user_plots]
+        branch_count_plot = (
+            alt.Chart(self.repo_dfs["org"])
+            .mark_bar()
+            .encode(
+                x="repo",
+                y="branch_count",
+            )
+        ).properties(title="branch count by repo")
+        branch_age_plot = (
+            alt.Chart(self.repo_dfs["org"])
+            .mark_bar()
+            .encode(
+                x="repo",
+                y="max_branch_age_days",
+            )
+        ).properties(title="max branch age by repo")
+        org_plots = [branch_count_plot, branch_age_plot]
+        org_plots = [x.configure_view(discreteWidth=300).to_json() for x in org_plots]
+        plots = {"user": user_plots, "org": org_plots}
+        setattr(self, "plots", plots)
 
 
 if __name__ == "__main__":

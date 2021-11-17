@@ -8,15 +8,33 @@ body {
   margin-left: 20px;
 }
 
-.table {
-  border-bottom: 1px solid #C8C8C8;
+table, th, td {
+  border: 1px solid #C8C8C8;
+  align-content: center;
+}
+
+div[id^="vis_user_"] {
+  display: flex;
+  justify-content: center;
+}
+
+table {
   border-collapse: collapse;
   text-align:left;
   padding: 10px;
-  margin-bottom: 40px;
+  margin-left: 20px;
+  margin-bottom: 20px;
   font-size: 0.9em;
   border-width: 2px;
   background-color: #15172b;
+  width: 80%;
+  align-items: center;
+  justify-content: center;
+}
+
+tr {
+  margin-left:20px;
+  padding: 20px;
 }
 
 table.dataframe, .dataframe th, .dataframe td {

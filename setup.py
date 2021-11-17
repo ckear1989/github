@@ -50,6 +50,6 @@ setuptools.setup(
         ],
     },
     packages=setuptools.find_packages(),
-    package_data={"": ["../data/pylint.svg"]},
+    package_data={"": ["../data/pylint.svg", "templates/*", "static/css/*"]},
     include_package_data=True,
 )
