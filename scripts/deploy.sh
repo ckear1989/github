@@ -10,6 +10,8 @@ pip install build
 pip install setuptools_scm
 python -m build
 pip install .
-pip freeze > app/requirements.txt
-cd app && gcloud app deploy
-conda deactivate
+# pip freeze > app/requirements.txt
+# twine check dist/GitHubHealth*${tag}*
+# twine upload dist/GitHubHealth*${tag}*
+# cd app && gcloud app deploy && cd -
+# conda deactivate
