@@ -4,15 +4,13 @@ Main function handles logic to connect to GitHub and select repos for analysis.
 """
 from datetime import datetime
 import os
-import warnings
 
 import altair as alt
 import pandas as pd
 from github import Github, MainClass
-from github.GithubException import (
-    UnknownObjectException,
-    BadCredentialsException,
-)
+from github.AuthenticatedUser import AuthenticatedUser
+from github.NamedUser import NamedUser
+from github.Organization import Organization
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
@@ -59,7 +57,7 @@ def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TI
     else:
         raise Exception("provide either user+password or gat")
     this_user = github_con.get_user()
-    this_user.login
+    _ = this_user.login
     return github_con, this_user
 
 
@@ -129,9 +127,47 @@ def get_user_gh_df(user):
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=fixme
-# TODO:
-# break this into two classes
+class RequestedObject:
+    """
+    Container for requested objects.
+    """
+
+    def __init__(self, obj, url):
+        self.obj = obj
+        self.name = None
+        if isinstance(obj, AuthenticatedUser):
+            self.name = self.obj.login
+        if isinstance(obj, NamedUser):
+            print(self.obj.name)
+            print(self.obj.login)
+            self.name = self.obj.login
+        elif isinstance(obj, Organization):
+            self.name = self.obj.name
+        elif obj is None:
+            self.name = "None"
+        self.url = url
+        self.repos = []
+
+    def get_repos(self, ignore_repos=None):
+        """
+        Get repos of requested object.
+        """
+        if ignore_repos is None:
+            ignore_repos = []
+        repos = [x for x in self.obj.get_repos() if x.name not in ignore_repos]
+        setattr(self, "repos", repos)
+
+    def return_repos(self, ignore_repos=None):
+        """
+        Get repos of requested object.
+        """
+        if ignore_repos is None:
+            ignore_repos = []
+        if self.repos == []:
+            self.get_repos(ignore_repos=ignore_repos)
+        return self.repos
+
+
 class GitHubHealth:
     """
     Class object for GitHubHeath.
@@ -152,34 +188,48 @@ class GitHubHealth:
         """
         Create connection based on (login+password) or (gat).
         """
+        if hostname is None:
+            self.base_url = MainClass.DEFAULT_BASE_URL
+            self.public_url = "https://github.com/"
+        else:
+            self.base_url = f"https://{hostname}/api/v3"
+            self.public_url = f"https://{hostname}/"
         self.con, self.user = get_connection(hostname, login, password, gat, timeout)
         self.username = self.user.login
         self.user_url = self.user.html_url
         self.repos = []
-        self.repo_df = None
+        self.repo_dfs = {}
         self.repo_html = None
         self.plots = None
+        self.requested_user = None
+        self.requested_org = None
 
     def get_repos(self, user, org=None, ignore_repos=None):
         """
         Method to get repos as a class object.
         """
+        if org == "":
+            org = None
         if ignore_repos is None:
             ignore_repos = []
         assert isinstance(ignore_repos, list)
-        repos = {"user":[], "org":[]}
-        repos["user"] = [
-            repo
-            for repo in self.user.get_repos(user)
-            if repo.name not in ignore_repos
-        ]
-        if org is not None:
-            repos["org"] = [
-                repo
-                for repo in self.user.get_repos(org)
-                if repo.name not in ignore_repos
-            ]
+        repos = {"user": [], "org": []}
+        if user == self.user.login:
+            requested_user = RequestedObject(self.user, self.user.html_url)
+        else:
+            this_user = self.con.get_user(user)
+            requested_user = RequestedObject(this_user, this_user.html_url)
+        requested_user.get_repos(ignore_repos)
+        repos["user"] = requested_user.return_repos()
+        requested_org = RequestedObject(None, f"{self.public_url}/{org}/")
+        if requested_org.obj is not None:
+            this_org = self.con.get_organization(org)
+            requested_org = RequestedObject(this_org, this_org.html_url)
+            requested_org.get_repos(ignore_repos)
+            repos["org"] = requested_org.return_repos()
         setattr(self, "repos", repos)
+        setattr(self, "requested_user", requested_user)
+        setattr(self, "requested_org", requested_org)
 
     def get_repo_dfs(self):
         """
@@ -191,28 +241,34 @@ class GitHubHealth:
         }
         repo_dfs["user"] = (
             pd.concat(
-                [get_repo_details(repo) for repo in self.repos["user"]], ignore_index=True
+                [REPOS_TEMPLATE_DF]
+                + [get_repo_details(repo) for repo in self.requested_user.repos],
+                ignore_index=True,
             )
             .sort_values(by="repo")
             .reset_index(drop=True)
         )
         repo_dfs["org"] = (
             pd.concat(
-                [get_repo_details(repo) for repo in self.repos["org"]], ignore_index=True
+                [REPOS_TEMPLATE_DF]
+                + [get_repo_details(repo) for repo in self.requested_org.repos],
+                ignore_index=True,
             )
             .sort_values(by="repo")
             .reset_index(drop=True)
         )
         setattr(self, "repo_dfs", repo_dfs)
 
-    def render_repo_html_table(self):
+    def render_repo_html_tables(self):
         """
         Render pandas df to html with formatting of cells etc.
         """
         repo_html = (
-            self.repo_df.style.hide_index()
+            self.repo_dfs["user"]
+            .style.hide_index()
             .applymap(
-                lambda x: "color: red" if x is False else None, subset=["private"]
+                lambda x: "font-weight: bold" if x is False else None,
+                subset=["private"],
             )
             .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
             .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
@@ -226,7 +282,7 @@ class GitHubHealth:
         get altair plot objects as html.
         """
         branch_count_plot = (
-            alt.Chart(self.repo_df)
+            alt.Chart(self.repo_dfs["user"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -234,7 +290,7 @@ class GitHubHealth:
             )
         ).properties(title="branch count by repo")
         branch_age_plot = (
-            alt.Chart(self.repo_df)
+            alt.Chart(self.repo_dfs["user"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -247,5 +303,7 @@ class GitHubHealth:
 
 
 if __name__ == "__main__":
-    github_con, user = get_connection()
+    github_con, user = get_connection(
+        user="ckear1989", gat=os.environ[ACCESS_TOKEN_VAR_NAME]
+    )
     print(get_user_gh_df(user))

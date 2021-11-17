@@ -18,10 +18,10 @@
     {% endblock %}
 
     {% block content %}
-        <div class="content">
+        <div class="user_content">
             <h1 style="text-align: center">
-                <a href={{ url }}>
-                    {{ user }}
+                <a href={{ user.url }}>
+                    {{ user.name }}
                 </a>
             </h1>
         </div>
@@ -37,6 +37,13 @@
             </td></tr>
         {% endfor %}
         </table>
+        <div class="org_content">
+            <h1 style="text-align: center">
+                <a href={{ org.url }}>
+                    {{ org.name }}
+                </a>
+            </h1>
+        </div>
          <div id="error"></div>
         {{ super() }}
     {% endblock %}

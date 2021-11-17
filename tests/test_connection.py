@@ -5,6 +5,8 @@ Test connection functionality.
 import os
 import pytest
 
+from github.GithubException import BadCredentialsException
+
 from GitHubHealth.main import (
     ACCESS_TOKEN_VAR_NAME,
     get_connection,
@@ -32,6 +34,5 @@ def test_invalid_gat():
     """
     Test that trying an incorrect gat still gets a connection but warns user.
     """
-    with pytest.warns(UserWarning):
+    with pytest.raises(BadCredentialsException):
         assert get_connection(gat="invalid-access-token") is not None
-    assert get_connection(gat=os.environ[ACCESS_TOKEN_VAR_NAME]) is not None

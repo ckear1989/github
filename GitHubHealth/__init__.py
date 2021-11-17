@@ -5,5 +5,8 @@ GitHubHealth module.
 
 __all__ = ["main", "app"]
 
-from .main import GitHubHealth  # noqa
+from .main import (  # noqa
+    GitHubHealth,  # noqa
+    ACCESS_TOKEN_VAR_NAME,  # noqa
+)  # noqa
 from .app import app  # noqa
