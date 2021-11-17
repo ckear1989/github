@@ -122,9 +122,6 @@ def search(ghh):
         ghh.render_repo_html_tables()
         ghh.get_plots()
         LOG.debug(search_user)
-        print(ghh.user)
-        print(ghh.user.name)
-        print(ghh.user.url)
         search_user_url = ghh.requested_user.url
         search_org_url = ghh.requested_org.url
         LOG.debug(search_user_url)
