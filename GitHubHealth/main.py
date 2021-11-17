@@ -145,6 +145,8 @@ class RequestedObject:
             self.name = self.obj.name
         elif obj is None:
             self.name = "None"
+        print(type(self.obj))
+        print(self.name)
         self.url = url
         self.repos = []
 
@@ -263,9 +265,28 @@ class GitHubHealth:
         """
         Render pandas df to html with formatting of cells etc.
         """
+        table_styles = [
+            {
+                "selector": "th",
+                "props": [("border-width", "2px"), ("border-color", "dimgray")],
+            },
+            {
+                "selector": "tr",
+                "props": [("border-width", "2px"), ("border-color", "dimgray")],
+            },
+            {
+                "selector": "td",
+                "props": [
+                    ("border-width", "2px"),
+                    ("border-color", "white"),
+                    ("background-color", "#15172b"),
+                ],
+            },
+        ]
         repo_html = (
             self.repo_dfs["user"]
             .style.hide_index()
+            .set_table_styles(table_styles)
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
                 subset=["private"],

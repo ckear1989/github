@@ -1,49 +1,219 @@
-body, html {
-    font-family: sans-serif;
-    background-color: darkgray;
-    margin-left: auto;
-    margin-right: auto;
-    width: 80em;
-    vertical-align: center;
+
+body {
+  background-color: #112;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  margin-left: 20px;
 }
 
-.content {
-    margin: 0 auto;
-    width: 400px;
+.table {
+  border-bottom: 1px solid #C8C8C8;
+  border-collapse: collapse;
+  text-align:left;
+  padding: 10px;
+  margin-bottom: 40px;
+  font-size: 0.9em;
+  border-width: 2px;
+  background-color: #15172b;
 }
 
-table, td, th {
-    border: 2px solid #aaa;
-}
-
-table {
-    background-color: dimgray;
-    margin-left: auto;
-    margin-right: auto;
-    border-collapse: collapse;
-}
-
-th {
-    height: 30px;
-}
-
-td {
-    text-align: center;
-    padding: 5px;
+table.dataframe, .dataframe th, .dataframe td {
+  border-bottom: 1px solid #C8C8C8;
+  border-collapse: collapse;
+  text-align:left;
+  padding: 10px;
+  margin-bottom: 40px;
+  font-size: 0.9em;
+  border-width: 2px;
+  background-color: #15172b;
 }
 
 .form {
-    margin-top: 20px;
-}
-
-#content {
-    width: 70%;
-}
-
-div.container {
-  height: auto;
-  display: flex;
+  align: center;
+  background-color: #15172b;
+  border-width: 2px;
+  border-color: dimgray;
+  border-radius: 20px;
+  box-sizing: border-box;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  height: 80%;
+  padding: 20px;
+  margin-left: 20px;
+  width: 80%;
 }
 
+.form-group {
+  background-color: #15172b;
+  border-radius: 20px;
+  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+  margin: 15px;
+  justify-content: center;
+  height: 20px;
+  padding: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: 400px;
+}
+
+.form-control-label {
+  box-sizing: border-box;
+  border-color: dimgray;
+  border-width: 5px;
+  width: 30%;
+  padding-right: 10px;
+  display: inline-block;
+}
+
+.form-control {
+  color: dimgray;
+  border-radius: 10px;
+  justify-content: right;
+  width: 60%;
+  display: inline-block;
+}
+
+.btn-primary {
+  align-text: center;
+  font-size: 18px;
+  border-radius: 10px;
+  background-color: dimgray;
+  margin: 20px;
+  margin-left: 100px;
+  width: 200px;
+  height: 40px;
+}
+
+.invalid-feedback {
+  font-size: 8px;
+  color: Coral;
+}
+
+.title {
+  color: #eee;
+  font-family: sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  margin-top: 30px;
+}
+
+.subtitle {
+  color: #eee;
+  font-family: sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.input-container {
+  height: 50px;
+  position: relative;
+  width: 100%;
+}
+
+.ic1 {
+  margin-top: 40px;
+}
+
+.ic2 {
+  margin-top: 30px;
+}
+
+.input {
+  background-color: #303245;
+  border-radius: 12px;
+  border: 0;
+  box-sizing: border-box;
+  color: #eee;
+  font-size: 18px;
+  height: 100%;
+  outline: 0;
+  padding: 4px 20px 0;
+  width: 100%;
+}
+
+.cut {
+  background-color: #15172b;
+  border-radius: 10px;
+  height: 20px;
+  left: 20px;
+  position: absolute;
+  top: -20px;
+  transform: translateY(0);
+  transition: transform 200ms;
+  width: 76px;
+}
+
+.cut-short {
+  width: 50px;
+}
+
+.input:focus ~ .cut,
+.input:not(:placeholder-shown) ~ .cut {
+  transform: translateY(8px);
+}
+
+.placeholder {
+  color: #65657b;
+  font-family: sans-serif;
+  left: 20px;
+  line-height: 14px;
+  pointer-events: none;
+  position: absolute;
+  transform-origin: 0 50%;
+  transition: transform 200ms, color 200ms;
+  top: 20px;
+}
+
+.input:focus ~ .placeholder,
+.input:not(:placeholder-shown) ~ .placeholder {
+  transform: translateY(-30px) translateX(10px) scale(0.75);
+}
+
+.input:not(:placeholder-shown) ~ .placeholder {
+  color: #808097;
+}
+
+.input:focus ~ .placeholder {
+  color: #dc2f55;
+}
+
+.submit {
+  background-color: #08d;
+  border-radius: 12px;
+  border: 0;
+  box-sizing: border-box;
+  color: #eee;
+  cursor: pointer;
+  font-size: 18px;
+  height: 50px;
+  margin-top: 38px;
+  // outline: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.submit:active {
+  background-color: #06b;
+}
+
+#header {
+  margin-left: 20px;
+  font-size: 32px;
+  vertical-align: bottom;
+  margin-bottom: 10px;
+  color: Gainsboro;
+}
+
+#footer {
+  margin-left: 20px;
+  font-size: 20px;
+  vertical-align: top;
+  margin-bottom: 10px;
+  color: Gainsboro;
+}

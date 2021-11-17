@@ -11,6 +11,8 @@
 
     {% block styles %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
     {% endblock %}
 
 {% endblock %}
@@ -20,8 +22,17 @@
         {% block navbar %}
         {% endblock %}
 
+        {% block header %}
+            <a id="header" href="{{ url_for("login") }}">GitHubHealth</a>
+        {% endblock %}
+
         {% block content %}
-            <a href="{{ url_for('login', filename='templates/index.html') }}">home</a>
+        {% endblock %}
+
+        {% block footer %}
+            <div id="footer">
+                <a href="{{ url_for('login', filename='templates/index.html') }}">home</a>
+            </div>
         {% endblock %}
 
         {% block scripts %}

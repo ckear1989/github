@@ -3,7 +3,7 @@
 {% block head %}
 
     {% block title %}
-        <title>GitHubHealth: {{ user }}</title>
+        <title>GitHubHealth: {{ user.name }}</title>
     {% endblock %}
 
     {% block styles %}
@@ -18,13 +18,9 @@
     {% endblock %}
 
     {% block content %}
-        <div class="user_content">
-            <h1 style="text-align: center">
-                <a href={{ user.url }}>
-                    {{ user.name }}
-                </a>
-            </h1>
-        </div>
+        {% block header %}
+            <a id="header" href={{ user.url }}>{{ user.name }}</a>
+        {% endblock %}
 
         <div>
             {{ table|safe }}
@@ -44,8 +40,12 @@
                 </a>
             </h1>
         </div>
-         <div id="error"></div>
-        {{ super() }}
+        <div id="warning"></div>
+        <div id="error"></div>
+
+        {% block footer %}
+            {{ super() }}
+        {% endblock %}
     {% endblock %}
 
     {% block scripts %}

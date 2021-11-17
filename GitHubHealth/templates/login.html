@@ -10,19 +10,28 @@
 
 
 {% block body %}
-<!--<div class="container">-->
 
     {% block navbar %}
     {% endblock %}
 
+    {% block header %}
+        {{ super() }}
+    {% endblock %}
+
     {% block content %}
         {{ wtf.quick_form(login_form) }}
+    {% endblock %}
+
+    {% block footer %}
         {{ super() }}
     {% endblock %}
 
     {% block scripts %}
     {% endblock %}
-<!--</div>-->
+
+    <div name="warning">
+        {{ warning }}
+    </div>
     <div name="error">
         {{ error }}
     </div>

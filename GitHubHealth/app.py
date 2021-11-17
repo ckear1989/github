@@ -11,7 +11,10 @@ from flask import (
     session,
 )
 from flask.logging import create_logger
-from flask_wtf import FlaskForm
+from flask_wtf import (
+    FlaskForm,
+    CSRFProtect,
+)
 from flask_bootstrap import Bootstrap
 from wtforms import (
     StringField,
@@ -19,6 +22,7 @@ from wtforms import (
     PasswordField,
     validators,
 )
+
 from github.GithubException import (
     UnknownObjectException,
     BadCredentialsException,
@@ -28,6 +32,8 @@ from .main import GitHubHealth
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32)
+csrf = CSRFProtect()
+csrf.init_app(app)
 LOG = create_logger(app)
 Bootstrap(app)
 
@@ -37,9 +43,9 @@ class LoginForm(FlaskForm):
     Form for github user class.
     """
 
-    login_user = StringField("login_user", [validators.DataRequired()])
+    login_user = StringField("user login", [validators.DataRequired()])
     password = PasswordField("password")
-    gat = PasswordField("GitHub Access Token")
+    gat = PasswordField("github token")
     # remember_me = BooleanField('Remember Me')
     login_submit = SubmitField()
 
@@ -49,10 +55,26 @@ class SearchForm(FlaskForm):
     Form for github user class.
     """
 
-    search_user = StringField("search_user", [validators.DataRequired()])
-    search_org = StringField("search_org")
-    search_ignore_repos = StringField("ignore_repos")
-    search_submit = SubmitField()
+    search_user = StringField("user", [validators.DataRequired()])
+    search_org = StringField("org")
+    search_ignore_repos = StringField("ignore repos")
+    search = SubmitField()
+
+
+@app.errorhandler(400)
+def page_not_found(error_message):
+    """
+    Handle a 400 error.
+    """
+    login_form = LoginForm()
+    return (
+        render_template(
+            "login.html",
+            login_form=login_form,
+            error=error_message,
+        ),
+        400,
+    )
 
 
 @app.route("/", methods=["POST", "GET"])
@@ -90,7 +112,6 @@ def login():
     return render_template(
         "login.html",
         login_form=login_form,
-        error="redirected",
     )
 
 
