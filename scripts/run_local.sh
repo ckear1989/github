@@ -4,5 +4,5 @@
 # conda create -n GitHubHealth python==3.8 -y
 
 conda activate GitHubHealth
-python -m app.main
+python -m GitHubHealth.app.main
 conda deactivate

@@ -28,7 +28,7 @@ from github.GithubException import (
     BadCredentialsException,
 )
 
-from .main import GitHubHealth
+from GitHubHealth import GitHubHealth
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32)
@@ -47,7 +47,7 @@ class LoginForm(FlaskForm):
     # password = PasswordField("password")
     gat = PasswordField("github token")
     # remember_me = BooleanField('Remember Me')
-    login_submit = SubmitField()
+    login_submit = SubmitField(render_kw={"onclick": "loading()"})
 
 
 class SearchForm(FlaskForm):
@@ -58,7 +58,7 @@ class SearchForm(FlaskForm):
     search_user = StringField("user")
     search_org = StringField("org")
     search_ignore_repos = StringField("ignore repos")
-    search = SubmitField()
+    search = SubmitField(render_kw={"onclick": "loading()"})
 
     # will fix this at some stage
     # pylint: disable=bad-super-call

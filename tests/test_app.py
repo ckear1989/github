@@ -7,7 +7,7 @@ import unittest
 import flask
 import pytest
 
-from GitHubHealth.app import app
+from GitHubHealth import app
 
 # pylint: disable=redefined-outer-name
 
