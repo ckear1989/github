@@ -140,7 +140,7 @@ class RequestedObject:
         if isinstance(obj, NamedUser):
             self.name = self.obj.login
         elif isinstance(obj, Organization):
-            self.name = self.obj.name
+            self.name = self.obj.login
         self.url = url
         self.repos = []
 
@@ -200,29 +200,35 @@ class GitHubHealth:
         self.requested_user = None
         self.requested_org = None
 
-    def get_repos(self, user, org=None, ignore_repos=None):
+    def get_repos(self, user=None, org=None, ignore_repos=None):
         """
         Method to get repos as a class object.
         """
+        if user == "":
+            user = None
         if org == "":
             org = None
         if ignore_repos is None:
             ignore_repos = []
         assert isinstance(ignore_repos, list)
         repos = {"user": [], "org": []}
-        if user == self.user.login:
-            requested_user = RequestedObject(self.user, self.user.html_url)
+        if user is not None:
+            if user == self.user.login:
+                requested_user = RequestedObject(self.user, self.user.html_url)
+            else:
+                this_user = self.con.get_user(user)
+                requested_user = RequestedObject(this_user, this_user.html_url)
+            requested_user.get_repos(ignore_repos)
+            repos["user"] = requested_user.return_repos()
         else:
-            this_user = self.con.get_user(user)
-            requested_user = RequestedObject(this_user, this_user.html_url)
-        requested_user.get_repos(ignore_repos)
-        repos["user"] = requested_user.return_repos()
-        requested_org = RequestedObject(None, f"{self.public_url}/{org}/")
-        if requested_org.obj is not None:
+            requested_user = RequestedObject(None, f"{self.public_url}/{user}")
+        if org is not None:
             this_org = self.con.get_organization(org)
             requested_org = RequestedObject(this_org, this_org.html_url)
             requested_org.get_repos(ignore_repos)
             repos["org"] = requested_org.return_repos()
+        else:
+            requested_org = RequestedObject(None, f"{self.public_url}/{org}")
         setattr(self, "repos", repos)
         setattr(self, "requested_user", requested_user)
         setattr(self, "requested_org", requested_org)

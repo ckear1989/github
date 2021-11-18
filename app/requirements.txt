@@ -12,7 +12,7 @@ entrypoints==0.3
 Flask==2.0.2
 Flask-Bootstrap4==4.0.2
 Flask-WTF==1.0.0
-GitHubHealth==0.0.0.dev5
+GitHubHealth==0.0.0.dev6
 google-api-core==1.30.0
 google-api-python-client==2.9.0
 google-auth==1.31.0

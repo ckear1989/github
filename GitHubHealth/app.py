@@ -55,10 +55,23 @@ class SearchForm(FlaskForm):
     Form for github user class.
     """
 
-    search_user = StringField("user", [validators.DataRequired()])
+    search_user = StringField("user")
     search_org = StringField("org")
     search_ignore_repos = StringField("ignore repos")
     search = SubmitField()
+
+    # will fix this at some stage
+    # pylint: disable=bad-super-call
+    # pylint: disable=arguments-differ
+    def validate(self):
+        if not super(FlaskForm, self).validate():
+            return False
+        if not self.search_user.data and not self.search_org.data:
+            msg = "At least one of user or org must be set"
+            self.search_user.errors.append(msg)
+            self.search_org.errors.append(msg)
+            return False
+        return True
 
 
 @app.errorhandler(400)
