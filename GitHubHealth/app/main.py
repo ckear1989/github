@@ -22,6 +22,7 @@ from wtforms import (
     PasswordField,
     validators,
 )
+from requests.exceptions import ReadTimeout
 
 from github.GithubException import (
     UnknownObjectException,
@@ -44,10 +45,22 @@ class LoginForm(FlaskForm):
     """
 
     login_user = StringField("user login", [validators.DataRequired()])
-    # password = PasswordField("password")
-    gat = PasswordField("github token")
+    gat = PasswordField("github token", [validators.DataRequired()])
     # remember_me = BooleanField('Remember Me')
-    login_submit = SubmitField(render_kw={"onclick": "loading()"})
+    login = SubmitField(render_kw={"onclick": "loading()"})
+
+    # will fix this at some stage
+    # pylint: disable=bad-super-call
+    # pylint: disable=arguments-differ
+    def validate(self):
+        if not super(FlaskForm, self).validate():
+            return False
+        if not self.login_user.data or not self.gat.data:
+            msg = "Log in using GitHub username and access token"
+            self.errors.append(msg)
+            self.errors.append(msg)
+            return False
+        return True
 
 
 class SearchForm(FlaskForm):
@@ -79,6 +92,7 @@ def page_not_found(error_message):
     """
     Handle a 400 error.
     """
+    LOG.debug("debug400")
     login_form = LoginForm()
     return (
         render_template(
@@ -91,6 +105,17 @@ def page_not_found(error_message):
 
 
 @app.route("/", methods=["POST", "GET"])
+def home():
+    """
+    Get home page.
+    """
+    print(request.method)
+    if "login_user" not in session:
+        login()
+    return render_template("index.html")
+
+
+@app.route("/login", methods=["POST", "GET"])
 def login():
     """
     Get login page with form.
@@ -98,21 +123,24 @@ def login():
     login_form = LoginForm()
     if "login_user" in session:
         if "gat" in session:
-            # if "password" in session:
-            ghh = GitHubHealth(
-                login=session["login_user"],
-                # password=session["password"],
-                gat=session["gat"],
-            )
+            try:
+                ghh = GitHubHealth(
+                    login=session["login_user"],
+                    gat=session["gat"],
+                )
+            except BadCredentialsException:
+                del session["gat"]
+                return render_template(
+                    "login.html",
+                    login_form=login_form,
+                )
             return search(ghh)
     if request.method == "POST" and login_form.validate():
         login_user = login_form.login_user.data
         gat = login_form.gat.data
-        # password = login_form.password.data
         try:
-            ghh = GitHubHealth(login=login_user, gat=gat)  # password=password, gat=gat)
+            ghh = GitHubHealth(login=login_user, gat=gat)
         except BadCredentialsException as bce_error:
-            LOG.debug("bad_credentials")
             return render_template(
                 "login.html",
                 login_form=login_form,
@@ -120,12 +148,23 @@ def login():
             )
         session["login_user"] = login_user
         session["gat"] = gat
-        # session["password"] = password
         return search(ghh)
     return render_template(
         "login.html",
         login_form=login_form,
     )
+
+
+@app.route("/logout", methods=["POST", "GET"])
+def logout():
+    """
+    Logout and return to login.
+    """
+    if "login_user" in session:
+        del session["login_user"]
+    if "gat" in session:
+        del session["gat"]
+    return login()
 
 
 @app.route("/search", methods=["POST", "GET"])
@@ -151,6 +190,12 @@ def search(ghh):
                 "search.html",
                 search_form=search_form,
                 error=uoe_error,
+            )
+        except ReadTimeout as timeout_error:
+            return render_template(
+                "search.html",
+                search_form=search_form,
+                error=timeout_error,
             )
         ghh.get_repo_dfs()
         ghh.render_repo_html_tables()

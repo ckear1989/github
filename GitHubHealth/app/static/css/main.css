@@ -32,6 +32,10 @@ table {
   justify-content: center;
 }
 
+a, a:visited, a:hover, a:active {
+  color: inherit;
+}
+
 tr {
   margin-left:20px;
   padding: 20px;
@@ -49,7 +53,6 @@ table.dataframe, .dataframe th, .dataframe td {
 }
 
 .form {
-  align: center;
   background-color: #15172b;
   border-width: 2px;
   border-color: dimgray;
@@ -61,7 +64,8 @@ table.dataframe, .dataframe th, .dataframe td {
   height: 80%;
   padding: 20px;
   margin-left: 20px;
-  width: 80%;
+  margin-right: 20px;
+  width: 400px;
 }
 
 .form-group {
@@ -76,14 +80,14 @@ table.dataframe, .dataframe th, .dataframe td {
   padding: 10px;
   padding-left: 20px;
   padding-right: 20px;
-  width: 400px;
+  width: 90%;
 }
 
 .form-control-label {
   box-sizing: border-box;
   border-color: dimgray;
   border-width: 5px;
-  width: 30%;
+  width: 40%;
   padding-right: 10px;
   display: inline-block;
 }
@@ -92,17 +96,18 @@ table.dataframe, .dataframe th, .dataframe td {
   color: dimgray;
   border-radius: 10px;
   justify-content: right;
-  width: 60%;
+  width: 40%;
   display: inline-block;
 }
 
 .btn-primary {
+  align: left;
   align-text: center;
   font-size: 18px;
   border-radius: 10px;
   background-color: dimgray;
-  margin: 20px;
-  margin-left: 100px;
+  margin: 15px;
+  margin-left: 20px;
   width: 200px;
   height: 40px;
 }
@@ -220,12 +225,25 @@ table.dataframe, .dataframe th, .dataframe td {
   background-color: #06b;
 }
 
-#header {
+.header {
+  white-space: nowrap;
   margin-left: 20px;
   font-size: 32px;
   vertical-align: bottom;
   margin-bottom: 10px;
   color: Gainsboro;
+}
+
+.quicklink {
+  font-size: 20px;
+}
+
+.settings {
+    width: 35px;
+    height: 35px;
+    align: right;
+    margin: 5px;
+    margin-top: 10px;
 }
 
 #footer {

@@ -17,11 +17,15 @@
     {% block navbar %}
     {% endblock %}
 
+    {% block header %}
+        {{ super() }}
+    {% endblock %}
+
     {% block content %}
 
     {% if user.obj is not none %}
         <div class="user_content">
-            <a id="header" href={{ user.url }}>{{ user.name }}</a>
+            <a class="header" href={{ user.url }}>{{ user.name }}</a>
                 {{ user_table|safe }}
             <table>
             {% for plot in user_plots %}

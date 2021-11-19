@@ -23,7 +23,12 @@
         {% endblock %}
 
         {% block header %}
-            <a id="header" href="{{ url_for("login") }}">GitHubHealth</a>
+            <span class="header">
+                <a href="{{ url_for("login") }}">GitHubHealth</a>
+                <a class="quicklink" href="{{ url_for("login") }}">login</a>
+                <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
+                <img class="settings" src="{{ url_for('static', filename='wheel.png') }}" style="width:35px; height:35px;">
+            </span>
         {% endblock %}
 
         {% block content %}

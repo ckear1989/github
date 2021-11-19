@@ -324,12 +324,21 @@ class GitHubHealth:
                 y="branch_count",
             )
         ).properties(title="branch count by repo")
+        # issues with altair library?
+        # self.repo_dfs["user"].sort_values(
+        #   "max_branch_age_days", axis=0, ascending=False, inplace=True
+        # )
         branch_age_plot = (
             alt.Chart(self.repo_dfs["user"])
             .mark_bar()
             .encode(
                 x="repo",
-                y="max_branch_age_days",
+                y=alt.Y(
+                    "max_branch_age_days",
+                    sort=alt.EncodingSortField(
+                        field="max_branch_age_days", op="sum", order="descending"
+                    ),
+                ),
             )
         ).properties(title="max branch age by repo")
         user_plots = [branch_count_plot, branch_age_plot]
@@ -339,7 +348,7 @@ class GitHubHealth:
             .mark_bar()
             .encode(
                 x="repo",
-                y="branch_count",
+                y=alt.Y("branch_count", sort="-y"),
             )
         ).properties(title="branch count by repo")
         branch_age_plot = (
