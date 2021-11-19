@@ -31,6 +31,15 @@ setuptools.setup(
         "altair==4.1.0",
     ],
     extras_require={
+        "deploy": [
+            "PyGitHub==1.55",
+            "pandas==1.3.4",
+            "flask==2.0.2",
+            "flask-wtf==1.0.0",
+            "Flask-Bootstrap4==4.0.2",
+            "altair==4.1.0",
+            "gunicorn==20.1.0",
+        ],
         "dev": [
             "pre-commit>=2.15.0",
             "PyGitHub>=1.55",
