@@ -31,7 +31,7 @@
                     <li> <a class="quicklink" href="{{ url_for("logout") }}">logout</a></li>
                     <li >
                         {% if user %}
-                            <img class="settings"  src="{{ user.avatar_url }}">
+                            <img class="settings" src="{{ user.avatar_url }}">
                         {% else %}
                             <img class="settings"  src="{{ url_for('static', filename='nouser.png') }}"></li>
                         {% endif %}
