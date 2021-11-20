@@ -3,7 +3,7 @@
 {% block head %}
 
     {% block title %}
-        <title>GitHubHealth: {{ user.name }}</title>
+        <title>GitHubHealth: {{ ghh.user.name }}</title>
     {% endblock %}
 
     {% block styles %}
@@ -23,12 +23,12 @@
 
     {% block content %}
 
-    {% if user.obj is not none %}
+    {% if ghh.requested_user.obj is not none %}
         <div class="user_content">
-            <a class="header" href={{ user.url }}>{{ user.name }}</a>
-                {{ user_table|safe }}
+            <a class="header" href={{ ghh.requested_user.url }}>{{ ghh.requested_user.name }}</a>
+                {{ ghh.repo_html["user"]|safe }}
             <table>
-            {% for plot in user_plots %}
+            {% for plot in ghh.plots["user"] %}
                 <tr><td>
                     <div id="vis_user_{{loop.index}}"></div>
                 </td></tr>
@@ -37,12 +37,12 @@
         </div>
     {% endif %}
 
-    {% if org.obj is not none %}
+    {% if ghh.requested_org.obj is not none %}
         <div class="org_content">
-            <a id="header" href={{ org.url }}>{{ org.name }}</a>
-                {{ org_table|safe }}
+            <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
+                {{ ghh.repo_html["org"]|safe }}
             <table>
-            {% for plot in org_plots %}
+            {% for plot in ghh.plots["org"] %}
                 <tr><td>
                     <div id="vis_org_{{loop.index}}"></div>
                 </td></tr>
@@ -64,8 +64,8 @@
         <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
-        {% if user.obj is not none %}
-            {% for plot in user_plots %}
+        {% if ghh.requested_user.obj is not none %}
+            {% for plot in ghh.plots["user"] %}
                 <script>
                     (function(vegaEmbed) {
                         var embedOpt = {"mode": "vega-lite"};
@@ -86,8 +86,8 @@
             {% endfor %}
         {% endif %}
 
-        {% if org.obj is not none %}
-            {% for plot in org_plots %}
+        {% if ghh.requested_org.obj is not none %}
+            {% for plot in ghh.plots["org"] %}
                 <script>
                     (function(vegaEmbed) {
                         var embedOpt = {"mode": "vega-lite"};

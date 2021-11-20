@@ -4,7 +4,7 @@
 {% block head %}
     {{ super() }}
     {% block title %}
-        <title>GitHubHealth: {{ user.login }}</title>
+        <title>GitHubHealth: {{ ghh.user.name }}</title>
     {% endblock %}
 {% endblock %}
 
@@ -20,9 +20,12 @@
 
     {% block content %}
 <textarea readonly class="content" rows=3">
-Logged in as {{ user.login }}.
+Logged in as {{ ghh.user.name }}.
 Start browsing or searching.
 </textarea>
+        <div class="user_content">
+            {{ ghh.user.metadata_html|safe }}
+        </div>
         {{ super() }}
     {% endblock %}
 
