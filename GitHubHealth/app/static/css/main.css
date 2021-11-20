@@ -56,6 +56,10 @@ table.dataframe, .dataframe th, .dataframe td {
   border-width: 2px;
   background-color: #15172b;
 }
+.light-mode .form {
+  color: black;
+  background-color: white;
+}
 
 .form {
   background-color: #15172b;
