@@ -26,6 +26,16 @@ from GitHubHealth.app.forms import (
     SearchForm,
 )
 
+
+def get_ghh(login_user, gat):
+    """
+    Get ghh object.
+    Useful for quickly verifying if credentials can be used to login.
+    """
+    ghh = GitHubHealth(login=login_user, gat=gat)
+    return ghh
+
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32)
 csrf = CSRFProtect()
@@ -64,9 +74,20 @@ def home():
     """
     Get home page.
     """
-    if "login_user" not in session:
-        login()
-    return render_template("index.html")
+    if "login_user" in session:
+        if "gat" in session:
+            try:
+                ghh = get_ghh(session["login_user"], session["gat"])
+            except BadCredentialsException as bce_error:
+                del session["gat"]
+                return render_template(
+                    "home.html",
+                    error=bce_error,
+                )
+            return render_template("index.html", ghh=ghh)
+    return render_template(
+        "index.html",
+    )
 
 
 @app.route("/about", methods=["POST", "GET"])
@@ -86,10 +107,7 @@ def login():
     if "login_user" in session:
         if "gat" in session:
             try:
-                ghh = GitHubHealth(
-                    login=session["login_user"],
-                    gat=session["gat"],
-                )
+                ghh = get_ghh(session["login_user"], session["gat"])
             except BadCredentialsException:
                 del session["gat"]
                 return render_template(
@@ -101,7 +119,7 @@ def login():
         login_user = login_form.login_user.data
         gat = login_form.gat.data
         try:
-            ghh = GitHubHealth(login=login_user, gat=gat)
+            ghh = get_ghh(login_user, gat)
         except BadCredentialsException as bce_error:
             return render_template(
                 "login.html",
@@ -134,14 +152,20 @@ def user(ghh):
     """
     Get user page.
     """
+    # will figure out what to actually do with user page
+    # pylint: disable=no-else-return
+    if request.method == "POST":
+        return search()
+    elif request.method == "GET":
+        return search()
     return render_template(
         "user.html",
-        user=ghh.user,
+        ghh=ghh,
     )
 
 
 @app.route("/search", methods=["POST", "GET"])
-def search(ghh):
+def search():
     """
     Search for a user and org.
     """
@@ -152,45 +176,48 @@ def search(ghh):
     if search_ignore_repos is None:
         search_ignore_repos = ""
     search_ignore_repos = [x.strip() for x in search_ignore_repos.strip().split(",")]
-    LOG.debug(search_ignore_repos)
-    if ghh is not None:
-        if request.method == "POST" and search_form.validate():
-            try:
-                ghh.get_repos(
-                    user=search_user, org=search_org, ignore_repos=search_ignore_repos
-                )
-            except UnknownObjectException as uoe_error:
+    print(request.method)
+    if "login_user" in session:
+        if "gat" in session:
+            ghh = get_ghh(session["login_user"], session["gat"])
+            # pylint: disable=no-else-return
+            if request.method == "POST" and search_form.validate():
+                try:
+                    ghh.get_repos(
+                        user=search_user,
+                        org=search_org,
+                        ignore_repos=search_ignore_repos,
+                    )
+                except UnknownObjectException as uoe_error:
+                    return render_template(
+                        "search.html",
+                        ghh=ghh,
+                        search_form=search_form,
+                        error=uoe_error,
+                    )
+                except ReadTimeout as timeout_error:
+                    return render_template(
+                        "search.html",
+                        ghh=ghh,
+                        search_form=search_form,
+                        error=timeout_error,
+                    )
+                ghh.get_repo_dfs()
+                ghh.render_repo_html_tables()
+                ghh.get_plots()
+                return status(ghh)
+            else:
                 return render_template(
                     "search.html",
+                    ghh=ghh,
                     search_form=search_form,
-                    error=uoe_error,
+                    ignore_repos_forms=search_ignore_repos,
                 )
-            except ReadTimeout as timeout_error:
-                return render_template(
-                    "search.html",
-                    search_form=search_form,
-                    error=timeout_error,
-                )
-            ghh.get_repo_dfs()
-            ghh.render_repo_html_tables()
-            ghh.get_plots()
-            LOG.debug(search_user)
-            search_user_url = ghh.requested_user.url
-            search_org_url = ghh.requested_org.url
-            LOG.debug(search_user_url)
-            LOG.debug(search_org_url)
-            return status(ghh)
-    else:
-        return render_template(
-            "search.html",
-            search_form=search_form,
-            ignore_repos_forms=search_ignore_repos,
-            warning="WARNING: please log in before using search functionality.",
-        )
     return render_template(
         "search.html",
         search_form=search_form,
         ignore_repos_forms=search_ignore_repos,
+        error="Please log in before using search functionality.",
     )
 
 
@@ -201,12 +228,7 @@ def status(ghh):
     """
     return render_template(
         "status.html",
-        user=ghh.requested_user,
-        org=ghh.requested_org,
-        user_table=ghh.repo_html["user"],
-        org_table=ghh.repo_html["org"],
-        user_plots=ghh.plots["user"],
-        org_plots=ghh.plots["org"],
+        ghh=ghh,
     )
 
 
