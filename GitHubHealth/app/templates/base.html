@@ -24,23 +24,26 @@
 
         {% block header %}
             <span class="header">
-                <a href="{{ url_for("home") }}">GitHubHealth</a>
-                <a class="quicklink" href="{{ url_for("under_construction") }}">search</a>
-                <a class="quicklink" href="{{ url_for("login") }}">login</a>
-                <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
-
-            <div class="dropdown">
-                    {% if user %}
-                        <img class="settings"  src="{{ user.avatar_url }}">
-                    {% else %}
-                        <img class="settings"  src="{{ url_for('static', filename='nouser.png') }}">
-                    {% endif %}
-                    <img class="settings"  onclick="settings()" src="{{ url_for('static', filename='wheel.png') }}">
-
-                    <div id="settingsDropdown" class="dropdown-content">
-                        <input type="submit" value="Toggle mode" id="toggle-mode" onclick="toggleMode()">
-                    </div>
-                </div>
+                <ul>
+                    <li>  <a href="{{ url_for("home") }}">GitHubHealth</a></li>
+                    <li>  <a class="quicklink" href="{{ url_for("under_construction") }}">search</a></li>
+                    <li> <a class="quicklink" href="{{ url_for("login") }}">login</a></li>
+                    <li> <a class="quicklink" href="{{ url_for("logout") }}">logout</a></li>
+                    <li >
+                        {% if user %}
+                            <img class="settings"  src="{{ user.avatar_url }}">
+                        {% else %}
+                            <img class="settings"  src="{{ url_for('static', filename='nouser.png') }}"></li>
+                        {% endif %}
+                    <li >
+                        <div class="dropdown">
+                            <img class="settings"  onclick="settings()" src="{{ url_for('static', filename='wheel.png') }}">
+                            <div id="settingsDropdown" class="dropdown-content">
+                                <a href="#" onclick="toggleMode()">Toggle dark mode </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </span>
 
             <script >
