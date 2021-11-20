@@ -235,7 +235,7 @@ table.dataframe, .dataframe th, .dataframe td {
 }
 
 .quicklink {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .settings {
@@ -252,6 +252,14 @@ table.dataframe, .dataframe th, .dataframe td {
   vertical-align: top;
   margin-bottom: 10px;
   color: Gainsboro;
+}
+
+textarea.content {
+    background: inherit;
+    color: inherit;
+    background-color: inherit;
+    width: 80%;
+    margin: 10px;
 }
 
 div#loading {

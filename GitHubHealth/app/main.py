@@ -11,17 +11,8 @@ from flask import (
     session,
 )
 from flask.logging import create_logger
-from flask_wtf import (
-    FlaskForm,
-    CSRFProtect,
-)
+from flask_wtf import CSRFProtect
 from flask_bootstrap import Bootstrap
-from wtforms import (
-    StringField,
-    SubmitField,
-    PasswordField,
-    validators,
-)
 from requests.exceptions import ReadTimeout
 
 from github.GithubException import (
@@ -30,6 +21,10 @@ from github.GithubException import (
 )
 
 from GitHubHealth import GitHubHealth
+from GitHubHealth.app.forms import (
+    LoginForm,
+    SearchForm,
+)
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32)
@@ -37,54 +32,6 @@ csrf = CSRFProtect()
 csrf.init_app(app)
 LOG = create_logger(app)
 Bootstrap(app)
-
-
-class LoginForm(FlaskForm):
-    """
-    Form for github user class.
-    """
-
-    login_user = StringField("user login", [validators.DataRequired()])
-    gat = PasswordField("github token", [validators.DataRequired()])
-    # remember_me = BooleanField('Remember Me')
-    login = SubmitField(render_kw={"onclick": "loading()"})
-
-    # will fix this at some stage
-    # pylint: disable=bad-super-call
-    # pylint: disable=arguments-differ
-    def validate(self):
-        if not super(FlaskForm, self).validate():
-            return False
-        if not self.login_user.data or not self.gat.data:
-            msg = "Log in using GitHub username and access token"
-            self.errors.append(msg)
-            self.errors.append(msg)
-            return False
-        return True
-
-
-class SearchForm(FlaskForm):
-    """
-    Form for github user class.
-    """
-
-    search_user = StringField("user")
-    search_org = StringField("org")
-    search_ignore_repos = StringField("ignore repos")
-    search = SubmitField(render_kw={"onclick": "loading()"})
-
-    # will fix this at some stage
-    # pylint: disable=bad-super-call
-    # pylint: disable=arguments-differ
-    def validate(self):
-        if not super(FlaskForm, self).validate():
-            return False
-        if not self.search_user.data and not self.search_org.data:
-            msg = "At least one of user or org must be set"
-            self.search_user.errors.append(msg)
-            self.search_org.errors.append(msg)
-            return False
-        return True
 
 
 @app.errorhandler(400)
@@ -109,10 +56,17 @@ def home():
     """
     Get home page.
     """
-    print(request.method)
     if "login_user" not in session:
         login()
     return render_template("index.html")
+
+
+@app.route("/about", methods=["POST", "GET"])
+def about():
+    """
+    Get about page.
+    """
+    return render_template("about.html")
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -164,7 +118,7 @@ def logout():
         del session["login_user"]
     if "gat" in session:
         del session["gat"]
-    return login()
+    return home()
 
 
 @app.route("/search", methods=["POST", "GET"])

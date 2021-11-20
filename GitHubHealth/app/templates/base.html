@@ -24,7 +24,7 @@
 
         {% block header %}
             <span class="header">
-                <a href="{{ url_for("login") }}">GitHubHealth</a>
+                <a href="{{ url_for("home") }}">GitHubHealth</a>
                 <a class="quicklink" href="{{ url_for("login") }}">login</a>
                 <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
                 <img class="settings" src="{{ url_for('static', filename='wheel.png') }}" style="width:35px; height:35px;">
@@ -37,7 +37,7 @@
 
         {% block footer %}
             <div id="footer">
-                <a href="{{ url_for('login', filename='templates/index.html') }}">home</a>
+                <a href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a>
             </div>
         {% endblock %}
 
