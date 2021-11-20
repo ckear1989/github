@@ -51,6 +51,14 @@ def page_not_found(error_message):
     )
 
 
+@app.route("/under_construction", methods=["POST", "GET"])
+def under_construction():
+    """
+    Get under construction page.
+    """
+    return render_template("under_construction.html")
+
+
 @app.route("/", methods=["POST", "GET"])
 def home():
     """
@@ -88,7 +96,7 @@ def login():
                     "login.html",
                     login_form=login_form,
                 )
-            return search(ghh)
+            return user(ghh)
     if request.method == "POST" and login_form.validate():
         login_user = login_form.login_user.data
         gat = login_form.gat.data
@@ -102,7 +110,7 @@ def login():
             )
         session["login_user"] = login_user
         session["gat"] = gat
-        return search(ghh)
+        return user(ghh)
     return render_template(
         "login.html",
         login_form=login_form,
@@ -121,6 +129,17 @@ def logout():
     return home()
 
 
+@app.route("/user", methods=["POST", "GET"])
+def user(ghh):
+    """
+    Get user page.
+    """
+    return render_template(
+        "user.html",
+        user=ghh.user,
+    )
+
+
 @app.route("/search", methods=["POST", "GET"])
 def search(ghh):
     """
@@ -134,32 +153,40 @@ def search(ghh):
         search_ignore_repos = ""
     search_ignore_repos = [x.strip() for x in search_ignore_repos.strip().split(",")]
     LOG.debug(search_ignore_repos)
-    if request.method == "POST" and search_form.validate():
-        try:
-            ghh.get_repos(
-                user=search_user, org=search_org, ignore_repos=search_ignore_repos
-            )
-        except UnknownObjectException as uoe_error:
-            return render_template(
-                "search.html",
-                search_form=search_form,
-                error=uoe_error,
-            )
-        except ReadTimeout as timeout_error:
-            return render_template(
-                "search.html",
-                search_form=search_form,
-                error=timeout_error,
-            )
-        ghh.get_repo_dfs()
-        ghh.render_repo_html_tables()
-        ghh.get_plots()
-        LOG.debug(search_user)
-        search_user_url = ghh.requested_user.url
-        search_org_url = ghh.requested_org.url
-        LOG.debug(search_user_url)
-        LOG.debug(search_org_url)
-        return status(ghh)
+    if ghh is not None:
+        if request.method == "POST" and search_form.validate():
+            try:
+                ghh.get_repos(
+                    user=search_user, org=search_org, ignore_repos=search_ignore_repos
+                )
+            except UnknownObjectException as uoe_error:
+                return render_template(
+                    "search.html",
+                    search_form=search_form,
+                    error=uoe_error,
+                )
+            except ReadTimeout as timeout_error:
+                return render_template(
+                    "search.html",
+                    search_form=search_form,
+                    error=timeout_error,
+                )
+            ghh.get_repo_dfs()
+            ghh.render_repo_html_tables()
+            ghh.get_plots()
+            LOG.debug(search_user)
+            search_user_url = ghh.requested_user.url
+            search_org_url = ghh.requested_org.url
+            LOG.debug(search_user_url)
+            LOG.debug(search_org_url)
+            return status(ghh)
+    else:
+        return render_template(
+            "search.html",
+            search_form=search_form,
+            ignore_repos_forms=search_ignore_repos,
+            warning="WARNING: please log in before using search functionality.",
+        )
     return render_template(
         "search.html",
         search_form=search_form,

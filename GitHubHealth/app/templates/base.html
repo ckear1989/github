@@ -25,9 +25,15 @@
         {% block header %}
             <span class="header">
                 <a href="{{ url_for("home") }}">GitHubHealth</a>
+                <a class="quicklink" href="{{ url_for("under_construction") }}">search</a>
                 <a class="quicklink" href="{{ url_for("login") }}">login</a>
                 <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
-                <img class="settings" src="{{ url_for('static', filename='wheel.png') }}" style="width:35px; height:35px;">
+                {% if user %}
+                    <img class="settings" src="{{ user.avatar_url }}">
+                {% else %}
+                    <img class="settings" src="{{ url_for('static', filename='nouser.png') }}">
+                {% endif %}
+                <img class="settings" src="{{ url_for('static', filename='wheel.png') }}">
             </span>
         {% endblock %}
 
