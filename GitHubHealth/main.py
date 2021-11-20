@@ -26,6 +26,24 @@ REPOS_DF_COLUMNS = [
     "max_branch_age_days",
 ]
 REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
+TABLE_STYLES = [
+    {
+        "selector": "th",
+        "props": [("border-width", "2px"), ("border-color", "dimgray")],
+    },
+    {
+        "selector": "tr",
+        "props": [("border-width", "2px"), ("border-color", "dimgray")],
+    },
+    {
+        "selector": "td",
+        "props": [
+            ("border-width", "2px"),
+            ("border-color", "white"),
+            ("background-color", "#15172b"),
+        ],
+    },
+]
 
 # pylint: disable=redefined-outer-name
 
@@ -58,6 +76,7 @@ def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TI
         raise Exception("provide either user+password or gat")
     this_user = github_con.get_user()
     _ = this_user.login
+    this_user = RequestedObject(this_user, this_user.html_url)
     return github_con, this_user
 
 
@@ -125,8 +144,13 @@ def get_user_gh_df(user):
     return repo_df
 
 
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-instance-attributes
+def get_paginated_list_len(pl_obj):
+    """
+    No inbuilt method to get length so iterate through?
+    """
+    return sum([1 for i in pl_obj])
+
+
 class RequestedObject:
     """
     Container for requested objects.
@@ -135,13 +159,19 @@ class RequestedObject:
     def __init__(self, obj, url):
         self.obj = obj
         self.name = None
+        self.avatar_url = None
         if isinstance(obj, AuthenticatedUser):
             self.name = self.obj.login
+            self.avatar_url = obj.avatar_url
         if isinstance(obj, NamedUser):
             self.name = self.obj.login
+            self.avatar_url = obj.avatar_url
         elif isinstance(obj, Organization):
             self.name = self.obj.login
+            self.avatar_url = obj.avatar_url
         self.url = url
+        self.metadata_df = None
+        self.metadata_html = None
         self.repos = []
 
     def get_repos(self, ignore_repos=None):
@@ -163,7 +193,32 @@ class RequestedObject:
             self.get_repos(ignore_repos=ignore_repos)
         return self.repos
 
+    def get_metadata_df(self):
+        """
+        Main method to parse object metadata into pandas DataFrame.
+        """
+        metadata_dict = {
+            "repos": [get_paginated_list_len(self.obj.get_repos())],
+            "orgs": [get_paginated_list_len(self.obj.get_orgs())],
+            "teams": [get_paginated_list_len(self.obj.get_teams())],
+        }
+        metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
+        setattr(self, "metadata_df", metadata_df)
 
+    def get_metadata_html(self):
+        """
+        Main method to parse object metadata into pandas DataFrame.
+        """
+        if self.metadata_df is None:
+            self.get_metadata_df()
+        metadata_html = (
+            self.metadata_df.style.hide_index().set_table_styles(TABLE_STYLES).render()
+        )
+        setattr(self, "metadata_html", metadata_html)
+
+
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-instance-attributes
 class GitHubHealth:
     """
     Class object for GitHubHeath.
@@ -191,8 +246,8 @@ class GitHubHealth:
             self.base_url = f"https://{hostname}/api/v3"
             self.public_url = f"https://{hostname}/"
         self.con, self.user = get_connection(hostname, login, password, gat, timeout)
-        self.username = self.user.login
-        self.user_url = self.user.html_url
+        self.username = self.user.name
+        self.user_url = self.user.url
         self.repos = []
         self.repo_dfs = {}
         self.repo_html = {}
@@ -213,11 +268,8 @@ class GitHubHealth:
         assert isinstance(ignore_repos, list)
         repos = {"user": [], "org": []}
         if user is not None:
-            if user == self.user.login:
-                requested_user = RequestedObject(self.user, self.user.html_url)
-            else:
-                this_user = self.con.get_user(user)
-                requested_user = RequestedObject(this_user, this_user.html_url)
+            this_user = self.con.get_user(user)
+            requested_user = RequestedObject(this_user, this_user.html_url)
             requested_user.get_repos(ignore_repos)
             repos["user"] = requested_user.return_repos()
         else:
@@ -265,28 +317,10 @@ class GitHubHealth:
         """
         Render pandas df to html with formatting of cells etc.
         """
-        table_styles = [
-            {
-                "selector": "th",
-                "props": [("border-width", "2px"), ("border-color", "dimgray")],
-            },
-            {
-                "selector": "tr",
-                "props": [("border-width", "2px"), ("border-color", "dimgray")],
-            },
-            {
-                "selector": "td",
-                "props": [
-                    ("border-width", "2px"),
-                    ("border-color", "white"),
-                    ("background-color", "#15172b"),
-                ],
-            },
-        ]
         user_repo_html = (
             self.repo_dfs["user"]
             .style.hide_index()
-            .set_table_styles(table_styles)
+            .set_table_styles(TABLE_STYLES)
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
                 subset=["private"],
@@ -299,7 +333,7 @@ class GitHubHealth:
         org_repo_html = (
             self.repo_dfs["org"]
             .style.hide_index()
-            .set_table_styles(table_styles)
+            .set_table_styles(TABLE_STYLES)
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
                 subset=["private"],

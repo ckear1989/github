@@ -154,10 +154,9 @@ def user(ghh):
     """
     # will figure out what to actually do with user page
     # pylint: disable=no-else-return
-    if request.method == "POST":
-        return search()
-    elif request.method == "GET":
-        return search()
+    # if request.method == "POST":
+    #     return search()
+    ghh.user.get_metadata_html()
     return render_template(
         "user.html",
         ghh=ghh,
@@ -176,7 +175,6 @@ def search():
     if search_ignore_repos is None:
         search_ignore_repos = ""
     search_ignore_repos = [x.strip() for x in search_ignore_repos.strip().split(",")]
-    print(request.method)
     if "login_user" in session:
         if "gat" in session:
             ghh = get_ghh(session["login_user"], session["gat"])
