@@ -50,3 +50,6 @@ Please make sure to update tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+##
+[![Buy me a coffee](https://github.com/ckear1989/github/blob/dev/data/buy_me_a_coffee.png)](https://www.buymeacoffee.com/ckear1988)
