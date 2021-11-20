@@ -110,8 +110,6 @@ table.dataframe, .dataframe th, .dataframe td {
 }
 
 .btn-primary {
-  align: left;
-  align-text: center;
   font-size: 18px;
   border-radius: 10px;
   background-color: dimgray;
@@ -225,7 +223,6 @@ table.dataframe, .dataframe th, .dataframe td {
   font-size: 18px;
   height: 50px;
   margin-top: 38px;
-  // outline: 0;
   text-align: center;
   width: 100%;
 }
@@ -250,7 +247,6 @@ table.dataframe, .dataframe th, .dataframe td {
 .settings {
     width: 35px;
     height: 35px;
-    align: right;
     margin: 5px;
     margin-top: 10px;
 }
