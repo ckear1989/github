@@ -18,6 +18,7 @@ from requests.exceptions import ReadTimeout
 from github.GithubException import (
     UnknownObjectException,
     BadCredentialsException,
+    GithubException,
 )
 
 from GitHubHealth import GitHubHealth
@@ -25,6 +26,18 @@ from GitHubHealth.app.forms import (
     LoginForm,
     SearchForm,
 )
+
+
+def try_ghh(login_user, gat):
+    """
+    Try ghh object.
+    Useful for quickly verifying if credentials can be used to login.
+    """
+    try:
+        ghh = get_ghh(login_user, gat)
+    except (BadCredentialsException, GithubException) as bce_gh_error:
+        return None, bce_gh_error
+    return ghh, None
 
 
 def get_ghh(login_user, gat):
@@ -76,15 +89,14 @@ def home():
     """
     if "login_user" in session:
         if "gat" in session:
-            try:
-                ghh = get_ghh(session["login_user"], session["gat"])
-            except BadCredentialsException as bce_error:
-                del session["gat"]
-                return render_template(
-                    "home.html",
-                    error=bce_error,
-                )
-            return render_template("index.html", ghh=ghh)
+            ghh, error_message = try_ghh(session["login_user"], session["gat"])
+            if ghh is not None:
+                return render_template("index.html", ghh=ghh)
+            del session["gat"]
+            return render_template(
+                "home.html",
+                error=error_message,
+            )
     return render_template(
         "index.html",
     )
@@ -97,10 +109,15 @@ def about():
     """
     if "login_user" in session:
         if "gat" in session:
-            ghh = get_ghh(session["login_user"], session["gat"])
+            ghh, error_message = try_ghh(session["login_user"], session["gat"])
+            if ghh is not None:
+                return render_template(
+                    "about.html",
+                    ghh=ghh,
+                )
+            return render_template("login.html", error=error_message)
     return render_template(
         "about.html",
-        ghh=ghh,
     )
 
 
@@ -112,29 +129,25 @@ def login():
     login_form = LoginForm()
     if "login_user" in session:
         if "gat" in session:
-            try:
-                ghh = get_ghh(session["login_user"], session["gat"])
-            except BadCredentialsException:
-                del session["gat"]
-                return render_template(
-                    "login.html",
-                    login_form=login_form,
-                )
-            return user(ghh)
+            ghh, error_message = try_ghh(session["login_user"], session["gat"])
+            if ghh is not None:
+                return user(ghh)
+            return render_template(
+                "login.html", login_form=login_form, error=error_message
+            )
     if request.method == "POST" and login_form.validate():
         login_user = login_form.login_user.data
         gat = login_form.gat.data
-        try:
-            ghh = get_ghh(login_user, gat)
-        except BadCredentialsException as bce_error:
-            return render_template(
-                "login.html",
-                login_form=login_form,
-                error=bce_error,
-            )
-        session["login_user"] = login_user
-        session["gat"] = gat
-        return user(ghh)
+        ghh, error_message = try_ghh(login_user, gat)
+        if ghh is not None:
+            session["login_user"] = login_user
+            session["gat"] = gat
+            return user(ghh)
+        return render_template(
+            "login.html",
+            login_form=login_form,
+            error=error_message,
+        )
     return render_template(
         "login.html",
         login_form=login_form,

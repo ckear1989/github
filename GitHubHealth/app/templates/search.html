@@ -58,10 +58,8 @@
         {{ super() }}
     {% endblock %}
 
-    <div name="warning">
-        {{ warning }}
-    </div>
-    <div class="error" name="error">
-        {{ error }}
-    </div>
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
+
 {% endblock %}

@@ -67,4 +67,13 @@
             <script type="text/javascript" src="{{ url_for('static', filename='base.js') }}"></script>
         {% endblock %}
 
+        {% block error_warning %}
+            <div class="warning">
+                {{ warning }}
+            </div>
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endblock %}
+
 {% endblock %}

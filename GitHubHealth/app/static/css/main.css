@@ -339,6 +339,14 @@ div.error {
     color: red;
 }
 
+div.warning {
+    color: red;
+}
+
+div.warning div.error {
+    font-size: 10px;
+}
+
 .light-mode {
   color: black;
   background-color: white;

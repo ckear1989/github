@@ -37,10 +37,8 @@ How healthy is your GitHub?
         {{ super() }}
     {% endblock %}
 
-    <div name="warning">
-        {{ warning }}
-    </div>
-    <div name="error">
-        {{ error }}
-    </div>
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
+
 {% endblock %}
