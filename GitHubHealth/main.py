@@ -2,6 +2,7 @@
 Helper functions to parse repo details.
 Main function handles logic to connect to GitHub and select repos for analysis.
 """
+from copy import deepcopy
 from datetime import datetime
 import os
 
@@ -22,6 +23,7 @@ BRANCH_DF_COLUMNS = ["branch", "age"]
 BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
 REPOS_DF_COLUMNS = [
     "repo",
+    "repo_url",
     "private",
     "branch_count",
     "min_branch_age_days",
@@ -88,6 +90,7 @@ def get_repo_details(repo):
     )
     repo_dict = {
         "repo": [repo.name],
+        "repo_url": [repo.html_url],
         "private": [repo.private],
         "branch_count": [len(branch_df)],
         "min_branch_age_days": [branch_df["age"].min()],
@@ -133,6 +136,38 @@ def get_paginated_list_len(pl_obj):
     No inbuilt method to get length so iterate through?
     """
     return sum([1 for i in pl_obj])
+
+
+def link_repo_name_url(name, url):
+    """
+    concat repo name and url in hyperlink
+    """
+    return f"<a href='{url}'>{name}</a>"
+
+
+def render_repo_html_table(repo_df):
+    """
+    format repo_df to html.
+    """
+    repo_df_cpy = deepcopy(repo_df)
+    if len(repo_df_cpy) > 0:
+        repo_df_cpy["repo"] = repo_df_cpy.apply(
+            lambda x: link_repo_name_url(x["repo"], x["repo_url"]), axis=1
+        )
+        repo_df_cpy.drop("repo_url", axis=1, inplace=True)
+
+    repo_html = (
+        repo_df_cpy.style.hide_index()
+        .applymap(
+            lambda x: "font-weight: bold" if x is False else None,
+            subset=["private"],
+        )
+        .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
+        .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
+        .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
+        .render()
+    )
+    return repo_html
 
 
 class RequestedObject:
@@ -341,42 +376,9 @@ class GitHubHealth:
         """
         Render pandas df to html with formatting of cells etc.
         """
-        user_repo_html = (
-            self.repo_dfs["users"]
-            .style.hide_index()
-            .applymap(
-                lambda x: "font-weight: bold" if x is False else None,
-                subset=["private"],
-            )
-            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
-            .render()
-        )
-        org_repo_html = (
-            self.repo_dfs["orgs"]
-            .style.hide_index()
-            .applymap(
-                lambda x: "font-weight: bold" if x is False else None,
-                subset=["private"],
-            )
-            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
-            .render()
-        )
-        team_repo_html = (
-            self.repo_dfs["teams"]
-            .style.hide_index()
-            .applymap(
-                lambda x: "font-weight: bold" if x is False else None,
-                subset=["private"],
-            )
-            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
-            .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
-            .render()
-        )
+        user_repo_html = render_repo_html_table(self.repo_dfs["users"])
+        org_repo_html = render_repo_html_table(self.repo_dfs["orgs"])
+        team_repo_html = render_repo_html_table(self.repo_dfs["teams"])
         repo_html = {
             "users": user_repo_html,
             "orgs": org_repo_html,
