@@ -11,6 +11,8 @@ from github import Github, MainClass
 from github.AuthenticatedUser import AuthenticatedUser
 from github.NamedUser import NamedUser
 from github.Organization import Organization
+from github.GithubException import UnknownObjectException
+
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
@@ -234,46 +236,79 @@ class GitHubHealth:
         self.plots = None
         self.requested_user = None
         self.requested_org = None
+        self.requested_team = None
 
-    def get_repos(self, user=None, org=None, ignore_repos=None):
+    def get_repos(
+        self, search_request, users=False, orgs=False, teams=False, ignore_repos=None
+    ):
         """
         Method to get repos as a class object.
         """
-        if user == "":
-            user = None
-        if org == "":
-            org = None
         if ignore_repos is None:
-            ignore_repos = []
+            ignore_repos = ""
+        search_request = search_request.strip("")
+        assert isinstance(search_request, str)
+        assert isinstance(users, bool)
+        assert isinstance(orgs, bool)
+        assert isinstance(teams, bool)
+        assert isinstance(ignore_repos, str)
+        ignore_repos = ignore_repos.split(",")
         assert isinstance(ignore_repos, list)
-        repos = {"user": [], "org": []}
-        if user is not None:
-            this_user = self.con.get_user(user)
-            requested_user = RequestedObject(this_user, this_user.html_url)
-            requested_user.get_repos(ignore_repos)
-            repos["user"] = requested_user.return_repos()
+        repos = {"users": [], "orgs": [], "teams": []}
+        if users is True:
+            try:
+                this_user = self.con.get_user(search_request)
+                requested_user = RequestedObject(this_user, this_user.html_url)
+                requested_user.get_repos(ignore_repos)
+                repos["users"] = requested_user.return_repos()
+            except UnknownObjectException:
+                requested_user = RequestedObject(
+                    None, f"{self.public_url}/{search_request}"
+                )
         else:
-            requested_user = RequestedObject(None, f"{self.public_url}/{user}")
-        if org is not None:
-            this_org = self.con.get_organization(org)
-            requested_org = RequestedObject(this_org, this_org.html_url)
-            requested_org.get_repos(ignore_repos)
-            repos["org"] = requested_org.return_repos()
+            requested_user = RequestedObject(
+                None, f"{self.public_url}/{search_request}"
+            )
+        if orgs is True:
+            try:
+                this_org = self.con.get_organization(search_request)
+                requested_org = RequestedObject(this_org, this_org.html_url)
+                requested_org.get_repos(ignore_repos)
+                repos["orgs"] = requested_org.return_repos()
+            except UnknownObjectException:
+                requested_org = RequestedObject(
+                    None, f"{self.public_url}/{search_request}"
+                )
         else:
-            requested_org = RequestedObject(None, f"{self.public_url}/{org}")
+            requested_org = RequestedObject(None, f"{self.public_url}/{search_request}")
+        # github object has no get_team/teams method
+        # if teams is True:
+        #     try:
+        #         print(dir(self.con))
+        #         this_team = self.con.get_team(search_request)
+        #         requested_team = RequestedObject(this_org, this_org.html_url)
+        #         requested_team.get_repos(ignore_repos)
+        #         repos["teams"] = requested_org.return_repos()
+        #     except UnknownObjectException:
+        #         requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
+        # else:
+        #     requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
+        requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
         setattr(self, "repos", repos)
         setattr(self, "requested_user", requested_user)
         setattr(self, "requested_org", requested_org)
+        setattr(self, "requested_team", requested_team)
 
     def get_repo_dfs(self):
         """
         Main method to parse repo details into pandas DataFrame.
         """
         repo_dfs = {
-            "user": REPOS_TEMPLATE_DF,
-            "org": REPOS_TEMPLATE_DF,
+            "users": REPOS_TEMPLATE_DF,
+            "orgs": REPOS_TEMPLATE_DF,
+            "teams": REPOS_TEMPLATE_DF,
         }
-        repo_dfs["user"] = (
+        repo_dfs["users"] = (
             pd.concat(
                 [REPOS_TEMPLATE_DF]
                 + [get_repo_details(repo) for repo in self.requested_user.repos],
@@ -282,10 +317,19 @@ class GitHubHealth:
             .sort_values(by="repo")
             .reset_index(drop=True)
         )
-        repo_dfs["org"] = (
+        repo_dfs["orgs"] = (
             pd.concat(
                 [REPOS_TEMPLATE_DF]
                 + [get_repo_details(repo) for repo in self.requested_org.repos],
+                ignore_index=True,
+            )
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        repo_dfs["teams"] = (
+            pd.concat(
+                [REPOS_TEMPLATE_DF]
+                + [get_repo_details(repo) for repo in self.requested_team.repos],
                 ignore_index=True,
             )
             .sort_values(by="repo")
@@ -298,7 +342,7 @@ class GitHubHealth:
         Render pandas df to html with formatting of cells etc.
         """
         user_repo_html = (
-            self.repo_dfs["user"]
+            self.repo_dfs["users"]
             .style.hide_index()
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
@@ -310,7 +354,7 @@ class GitHubHealth:
             .render()
         )
         org_repo_html = (
-            self.repo_dfs["org"]
+            self.repo_dfs["orgs"]
             .style.hide_index()
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
@@ -321,7 +365,23 @@ class GitHubHealth:
             .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
             .render()
         )
-        repo_html = {"user": user_repo_html, "org": org_repo_html}
+        team_repo_html = (
+            self.repo_dfs["teams"]
+            .style.hide_index()
+            .applymap(
+                lambda x: "font-weight: bold" if x is False else None,
+                subset=["private"],
+            )
+            .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
+            .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
+            .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
+            .render()
+        )
+        repo_html = {
+            "users": user_repo_html,
+            "orgs": org_repo_html,
+            "teams": team_repo_html,
+        }
         setattr(self, "repo_html", repo_html)
 
     def get_plots(self):
@@ -329,7 +389,7 @@ class GitHubHealth:
         get altair plot objects as html.
         """
         branch_count_plot = (
-            alt.Chart(self.repo_dfs["user"])
+            alt.Chart(self.repo_dfs["users"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -341,7 +401,7 @@ class GitHubHealth:
         #   "max_branch_age_days", axis=0, ascending=False, inplace=True
         # )
         branch_age_plot = (
-            alt.Chart(self.repo_dfs["user"])
+            alt.Chart(self.repo_dfs["users"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -356,7 +416,7 @@ class GitHubHealth:
         user_plots = [branch_count_plot, branch_age_plot]
         user_plots = [x.configure_view(discreteWidth=300).to_json() for x in user_plots]
         branch_count_plot = (
-            alt.Chart(self.repo_dfs["org"])
+            alt.Chart(self.repo_dfs["orgs"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -364,7 +424,7 @@ class GitHubHealth:
             )
         ).properties(title="branch count by repo")
         branch_age_plot = (
-            alt.Chart(self.repo_dfs["org"])
+            alt.Chart(self.repo_dfs["orgs"])
             .mark_bar()
             .encode(
                 x="repo",
@@ -373,7 +433,25 @@ class GitHubHealth:
         ).properties(title="max branch age by repo")
         org_plots = [branch_count_plot, branch_age_plot]
         org_plots = [x.configure_view(discreteWidth=300).to_json() for x in org_plots]
-        plots = {"user": user_plots, "org": org_plots}
+        branch_count_plot = (
+            alt.Chart(self.repo_dfs["teams"])
+            .mark_bar()
+            .encode(
+                x="repo",
+                y=alt.Y("branch_count", sort="-y"),
+            )
+        ).properties(title="branch count by repo")
+        branch_age_plot = (
+            alt.Chart(self.repo_dfs["teams"])
+            .mark_bar()
+            .encode(
+                x="repo",
+                y="max_branch_age_days",
+            )
+        ).properties(title="max branch age by repo")
+        team_plots = [branch_count_plot, branch_age_plot]
+        team_plots = [x.configure_view(discreteWidth=300).to_json() for x in team_plots]
+        plots = {"users": user_plots, "orgs": org_plots, "teams": team_plots}
         setattr(self, "plots", plots)
 
 

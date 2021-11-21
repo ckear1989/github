@@ -7,6 +7,7 @@ from wtforms import (
     StringField,
     SubmitField,
     PasswordField,
+    BooleanField,
     validators,
 )
 
@@ -40,8 +41,10 @@ class SearchForm(FlaskForm):
     Form for github user class.
     """
 
-    search_user = StringField("user")
-    search_org = StringField("org")
+    search_request = StringField("search")
+    search_users = BooleanField("users")
+    search_orgs = BooleanField("orgs")
+    search_teams = BooleanField("teams")
     search_ignore_repos = StringField("ignore repos")
     search = SubmitField(render_kw={"onclick": "loading()"})
 
@@ -51,9 +54,8 @@ class SearchForm(FlaskForm):
     def validate(self):
         if not super(FlaskForm, self).validate():
             return False
-        if not self.search_user.data and not self.search_org.data:
-            msg = "At least one of user or org must be set"
-            self.search_user.errors.append(msg)
-            self.search_org.errors.append(msg)
+        if not self.search.data:
+            msg = "Please enter search term."
+            self.search.errors.append(msg)
             return False
         return True

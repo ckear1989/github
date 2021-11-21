@@ -175,12 +175,6 @@ def search():
     Search for a user and org.
     """
     search_form = SearchForm()
-    search_user = search_form.search_user.data
-    search_org = search_form.search_org.data
-    search_ignore_repos = search_form.search_ignore_repos.data
-    if search_ignore_repos is None:
-        search_ignore_repos = ""
-    search_ignore_repos = [x.strip() for x in search_ignore_repos.strip().split(",")]
     if "login_user" in session:
         if "gat" in session:
             ghh = get_ghh(session["login_user"], session["gat"])
@@ -188,9 +182,11 @@ def search():
             if request.method == "POST" and search_form.validate():
                 try:
                     ghh.get_repos(
-                        user=search_user,
-                        org=search_org,
-                        ignore_repos=search_ignore_repos,
+                        search_request=search_form.search_request.data,
+                        users=search_form.search_users.data,
+                        orgs=search_form.search_teams.data,
+                        teams=search_form.search_teams.data,
+                        ignore_repos=search_form.search_ignore_repos.data,
                     )
                 except UnknownObjectException as uoe_error:
                     return render_template(
@@ -215,12 +211,10 @@ def search():
                     "search.html",
                     ghh=ghh,
                     search_form=search_form,
-                    ignore_repos_forms=search_ignore_repos,
                 )
     return render_template(
         "search.html",
         search_form=search_form,
-        ignore_repos_forms=search_ignore_repos,
         error="Please log in before using search functionality.",
     )
 
