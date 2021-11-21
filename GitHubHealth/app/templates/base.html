@@ -78,11 +78,7 @@
               url_for('static', filename='jquery.js') }}">\x3C/script>')
             </script>
 
-            <script type="text/javascript">// <![CDATA[
-                function loading(){
-                    $("#loading").show();
-                    $("#content").hide();
-                }
+            <script type="text/javascript"> src="{{ url_for('static', filename='base.js') }}"// <![CDATA[
             // ]]></script>
         {% endblock %}
 
