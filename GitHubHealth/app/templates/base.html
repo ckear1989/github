@@ -9,8 +9,7 @@
 
     {% block title %}
     {% endblock %}
-
-        {% block styles %}
+    {% block styles %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
         <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
         <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
@@ -66,9 +65,21 @@
 
         {% endblock %}
 
+        <div id="loading">
         {% block content %}
-            <div id="loading"></div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
         {% endblock %}
+        </div>
+
+
 
         {% block footer %}
             <div id="footer">

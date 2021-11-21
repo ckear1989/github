@@ -6,6 +6,7 @@ import os
 
 from flask import (
     Flask,
+    flash,
     render_template,
     request,
     session,
@@ -163,6 +164,7 @@ def logout():
         del session["login_user"]
     if "gat" in session:
         del session["gat"]
+    flash("logged out")
     return home()
 
 

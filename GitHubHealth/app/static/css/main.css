@@ -324,7 +324,8 @@ textarea.content {
     color: inherit;
     background-color: inherit;
     width: 80%;
-    margin: 10px;
+    margin: 20px;
+    margin-top: 10px;
 }
 
 div#loading {
@@ -343,7 +344,13 @@ div.warning {
     color: red;
 }
 
-div.warning div.error {
+.flashes {
+    justify-content: center;
+    margin-left: 20px;
+}
+
+
+div.warning div.error .flashes {
     font-size: 10px;
 }
 
