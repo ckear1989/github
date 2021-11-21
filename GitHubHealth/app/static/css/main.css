@@ -48,6 +48,7 @@ table.dataframe, .dataframe th, .dataframe td {
   font-size: 0.9em;
   border-width: 2px;
 }
+
 .light-mode .form {
   color: black;
   background-color: white;
@@ -90,11 +91,27 @@ table.dataframe, .dataframe th, .dataframe td {
   display: inline-block;
 }
 
+.form-group > #search_request {
+  border-radius: 10px;
+}
+
+.form-group > #ignore-repos {
+  border-radius: 10px;
+  width: 40%;
+}
+
 .form-control {
   color: dimgray;
   border-radius: 10px;
   justify-content: right;
   width: 40%;
+  display: inline-block;
+}
+
+.form-check {
+  border-radius: 10px;
+  justify-content: right;
+  width: 30%;
   display: inline-block;
 }
 
