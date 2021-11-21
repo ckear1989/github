@@ -8,11 +8,6 @@ body {
   margin-left: 20px;
 }
 
-.light-mode {
-  color: black;
-  background-color: white;
-}
-
 table, th, td {
   border: 1px solid #C8C8C8;
   align-content: center;
@@ -31,7 +26,6 @@ table {
   margin-bottom: 20px;
   font-size: 0.9em;
   border-width: 2px;
-  background-color: #15172b;
   width: 80%;
   align-items: center;
   justify-content: center;
@@ -47,14 +41,12 @@ tr {
 }
 
 table.dataframe, .dataframe th, .dataframe td {
-  border-bottom: 1px solid #C8C8C8;
   border-collapse: collapse;
   text-align:left;
   padding: 10px;
   margin-bottom: 40px;
   font-size: 0.9em;
   border-width: 2px;
-  background-color: #15172b;
 }
 .light-mode .form {
   color: black;
@@ -64,7 +56,6 @@ table.dataframe, .dataframe th, .dataframe td {
 .form {
   background-color: #15172b;
   border-width: 2px;
-  border-color: dimgray;
   border-radius: 20px;
   box-sizing: border-box;
   flex-direction: row;
@@ -78,7 +69,6 @@ table.dataframe, .dataframe th, .dataframe td {
 }
 
 .form-group {
-  background-color: #15172b;
   border-radius: 20px;
   box-sizing: border-box;
   flex-direction: row;
@@ -94,7 +84,6 @@ table.dataframe, .dataframe th, .dataframe td {
 
 .form-control-label {
   box-sizing: border-box;
-  border-color: dimgray;
   border-width: 5px;
   width: 40%;
   padding-right: 10px;
@@ -249,7 +238,6 @@ ul {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #112;
 }
 
 li {
@@ -331,4 +319,10 @@ div#loading {
 
 div.error {
     color: red;
+}
+
+.light-mode {
+  color: black;
+  background-color: white;
+  border-color: black;
 }

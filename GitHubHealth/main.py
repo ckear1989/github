@@ -26,24 +26,6 @@ REPOS_DF_COLUMNS = [
     "max_branch_age_days",
 ]
 REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
-TABLE_STYLES = [
-    {
-        "selector": "th",
-        "props": [("border-width", "2px"), ("border-color", "dimgray")],
-    },
-    {
-        "selector": "tr",
-        "props": [("border-width", "2px"), ("border-color", "dimgray")],
-    },
-    {
-        "selector": "td",
-        "props": [
-            ("border-width", "2px"),
-            ("border-color", "white"),
-            ("background-color", "#15172b"),
-        ],
-    },
-]
 
 # pylint: disable=redefined-outer-name
 
@@ -211,9 +193,7 @@ class RequestedObject:
         """
         if self.metadata_df is None:
             self.get_metadata_df()
-        metadata_html = (
-            self.metadata_df.style.hide_index().set_table_styles(TABLE_STYLES).render()
-        )
+        metadata_html = self.metadata_df.style.hide_index().render()
         setattr(self, "metadata_html", metadata_html)
 
 
@@ -320,7 +300,6 @@ class GitHubHealth:
         user_repo_html = (
             self.repo_dfs["user"]
             .style.hide_index()
-            .set_table_styles(TABLE_STYLES)
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
                 subset=["private"],
@@ -333,7 +312,6 @@ class GitHubHealth:
         org_repo_html = (
             self.repo_dfs["org"]
             .style.hide_index()
-            .set_table_styles(TABLE_STYLES)
             .applymap(
                 lambda x: "font-weight: bold" if x is False else None,
                 subset=["private"],

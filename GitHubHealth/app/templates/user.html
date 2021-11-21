@@ -34,12 +34,9 @@ Start browsing or searching.
     {% endblock %}
 
     {% block scripts %}
+        {{ super() }}
     {% endblock %}
 
-    <div name="warning">
-        {{ warning }}
-    </div>
-    <div name="error">
-        {{ error }}
-    </div>
+    <div name="warning">{{ warning }}</div>
+    <div name="error">{{ error }}</div>
 {% endblock %}
