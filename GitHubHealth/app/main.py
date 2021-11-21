@@ -95,7 +95,13 @@ def about():
     """
     Get about page.
     """
-    return render_template("about.html")
+    if "login_user" in session:
+        if "gat" in session:
+            ghh = get_ghh(session["login_user"], session["gat"])
+    return render_template(
+        "about.html",
+        ghh=ghh,
+    )
 
 
 @app.route("/login", methods=["POST", "GET"])
