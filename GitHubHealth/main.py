@@ -40,6 +40,8 @@ def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TI
     """
     if hostname is None:
         base_url = MainClass.DEFAULT_BASE_URL
+    elif hostname == "github.com":
+        base_url = MainClass.DEFAULT_BASE_URL
     else:
         base_url = f"https://{hostname}/api/v3"
     if gat is not None:
@@ -258,10 +260,12 @@ class GitHubHealth:
         """
         if hostname is None:
             self.base_url = MainClass.DEFAULT_BASE_URL
-            self.public_url = "https://github.com/"
+        elif hostname == "github.com":
+            self.base_url = MainClass.DEFAULT_BASE_URL
         else:
             self.base_url = f"https://{hostname}/api/v3"
-            self.public_url = f"https://{hostname}/"
+        self.public_url = f"https://{hostname}/"
+
         self.con, self.user = get_connection(hostname, login, password, gat, timeout)
         self.username = self.user.name
         self.user_url = self.user.url

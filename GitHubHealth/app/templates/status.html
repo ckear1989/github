@@ -87,7 +87,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='plots.js') }}"></script>
 
         {% if ghh.requested_user.obj is not none %}
-            {% for plot in ghh.plots["user"] %}
+            {% for plot in ghh.plots["users"] %}
                 <script>
                     vegaEmbedPlot({{ plot|safe }}, "vis{{loop.index}}", "#vis_user_{{loop.index}}");
                 </script>
@@ -95,7 +95,7 @@
         {% endif %}
 
         {% if ghh.requested_org.obj is not none %}
-            {% for plot in ghh.plots["org"] %}
+            {% for plot in ghh.plots["orgs"] %}
                 <script>
                     vegaEmbedPlot({{ plot|safe }}, "vis{{loop.index}}", "#vis_org_{{loop.index}}");
                 </script>

@@ -19,6 +19,7 @@ class LoginForm(FlaskForm):
 
     login_user = StringField("user login", [validators.DataRequired()])
     gat = PasswordField("github token", [validators.DataRequired()])
+    hostname = StringField("hostname", default="github.com")
     login = SubmitField(render_kw={"onclick": "loading()"})
 
     def validate(self, extra_validators=None):
