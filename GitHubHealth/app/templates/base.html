@@ -36,10 +36,11 @@
         {% block header %}
             <span class="header">
                 <ul>
-                    <li>  <a href="{{ url_for("home") }}">GitHubHealth</a></li>
-                    <li>  <a class="quicklink" href="{{ url_for("search") }}">search</a></li>
-                    <li> <a class="quicklink" href="{{ url_for("login") }}">login</a></li>
-                    <li> <a class="quicklink" href="{{ url_for("logout") }}">logout</a></li>
+                    <li><img class="mainIcon"  src="{{ url_for('static', filename='apple-touch-icon.png') }}"></li>
+                    <li><a href="{{ url_for("home") }}">GitHubHealth</a></li>
+                    <li><a class="quicklink" href="{{ url_for("search") }}">search</a></li>
+                    <li><a class="quicklink" href="{{ url_for("login") }}">login</a></li>
+                    <li><a class="quicklink" href="{{ url_for("logout") }}">logout</a></li>
                     <li >
                         {% if ghh is defined %}
                             <img class="menuIcon" src="{{ ghh.user.avatar_url }}">
