@@ -19,7 +19,11 @@
     {% endblock %}
 
     {% block content %}
-        {{ wtf.quick_form(login_form) }}
+        {% if login_form is defined %}
+            {{ wtf.quick_form(login_form) }}
+        {% else %}
+            <p>You are currently logged in as {{ ghh.user.name }} </p>
+        {% endif %}
     {% endblock %}
 
     {% block footer %}

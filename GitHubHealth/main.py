@@ -242,7 +242,11 @@ class RequestedObject:
         """
         if self.metadata_df is None:
             self.get_metadata_df()
-        metadata_html = self.metadata_df.style.hide_index().render()
+        metadata_html = self.metadata_df.to_html(
+            classes="dataframe",
+            table_id="table-metadata",
+            index=False,
+        )
         setattr(self, "metadata_html", metadata_html)
 
     def get_repo_df(self):
