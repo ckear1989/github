@@ -419,7 +419,24 @@ class GitHubHealth:
                 ),
             )
         ).properties(title="max branch age by repo")
-        user_plots = [branch_count_plot, branch_age_plot]
+        branch_age_min_plot = (
+            (
+                alt.Chart(self.repo_dfs["users"])
+                .mark_bar()
+                .encode(
+                    x="repo",
+                    y=alt.Y(
+                        "min_branch_age_days",
+                        sort=alt.EncodingSortField(
+                            field="min_branch_age_days", op="sum", order="descending"
+                        ),
+                    ),
+                )
+            )
+            .interactive()
+            .properties(title="min branch age by repo")
+        )
+        user_plots = [branch_count_plot, branch_age_plot, branch_age_min_plot]
         user_plots = [x.configure_view(discreteWidth=300).to_json() for x in user_plots]
         branch_count_plot = (
             alt.Chart(self.repo_dfs["orgs"])
