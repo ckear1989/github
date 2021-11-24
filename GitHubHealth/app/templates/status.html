@@ -59,24 +59,6 @@
             </div>
         {% endif %}
 
-        {% if ghh.requested_team.obj is not none %}
-            <div class="team_content">
-                <!-- embed table -->
-                <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
-                {{ ghh.repo_html["teams"]|safe }}
-                <table>
-                    <!-- create div where plot will be embedded -->
-                    {% for plot in ghh.plots["teams"] %}
-                        <tr>
-                            <td>
-                                <div id="vis_team_{{loop.index}}"></div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        {% endif %}
-
         <div id="warning"></div>
         <div id="error"></div>
 

@@ -28,6 +28,8 @@ REPOS_DF_COLUMNS = [
     "branch_count",
     "min_branch_age_days",
     "max_branch_age_days",
+    "issues",
+    "pull_requests",
 ]
 REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
 
@@ -90,6 +92,7 @@ def get_repo_details(repo):
         + [get_branch_details(branch) for branch in repo.get_branches()],
         ignore_index=True,
     )
+    # print(dir(repo))
     repo_dict = {
         "repo": [repo.name],
         "repo_url": [repo.html_url],
@@ -97,6 +100,8 @@ def get_repo_details(repo):
         "branch_count": [len(branch_df)],
         "min_branch_age_days": [branch_df["age"].min()],
         "max_branch_age_days": [branch_df["age"].max()],
+        "issues": get_paginated_list_len(repo.get_issues()),
+        "pull_requests": get_paginated_list_len(repo.get_pulls()),
     }
     languages = repo.get_languages()
     primary_language = None
@@ -152,6 +157,8 @@ def render_repo_html_table(repo_df):
     format repo_df to html.
     """
     repo_df_cpy = deepcopy(repo_df)
+    repo_df_cpy["issues"] = repo_df_cpy["issues"].astype(int)
+    repo_df_cpy["pull_requests"] = repo_df_cpy["pull_requests"].astype(int)
     if len(repo_df_cpy) > 0:
         repo_df_cpy["repo"] = repo_df_cpy.apply(
             lambda x: link_repo_name_url(x["repo"], x["repo_url"]), axis=1
@@ -167,11 +174,12 @@ def render_repo_html_table(repo_df):
         .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
         .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
         .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
-        .render()
+        .render(precision=0)
     )
     return repo_html
 
 
+# pylint: disable=too-many-instance-attributes
 class RequestedObject:
     """
     Container for requested objects.
@@ -194,6 +202,8 @@ class RequestedObject:
         self.metadata_df = None
         self.metadata_html = None
         self.repos = []
+        self.repo_df = None
+        self.plots = []
 
     def get_repos(self, ignore_repos=None):
         """
@@ -235,6 +245,68 @@ class RequestedObject:
         metadata_html = self.metadata_df.style.hide_index().render()
         setattr(self, "metadata_html", metadata_html)
 
+    def get_repo_df(self):
+        """
+        Main method to parse repo details into pandas DataFrame.
+        """
+        repo_df = (
+            pd.concat(
+                [REPOS_TEMPLATE_DF] + [get_repo_details(repo) for repo in self.repos],
+                ignore_index=True,
+            )
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        setattr(self, "repo_df", repo_df)
+
+    def get_plots(self):
+        """
+        Get plots from repo df.
+        """
+        branch_count_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y="branch_count",
+            )
+            .interactive()
+            .properties(title="branch count by repo")
+        )
+        branch_age_max_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y=alt.Y(
+                    "max_branch_age_days",
+                    sort=alt.EncodingSortField(
+                        field="max_branch_age_days", op="sum", order="descending"
+                    ),
+                ),
+            )
+            .interactive()
+            .properties(title="max branch age by repo")
+        )
+        branch_age_min_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y=alt.Y(
+                    "min_branch_age_days",
+                    sort=alt.EncodingSortField(
+                        field="min_branch_age_days", op="sum", order="descending"
+                    ),
+                ),
+            )
+            .interactive()
+            .properties(title="min branch age by repo")
+        )
+        plots = [branch_count_plot, branch_age_max_plot, branch_age_min_plot]
+        plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
+        setattr(self, "plots", plots)
+
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-instance-attributes
@@ -275,11 +347,8 @@ class GitHubHealth:
         self.plots = None
         self.requested_user = None
         self.requested_org = None
-        self.requested_team = None
 
-    def get_repos(
-        self, search_request, users=False, orgs=False, teams=False, ignore_repos=None
-    ):
+    def get_repos(self, search_request, users=False, orgs=False, ignore_repos=None):
         """
         Method to get repos as a class object.
         """
@@ -289,11 +358,13 @@ class GitHubHealth:
         assert isinstance(search_request, str)
         assert isinstance(users, bool)
         assert isinstance(orgs, bool)
-        assert isinstance(teams, bool)
         assert isinstance(ignore_repos, str)
         ignore_repos = ignore_repos.split(",")
         assert isinstance(ignore_repos, list)
-        repos = {"users": [], "orgs": [], "teams": []}
+        repos = {
+            "users": [],
+            "orgs": [],
+        }
         if users is True:
             try:
                 this_user = self.con.get_user(search_request)
@@ -320,60 +391,20 @@ class GitHubHealth:
                 )
         else:
             requested_org = RequestedObject(None, f"{self.public_url}/{search_request}")
-        # github object has no get_team/teams method
-        # if teams is True:
-        #     try:
-        #         print(dir(self.con))
-        #         this_team = self.con.get_team(search_request)
-        #         requested_team = RequestedObject(this_org, this_org.html_url)
-        #         requested_team.get_repos(ignore_repos)
-        #         repos["teams"] = requested_org.return_repos()
-        #     except UnknownObjectException:
-        #         requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
-        # else:
-        #     requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
-        requested_team = RequestedObject(None, f"{self.public_url}/{search_request}")
         setattr(self, "repos", repos)
         setattr(self, "requested_user", requested_user)
         setattr(self, "requested_org", requested_org)
-        setattr(self, "requested_team", requested_team)
 
     def get_repo_dfs(self):
         """
         Main method to parse repo details into pandas DataFrame.
         """
+        self.requested_user.get_repo_df()
+        self.requested_org.get_repo_df()
         repo_dfs = {
-            "users": REPOS_TEMPLATE_DF,
-            "orgs": REPOS_TEMPLATE_DF,
-            "teams": REPOS_TEMPLATE_DF,
+            "users": self.requested_user.repo_df,
+            "orgs": self.requested_org.repo_df,
         }
-        repo_dfs["users"] = (
-            pd.concat(
-                [REPOS_TEMPLATE_DF]
-                + [get_repo_details(repo) for repo in self.requested_user.repos],
-                ignore_index=True,
-            )
-            .sort_values(by="repo")
-            .reset_index(drop=True)
-        )
-        repo_dfs["orgs"] = (
-            pd.concat(
-                [REPOS_TEMPLATE_DF]
-                + [get_repo_details(repo) for repo in self.requested_org.repos],
-                ignore_index=True,
-            )
-            .sort_values(by="repo")
-            .reset_index(drop=True)
-        )
-        repo_dfs["teams"] = (
-            pd.concat(
-                [REPOS_TEMPLATE_DF]
-                + [get_repo_details(repo) for repo in self.requested_team.repos],
-                ignore_index=True,
-            )
-            .sort_values(by="repo")
-            .reset_index(drop=True)
-        )
         setattr(self, "repo_dfs", repo_dfs)
 
     def render_repo_html_tables(self):
@@ -382,11 +413,9 @@ class GitHubHealth:
         """
         user_repo_html = render_repo_html_table(self.repo_dfs["users"])
         org_repo_html = render_repo_html_table(self.repo_dfs["orgs"])
-        team_repo_html = render_repo_html_table(self.repo_dfs["teams"])
         repo_html = {
             "users": user_repo_html,
             "orgs": org_repo_html,
-            "teams": team_repo_html,
         }
         setattr(self, "repo_html", repo_html)
 
@@ -394,87 +423,12 @@ class GitHubHealth:
         """
         get altair plot objects as html.
         """
-        branch_count_plot = (
-            alt.Chart(self.repo_dfs["users"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y="branch_count",
-            )
-        ).properties(title="branch count by repo")
-        # issues with altair library?
-        # self.repo_dfs["user"].sort_values(
-        #   "max_branch_age_days", axis=0, ascending=False, inplace=True
-        # )
-        branch_age_plot = (
-            alt.Chart(self.repo_dfs["users"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y(
-                    "max_branch_age_days",
-                    sort=alt.EncodingSortField(
-                        field="max_branch_age_days", op="sum", order="descending"
-                    ),
-                ),
-            )
-        ).properties(title="max branch age by repo")
-        branch_age_min_plot = (
-            (
-                alt.Chart(self.repo_dfs["users"])
-                .mark_bar()
-                .encode(
-                    x="repo",
-                    y=alt.Y(
-                        "min_branch_age_days",
-                        sort=alt.EncodingSortField(
-                            field="min_branch_age_days", op="sum", order="descending"
-                        ),
-                    ),
-                )
-            )
-            .interactive()
-            .properties(title="min branch age by repo")
-        )
-        user_plots = [branch_count_plot, branch_age_plot, branch_age_min_plot]
-        user_plots = [x.configure_view(discreteWidth=300).to_json() for x in user_plots]
-        branch_count_plot = (
-            alt.Chart(self.repo_dfs["orgs"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y("branch_count", sort="-y"),
-            )
-        ).properties(title="branch count by repo")
-        branch_age_plot = (
-            alt.Chart(self.repo_dfs["orgs"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y="max_branch_age_days",
-            )
-        ).properties(title="max branch age by repo")
-        org_plots = [branch_count_plot, branch_age_plot]
-        org_plots = [x.configure_view(discreteWidth=300).to_json() for x in org_plots]
-        branch_count_plot = (
-            alt.Chart(self.repo_dfs["teams"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y("branch_count", sort="-y"),
-            )
-        ).properties(title="branch count by repo")
-        branch_age_plot = (
-            alt.Chart(self.repo_dfs["teams"])
-            .mark_bar()
-            .encode(
-                x="repo",
-                y="max_branch_age_days",
-            )
-        ).properties(title="max branch age by repo")
-        team_plots = [branch_count_plot, branch_age_plot]
-        team_plots = [x.configure_view(discreteWidth=300).to_json() for x in team_plots]
-        plots = {"users": user_plots, "orgs": org_plots, "teams": team_plots}
+        self.requested_user.get_plots()
+        self.requested_org.get_plots()
+        plots = {
+            "users": self.requested_user.plots,
+            "orgs": self.requested_org.plots,
+        }
         setattr(self, "plots", plots)
 
 

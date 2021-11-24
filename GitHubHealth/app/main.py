@@ -236,8 +236,7 @@ def search():
                         ghh.get_repos(
                             search_request=search_form.search_request.data,
                             users=search_form.search_users.data,
-                            orgs=search_form.search_teams.data,
-                            teams=search_form.search_teams.data,
+                            orgs=search_form.search_orgs.data,
                             ignore_repos=search_form.search_ignore_repos.data,
                         )
                     except UnknownObjectException as uoe_error:
