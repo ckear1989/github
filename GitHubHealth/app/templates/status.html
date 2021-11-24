@@ -23,53 +23,59 @@
 
     {% block content %}
 
-    {% if ghh.requested_user.obj is not none %}
-        <div class="user_content">
-            <!-- embed table -->
-            <a class="header" href={{ ghh.requested_user.url }}>{{ ghh.requested_user.name }}</a>
+        {% if ghh.requested_user.obj is not none %}
+            <div class="user_content">
+                <!-- embed table -->
+                <a class="header" href={{ ghh.requested_user.url }}>{{ ghh.requested_user.name }}</a>
                 {{ ghh.repo_html["users"]|safe }}
-            <table>
-            <!-- create div where plot will be embedded -->
-            {% for plot in ghh.plots["users"] %}
-                <tr><td>
-                    <div id="vis_user_{{loop.index}}"></div>
-                </td></tr>
-            {% endfor %}
-            </table>
-        </div>
-    {% endif %}
+                <table>
+                    <!-- create div where plot will be embedded -->
+                    {% for plot in ghh.plots["users"] %}
+                        <tr>
+                            <td>
+                                <div id="vis_user_{{loop.index}}"></div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
 
-    {% if ghh.requested_org.obj is not none %}
-        <div class="org_content">
-            <!-- embed table -->
-            <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
+        {% if ghh.requested_org.obj is not none %}
+            <div class="org_content">
+                <!-- embed table -->
+                <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["orgs"]|safe }}
-            <table>
-            <!-- create div where plot will be embedded -->
-            {% for plot in ghh.plots["orgs"] %}
-                <tr><td>
-                    <div id="vis_org_{{loop.index}}"></div>
-                </td></tr>
-            {% endfor %}
-            </table>
-        </div>
-    {% endif %}
+                <table>
+                    <!-- create div where plot will be embedded -->
+                    {% for plot in ghh.plots["orgs"] %}
+                        <tr>
+                            <td>
+                                <div id="vis_org_{{loop.index}}"></div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
 
-    {% if ghh.requested_team.obj is not none %}
-        <div class="team_content">
-            <!-- embed table -->
-            <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
+        {% if ghh.requested_team.obj is not none %}
+            <div class="team_content">
+                <!-- embed table -->
+                <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["teams"]|safe }}
-            <table>
-            <!-- create div where plot will be embedded -->
-            {% for plot in ghh.plots["teams"] %}
-                <tr><td>
-                    <div id="vis_team_{{loop.index}}"></div>
-                </td></tr>
-            {% endfor %}
-            </table>
-        </div>
-    {% endif %}
+                <table>
+                    <!-- create div where plot will be embedded -->
+                    {% for plot in ghh.plots["teams"] %}
+                        <tr>
+                            <td>
+                                <div id="vis_team_{{loop.index}}"></div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
 
         <div id="warning"></div>
         <div id="error"></div>

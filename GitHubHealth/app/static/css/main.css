@@ -269,6 +269,15 @@ li a, .dropbtn {
   text-decoration: none;
 }
 
+.image-link {
+  padding: 4px 6px;
+}
+
+.image-link:hover {
+  background-color: inherit;
+}
+
+
 li a:hover, .dropdown:hover .dropbtn {
   background-color: #4169e1;
 }
@@ -328,6 +337,15 @@ li.dropdown {
 }
 
 textarea.content {
+    background: inherit;
+    color: inherit;
+    background-color: inherit;
+    width: 80%;
+    margin: 20px;
+    margin-top: 10px;
+}
+
+div.about {
     background: inherit;
     color: inherit;
     background-color: inherit;

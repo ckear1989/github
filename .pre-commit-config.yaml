@@ -11,6 +11,11 @@ repos:
     -   id: check-added-large-files
     -   id: no-commit-to-branch
         args: ["--branch", "main", "--branch", "master"]
+-   repo: https://github.com/ckear1989/jinjalint
+    rev: dependency_version_update
+    hooks:
+    - id: jinjalint
+      types: [html]
 -   repo: https://github.com/ambv/black
     rev: 21.10b0
     hooks:

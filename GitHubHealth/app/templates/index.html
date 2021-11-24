@@ -19,13 +19,13 @@
     {% endblock %}
 
     {% block content %}
-<textarea readonly class="content" rows="40">
-Welcome to GitHubHealth.com!
-
-This webb app allows you to query the GitHub api and view formatted results and plots.
-
-How healthy is your GitHub?
-</textarea>
+        <p>
+            Welcome to GitHubHealth.com!
+            This web app allows you to query the GitHub api and view formatted results and plots.
+        </p>
+        {% if login_form is defined %}
+            {{ wtf.quick_form(login_form) }}
+        {% endif %}
         {{ super() }}
     {% endblock %}
 

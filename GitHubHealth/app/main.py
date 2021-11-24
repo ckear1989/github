@@ -97,18 +97,36 @@ def home():
     """
     if "login_user" in session:
         if "gat" in session:
-            ghh, error_message = try_ghh(
-                session["login_user"], session["gat"], session["hostname"]
-            )
-            if ghh is not None:
-                return render_template("index.html", ghh=ghh)
-            del session["gat"]
-            return render_template(
-                "home.html",
-                error=error_message,
-            )
+            if "hostname" in session:
+                ghh, error_message = try_ghh(
+                    session["login_user"], session["gat"], session["hostname"]
+                )
+                if ghh is not None:
+                    return render_template("index.html", ghh=ghh)
+                del session["gat"]
+                return render_template(
+                    "home.html",
+                    error=error_message,
+                )
+    login_form = LoginForm()
+    if request.method == "POST" and login_form.validate():
+        login_user = login_form.login_user.data
+        gat = login_form.gat.data
+        hostname = login_form.hostname.data
+        ghh, error_message = try_ghh(login_user, gat, hostname)
+        if ghh is not None:
+            session["login_user"] = login_user
+            session["gat"] = gat
+            session["hostname"] = hostname
+            return user(ghh)
+        return render_template(
+            "login.html",
+            login_form=login_form,
+            error=error_message,
+        )
     return render_template(
         "index.html",
+        login_form=login_form,
     )
 
 

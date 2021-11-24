@@ -18,9 +18,42 @@
     {% endblock %}
 
     {% block content %}
-<textarea readonly class="content" rows="40">
-about
-</textarea>
+        <div class="about">
+            <p>
+                GitHubHealth is a hobby website. I am a data scientist looking for a fun side project to develop by app building skills.
+                I started gathering metadata from <a href="https://github.com/">Github</a> for reports to help inform decisions about code clean up and refactoring.
+                Diving deeper into the data from the Github api we can perform more complex analyses on code bases and create automated reporting, linting, test running etc.
+            </p>
+            <p>
+                This app is built in <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a> and uses the <a href="https://docs.github.com/en/rest">GitHub REST API</a> as implemented by <a href="https://github.com/PyGithub/PyGithub">PyGitHub</a>.
+                GitHubHealth takes the data retrieved from the API calls and renders it in pandas dataframes and altair plots.
+            </p>
+            <p>
+                To log in, you will need your login and Github access token.  You can also provide a hostname (default is github.com) and timeout option (default 2 seconds).
+                This web app should work for all hostnames but your enterprise may require SSL certificates to make requests.
+            </p>
+            <p>
+                All the code is publicly available:
+            </p>
+            <p>
+                Github
+                https:
+                <div id="clone-https">git clone https://github.com/ckear1989/github.git</div>
+                <button class="copy-btn" id="copy-btn-https" data-clipboard-action="copy" data-clipboard-target="#clone-https">Copy</button>
+            </p>
+
+            <p>
+                or ssh:
+                <div id="clone-ssh">git clone git@github.com:ckear1989/github.git</div>
+                <button class="copy-btn" id="copy-btn-ssh" data-clipboard-action="copy" data-clipboard-target="#clone-ssh">Copy</button>
+            </p>
+
+            <p>
+                PyPi
+                <div id="pip-install">pip install GitHubHealth</div>
+                <button class="copy-btn" id="copy-btn-pip" data-clipboard-action="copy" data-clipboard-target="#pip-install">Copy</button>
+            </p>
+        </div>
         {{ super() }}
     {% endblock %}
 
@@ -29,6 +62,13 @@ about
     {% endblock %}
 
     {% block scripts %}
+        <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+        <script>
+            new ClipboardJS('#copy-btn-https');
+            new ClipboardJS('#copy-btn-ssh');
+            new ClipboardJS('#copy-btn-pip');
+        </script>
+
         {{ super() }}
     {% endblock %}
 

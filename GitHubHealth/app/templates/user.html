@@ -19,10 +19,10 @@
     {% endblock %}
 
     {% block content %}
-<textarea readonly class="content" rows=3">
-Logged in as {{ ghh.user.name }}.
-Start browsing or searching.
-</textarea>
+        <p>
+            Logged in as {{ ghh.user.name }}.
+            Start browsing or searching.
+        </p>
         <div class="user_content">
             {{ ghh.user.metadata_html|safe }}
         </div>
