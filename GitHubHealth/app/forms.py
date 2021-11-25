@@ -54,6 +54,8 @@ class SearchForm(FlaskForm):
 
     def validate(self, extra_validators=None):
         if not super().validate(extra_validators=extra_validators):
+            msg = "super() validate false"
+            self.search_request.errors.append(msg)
             return False
         if not self.search_request.data:
             msg = "Please enter search term."

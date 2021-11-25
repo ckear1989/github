@@ -96,7 +96,6 @@ def home():
     """
     Get home page.
     """
-    error_message = "none"
     login_form = LoginForm()
     if request.method == "POST" and login_form.validate():
         session["login_user"] = login_form.login_user.data
@@ -112,13 +111,12 @@ def home():
             error=error_message,
         )
     if request.method == "GET":
-        ghh, error_message = try_ghh(session)
+        ghh, _ = try_ghh(session)
         if ghh is not None:
             return user(ghh)
     return render_template(
         "index.html",
         login_form=login_form,
-        error=error_message,
     )
 
 
@@ -143,9 +141,10 @@ def login():
     """
     Get login page with form.
     """
-    ghh, error_message = try_ghh(session)
-    if ghh is not None:
-        return user(ghh)
+    if request.method == "GET":
+        ghh, error_message = try_ghh(session)
+        if ghh is not None:
+            return user(ghh)
     login_form = LoginForm()
     if request.method == "POST" and login_form.validate():
         session["login_user"] = login_form.login_user.data
@@ -160,8 +159,6 @@ def login():
             login_form=login_form,
             error=error_message,
         )
-    if request.method == "GET" and ghh is not None:
-        return user(ghh)
     return render_template(
         "index.html",
         login_form=login_form,
