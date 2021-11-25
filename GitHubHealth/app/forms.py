@@ -65,4 +65,8 @@ class SearchForm(FlaskForm):
             msg = "Please enter longer search term."
             self.search_request.errors.append(msg)
             return False
+        if self.search_users.data is False and self.search_orgs.data is False:
+            msg = "Please choose users, orgs or both"
+            self.search_request.errors.append(msg)
+            return False
         return True

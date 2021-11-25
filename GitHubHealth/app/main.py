@@ -97,19 +97,25 @@ def home():
     Get home page.
     """
     login_form = LoginForm()
-    if request.method == "POST" and login_form.validate():
-        session["login_user"] = login_form.login_user.data
-        session["gat"] = login_form.gat.data
-        session["hostname"] = login_form.hostname.data
-        session["timeout"] = login_form.timeout.data
-        ghh, error_message = try_ghh(session)
-        if ghh is not None:
-            return user(ghh)
-        return render_template(
-            "index.html",
-            login_form=login_form,
-            error=error_message,
-        )
+    if "login_user" in request.form.keys():
+        if request.method == "POST" and login_form.validate():
+            session["login_user"] = login_form.login_user.data
+            session["gat"] = login_form.gat.data
+            session["hostname"] = login_form.hostname.data
+            session["timeout"] = login_form.timeout.data
+            ghh, error_message = try_ghh(session)
+            if ghh is not None:
+                return user(ghh)
+            return render_template(
+                "index.html",
+                login_form=login_form,
+                error=error_message,
+            )
+    if "search_request" in request.form.keys():
+        if request.method == "POST":
+            ghh, error_message = try_ghh(session)
+            if ghh is not None:
+                return user(ghh)
     if request.method == "GET":
         ghh, _ = try_ghh(session)
         if ghh is not None:
@@ -141,6 +147,10 @@ def login():
     """
     Get login page with form.
     """
+    if "search" in request.form.keys():
+        ghh, error_message = try_ghh(session)
+        if ghh is not None:
+            return user(ghh)
     if request.method == "GET":
         ghh, error_message = try_ghh(session)
         if ghh is not None:
@@ -212,11 +222,20 @@ def user(ghh):
         ghh.get_plots()
         return status(ghh)
     if request.method == "POST" and search_form.validate() is False:
+        warning = search_form.search_request.errors[0]
         return render_template(
             "user.html",
             ghh=ghh,
             search_form=search_form,
-            warning="enter a term to search",
+            warning=warning,
+        )
+    if all(
+        x in request.form.keys() for x in ["login_user", "gat", "hostname", "login"]
+    ):
+        return render_template(
+            "user.html",
+            ghh=ghh,
+            search_form=search_form,
         )
     return render_template(
         "user.html",
