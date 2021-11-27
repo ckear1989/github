@@ -9,8 +9,8 @@ body {
 }
 
 table, th, td {
-  border: 1px solid #C8C8C8;
-  align-content: center;
+    border: 1px solid #C8C8C8;
+    align-content: center;
 }
 
 div[id^="vis_user_"] {
@@ -178,6 +178,23 @@ table.dataframe, .dataframe th, .dataframe td {
   height: 40px;
 }
 
+ul.plots {
+    height: 400px;
+}
+
+.btn-direction{
+    margin-top: 180px;
+    margin-right: 28px;
+    width: 80px;
+    height: 80px;
+}
+img.btn-direction{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
 .invalid-feedback {
   font-size: 8px;
   color: Coral;
@@ -308,7 +325,7 @@ input[type="submit" i] {
     font-size: 16px;
 }
 
-ul {
+ul.header {
     list-style-type: none;
     margin: 0;
     padding: 0;

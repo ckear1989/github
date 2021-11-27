@@ -277,6 +277,19 @@ class RequestedObject:
             .interactive()
             .properties(title="branch count by repo")
         )
+        # debug by saving plots to see raw html
+        # branch_count_plot_noni = (
+        #     alt.Chart(self.repo_df)
+        #     .mark_bar()
+        #     .encode(
+        #         x="repo",
+        #         y="branch_count",
+        #     )
+        #     .properties(title="branch count by repo")
+        # )
+        # if self.name == "ckear1989":
+        #     branch_count_plot.save("branch_count_plot.html")
+        #     branch_count_plot_noni.save("branch_count_plot_noni.html")
         branch_age_max_plot = (
             alt.Chart(self.repo_df)
             .mark_bar()
@@ -307,7 +320,43 @@ class RequestedObject:
             .interactive()
             .properties(title="min branch age by repo")
         )
-        plots = [branch_count_plot, branch_age_max_plot, branch_age_min_plot]
+        issues_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y=alt.Y(
+                    "issues",
+                    sort=alt.EncodingSortField(
+                        field="issues", op="sum", order="descending"
+                    ),
+                ),
+            )
+            .interactive()
+            .properties(title="issues by repo")
+        )
+        pr_plot = (
+            alt.Chart(self.repo_df)
+            .mark_bar()
+            .encode(
+                x="repo",
+                y=alt.Y(
+                    "pull_requests",
+                    sort=alt.EncodingSortField(
+                        field="pull_requests", op="sum", order="descending"
+                    ),
+                ),
+            )
+            .interactive()
+            .properties(title="pull requests by repo")
+        )
+        plots = [
+            branch_count_plot,
+            branch_age_max_plot,
+            branch_age_min_plot,
+            issues_plot,
+            pr_plot,
+        ]
         plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
         setattr(self, "plots", plots)
 

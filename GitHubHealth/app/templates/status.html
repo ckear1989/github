@@ -12,6 +12,18 @@
 
 {% endblock %}
 
+{% macro direction_button_left(target) %}
+<button class="btn-direction" id="left" onclick="showPlotLeft()">
+    <img class="btn-direction" src="{{ url_for('static', filename='arrow-left-circle-fill.svg') }}">
+</button>
+{% endmacro %}
+
+{% macro direction_button_right(target) %}
+<button class="btn-direction" id="right" onclick="showPlotRight()">
+    <img class="btn-direction" src="{{ url_for('static', filename='arrow-right-circle-fill.svg') }}">
+</button>
+{% endmacro %}
+
 {% block body %}
 
     {% block navbar %}
@@ -28,16 +40,24 @@
                 <!-- embed table -->
                 <a class="header" href={{ ghh.requested_user.url }}>{{ ghh.requested_user.name }}</a>
                 {{ ghh.repo_html["users"]|safe }}
-                <table>
-                    <!-- create div where plot will be embedded -->
-                    {% for plot in ghh.plots["users"] %}
-                        <tr>
-                            <td>
-                                <div id="vis_user_{{loop.index}}"></div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
+                <ul class="plots">
+                    <li>
+                        {{ direction_button_left("image-prev") }}
+                    </li>
+                    <li>
+                        <!-- create divs where plot will be embedded -->
+                        {% for plot in ghh.plots["users"] %}
+                            {% if loop.index == 1 %}
+                                <div id="vis_user_{{loop.index}}" class="div-plot" style="display: block"></div>
+                            {% else %}
+                                <div id="vis_user_{{loop.index}}" class="div-plot" style="display: none"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li>
+                        {{ direction_button_right("image-next") }}
+                    </li>
+                </ul>
             </div>
         {% endif %}
 
@@ -47,14 +67,14 @@
                 <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["orgs"]|safe }}
                 <table>
-                    <!-- create div where plot will be embedded -->
-                    {% for plot in ghh.plots["orgs"] %}
-                        <tr>
-                            <td>
+                    <tr>
+                        <td>
+                            <!-- create div where plot will be embedded -->
+                            {% for plot in ghh.plots["orgs"] %}
                                 <div id="vis_org_{{loop.index}}"></div>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                            {% endfor %}
+                        </td>
+                    </tr>
                 </table>
             </div>
         {% endif %}
@@ -69,9 +89,9 @@
 
     {% block scripts %}
         {{ super() }}
-        <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='plots.js') }}"></script>
 
         {% if ghh.requested_user.obj is not none %}
@@ -89,6 +109,33 @@
                 </script>
             {% endfor %}
         {% endif %}
+
+        <script>
+            function showPlotLeft() {
+                var x = document.getElementsByClassName("div-plot");
+                l = x.length;
+                // from right to left disable display until we find already displayed
+                for (i = l-1; i > 0; i--) {
+                    if (x[i].style.display == "block") {
+                        x[i].style.display = "none";
+                        x[i-1].style.display = "block";
+                        break;
+                    }
+                }
+            }
+            function showPlotRight() {
+                var x = document.getElementsByClassName("div-plot");
+                l = x.length;
+                // from left to right disable display until we find already displayed
+                for (i = 0; i < l-1; i++) {
+                    if (x[i].style.display == "block") {
+                        x[i].style.display = "none";
+                        x[i+1].style.display = "block";
+                        break;
+                    }
+                }
+            }
+        </script>
 
     {% endblock %}
 
