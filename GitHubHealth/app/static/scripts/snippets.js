@@ -2,7 +2,7 @@
 
 var snippets=document.querySelectorAll('.snippet');
 [].forEach.call(snippets,function(snippet){
-    snippet.firstChild.insertAdjacentHTML('beforebegin','<button class="btn" data-clipboard-snippet><img class="clippy" width="13" src="static/clipboard.svg" alt="Copy to clipboard"></button>');
+    snippet.firstChild.insertAdjacentHTML('beforebegin','<button class="btn" data-clipboard-snippet><img class="clippy" width="13" src="static/assets/clipboard.svg" alt="Copy to clipboard"></button>');
 });
 var clipboardSnippets=new ClipboardJS('[data-clipboard-snippet]',{
     target:function(trigger){

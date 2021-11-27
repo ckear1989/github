@@ -14,13 +14,13 @@
 
 {% macro direction_button_left(target) %}
 <button class="btn-direction" id="left" onclick="showPlotLeft()">
-    <img class="btn-direction" src="{{ url_for('static', filename='arrow-left-circle-fill.svg') }}">
+    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
 </button>
 {% endmacro %}
 
 {% macro direction_button_right(target) %}
 <button class="btn-direction" id="right" onclick="showPlotRight()">
-    <img class="btn-direction" src="{{ url_for('static', filename='arrow-right-circle-fill.svg') }}">
+    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
 </button>
 {% endmacro %}
 
@@ -92,7 +92,7 @@
         <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='plots.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
 
         {% if ghh.requested_user.obj is not none %}
             {% for plot in ghh.plots["users"] %}

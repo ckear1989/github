@@ -40,23 +40,23 @@
     {% block header %}
         <span class="header">
             <ul class="header">
-                <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='apple-touch-icon.png') }}"></a></li>
+                <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='assets/apple-touch-icon.png') }}"></a></li>
                 <li><a href="{{ url_for("home") }}">GitHubHealth</a></li>
                 <li>
                     <div class="dropdown">
                         {% if ghh is defined %}
                             <img class="menu-icon" src="{{ ghh.user.avatar_url }}">
                         {% else %}
-                            <img class="menu-icon" src="{{ url_for('static', filename='nouser.png') }}">
+                            <img class="menu-icon" src="{{ url_for('static', filename='assets/nouser.png') }}">
                         {% endif %}
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
                             <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
                             <button class="theme-pick" onclick="activateLightMode()">
-                                <img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='sun.svg') }}">
+                                <img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='assets/sun.svg') }}">
                             </button>
                             <button class="theme-pick" onclick="activateDarkMode()">
-                                <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='moon.svg') }}">
+                                <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='assets/moon.svg') }}">
                             </button>
                         </div>
                     </div>
@@ -95,16 +95,21 @@
 
     {% block footer %}
         <div id="footer">
-            <a href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a>
-            <a href="mailto:support@githubhealth.com" class="quicklink">support</a>
-            <a href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a>
+            <ul>
+                <li><a target="_blank" href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a></li>
+                <li> | </li>
+                <li><a href="mailto:support@githubhealth.com" class="quicklink">support</a></li>
+                <li> | </li>
+                <li><a target="_blank" class="quicklink" href="https://pypi.org/project/GitHubHealth/">pypi</a></li>
+                <li> | </li>
+                <li><a target="_blank" href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a></li>
+            </ul>
         </div>
     {% endblock %}
 
     {% block scripts %}
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-        <script type="text/javascript" src="{{ url_for('static', filename='base.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/base.js') }}"></script>
     {% endblock %}
 
 {% endblock %}

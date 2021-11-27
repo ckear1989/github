@@ -14,6 +14,7 @@ from flask import (
 from flask.logging import create_logger
 from flask_wtf import CSRFProtect
 from flask_bootstrap import Bootstrap
+import pkg_resources
 from requests.exceptions import (
     ReadTimeout,
     ConnectionError as RequestsConnectionError,
@@ -30,6 +31,15 @@ from GitHubHealth.app.forms import (
     LoginForm,
     SearchForm,
 )
+
+REQUIREMENTS = str(
+    pkg_resources.resource_stream("GitHubHealth", "app/requirements.txt").read()
+)
+VERSION = [
+    x.strip().split("GitHubHealth==")[1]
+    for x in REQUIREMENTS.split("\\n")
+    if "GitHubHealth" in x
+][0]
 
 
 def try_ghh(this_session):
@@ -50,6 +60,7 @@ def try_ghh(this_session):
             BadCredentialsException,
             GithubException,
             RequestsConnectionError,
+            ReadTimeout,
         ) as bce_gh_error:
             return None, bce_gh_error
         return ghh, None
@@ -136,9 +147,11 @@ def about():
         return render_template(
             "about.html",
             ghh=ghh,
+            version=VERSION,
         )
     return render_template(
         "about.html",
+        version=VERSION,
     )
 
 

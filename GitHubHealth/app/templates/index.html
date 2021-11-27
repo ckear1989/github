@@ -28,11 +28,11 @@
                 {{ login_form.csrf_token() }}
                 <div class="form-group">
                     <label class="form-control-label">user login</label>
-                    <input class="form-control" id="login_user" name="login_user" required type="text">
+                    <input class="form-control" id="login_user" name="login_user" required type="text" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label class="form-control-label">github token</label>
-                    <input class="form-control" id="gat" name="gat" required type="password">
+                    <input class="form-control" id="gat" name="gat" required type="password" autocomplete="current-password">
                 </div>
                 <div class="form-group">
                     <label class="form-control-label">hostname</label>
