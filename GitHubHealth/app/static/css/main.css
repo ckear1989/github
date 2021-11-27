@@ -1,11 +1,73 @@
 
 body {
-  background-color: #112;
+  background-color: #1818ab;
   color: #eee;
   display: flex;
   flex-direction: column;
   height: 100vh;
   margin-left: 20px;
+}
+
+.light-mode {
+  color: black;
+  background-color: #808080;
+  border-color: black;
+}
+
+.dark-mode {
+  color: #DCDCDC;
+  background-color: #112;
+  border-color: #DCDCDC;
+}
+
+.form {
+  background-color: #3737f0;
+  border-width: 2px;
+  border-radius: 20px;
+  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  padding: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 400px;
+}
+
+.light-mode .form {
+    color: inherit;
+    background-color: #DCDCDC;
+}
+
+.dark-mode .form {
+    color: inherit;
+    background-color: #15172b;
+}
+
+.dark-mode .dropdown-content {
+    color: inherit;
+    background-color: #4169e1;
+}
+
+button.theme-pick {
+    border: none;
+    background-color: inherit;
+}
+
+img.theme-pick, img.theme-pick-chosen {
+    width: 50px;
+    height: 50px;
+}
+
+img.theme-pick-chosen {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(18, 237, 51, 0.7);
+}
+
+img.theme-pick:hover {
+    background-color: rgba(237, 230, 18, 0.7);
 }
 
 table, th, td {
@@ -58,26 +120,6 @@ table.dataframe, .dataframe th, .dataframe td {
 
 #table-metadata {
     width: 500px;
-}
-
-.light-mode .form {
-  color: black;
-  background-color: white;
-}
-
-.form {
-  background-color: #15172b;
-  border-width: 2px;
-  border-radius: 20px;
-  box-sizing: border-box;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  padding: 10px;
-  margin-left: 20px;
-  margin-right: 20px;
-  width: 400px;
 }
 
 .form.login {
@@ -318,7 +360,7 @@ input[type="submit" i] {
   font-size: 32px;
   vertical-align: bottom;
   margin-bottom: 10px;
-  color: Gainsboro;
+  color: #DCDCDC;
 }
 
 .quicklink {
@@ -339,7 +381,7 @@ li {
     display: inline-block;
 }
 
-li a, .dropbtn {
+li a, {
   display: inline-block;
   color: white;
   text-align: center;
@@ -355,8 +397,16 @@ li a, .dropbtn {
   background-color: inherit;
 }
 
+/* dropdown hover but not title or menu-icon*/
+li a:hover, .dropdown:hover {
+    background-color: #4169e1;
+}
 
-li a:hover, .dropdown:hover .dropbtn {
+.menu-icon:hover {
+    background-color:inherit;
+}
+
+li a:hover, .dropdown:hover {
   background-color: #4169e1;
 }
 
@@ -365,26 +415,25 @@ li.dropdown {
 }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-  font-size: 16px;
-
+    display: none;
+    position: absolute;
+    background-color: inherit;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    font-size: 16px;
 }
 
 .dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-  text-align: left;
+    color: inherit;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
 }
 
-.dropdown-content a:hover {background-color:
-  #4169e1;}
+.dropdown-content a:hover {
+    background-color: #4169e1;
+}
 
 .dropdown:hover .dropdown-content {
   display: block;
@@ -403,7 +452,7 @@ li.dropdown {
     font-size: 20px;
     vertical-align: top;
     margin-bottom: 10px;
-    color: Gainsboro;
+    color: inherit;
     white-space: nowrap;
 }
 
@@ -457,12 +506,6 @@ div.error {
 
 div.warning {
     color: yellow;
-}
-
-.light-mode {
-  color: black;
-  background-color: white;
-  border-color: black;
 }
 
 input#timeout {

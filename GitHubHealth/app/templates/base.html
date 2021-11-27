@@ -18,9 +18,13 @@
     {% block onload %}
         <script>
             document.ready= function() {
-                if (localStorage.getItem("lightMode")== 'true') {
-                    document.body.classList.toggle("light-mode");
+                if (localStorage.getItem("lightMode")) {
                     document.getElementById("lightMode").checked = true;
+                    document.getElementById("darkMode").checked = false;
+                }
+                else if (localStorage.getItem("darkMode")) {
+                    document.getElementById("darkMode").checked = true;
+                    document.getElementById("lightMode").checked = false;
                 }
             }
         </script>
@@ -36,7 +40,7 @@
     {% block header %}
         <span class="header">
             <ul class="header">
-                <li><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='apple-touch-icon.png') }}"></a></li>
+                <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='apple-touch-icon.png') }}"></a></li>
                 <li><a href="{{ url_for("home") }}">GitHubHealth</a></li>
                 <li>
                     <div class="dropdown">
@@ -48,8 +52,12 @@
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
                             <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
-                            <label for="lightMode">Light mode</label>
-                            <input id="lightMode" type="checkbox" name="lightMode" value="mode" onclick="toggleMode()">
+                            <button class="theme-pick" onclick="activateLightMode()">
+                                <img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='sun.svg') }}">
+                            </button>
+                            <button class="theme-pick" onclick="activateDarkMode()">
+                                <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='moon.svg') }}">
+                            </button>
                         </div>
                     </div>
                 </li>
