@@ -7,12 +7,6 @@
     {% endblock %}
 {% endblock %}
 
-{% macro copy_button(button_id, target) %}
-<button class="btn-copy tooltipped tooltipped-s" id="{{ button_id }}" data-clipboard-snippet data-clipboard-target="{{ target }}" aria-label="copied">
-    <img src="{{ url_for('static', filename='clippy.svg') }}" width="13px">
-</button>
-{% endmacro %}
-
 {% block body %}
 
     {% block navbar %}
@@ -48,18 +42,15 @@
             <p>
                 Github
                 https:
-                <div class="code-snip" id="clone-https"><code>git clone https://github.com/ckear1989/github.git</code></div>
-                {{ copy_button("copy-btn-https", "#clone-https") }}
+                <div class="snippet" id="clone-https"><code>git clone https://github.com/ckear1989/github.git</code></div>
             </p>
             <p>
                 or ssh:
-                <div class="code-snip" id="clone-ssh"><code>git clone git@github.com:ckear1989/github.git</code></div>
-                {{ copy_button("copy-btn-ssh", "#clone-ssh") }}
+                <div class="snippet" id="clone-ssh"><code>git clone git@github.com:ckear1989/github.git</code></div>
             </p>
             <p>
                 PyPi:
-                <div class="code-snip" id="pip-install"><code>pip install GitHubHealth</code></div>
-                {{ copy_button("copy-btn-pip", "#pip-install") }}
+                <div class="snippet" id="pip-install"><code>pip install GitHubHealth</code></div>
             </p>
         </div>
         {{ super() }}
@@ -70,35 +61,11 @@
     {% endblock %}
 
     {% block scripts %}
-        <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
-        <script src="https://clipboardjs.com/bower_components/highlightjs/highlight.pack.min.js"></script>
-        <script src="https://clipboardjs.com/assets/scripts/tooltips.js"></script>
-        <script>
-            // TODO figure out before and after actions
-            let clipboardHttps = new ClipboardJS('#copy-btn-https');
-            clipboardHttps.on('success', function(e) {
-                console.info('Action:', e.action);
-                console.info('Text:', e.text);
-                console.info('Trigger:', e.trigger);
-
-                e.clearSelection();
-            });
-            let clipboardSsh = new ClipboardJS('#copy-btn-ssh');
-            clipboardSsh.on('success', function(e) {
-                console.info('Action:', e.action);
-                console.info('Text:', e.text);
-                console.info('Trigger:', e.trigger);
-
-                e.clearSelection();
-            });
-            let clipboardPip = new ClipboardJS('#copy-btn-pip');
-            clipboardPip.on('success', function(e) {
-                console.info('Action:', e.action);
-                console.info('Text:', e.text);
-                console.info('Trigger:', e.trigger);
-        </script>
-
         {{ super() }}
+        <script src="https://clipboardjs.com/bower_components/highlightjs/highlight.pack.min.js"></script>
+        <script src="https://clipboardjs.com/dist/clipboard.min.js"></script>
+        <script src="{{ url_for('static', filename='tooltips.js') }}"></script>
+        <script src="{{ url_for('static', filename='snippets.js') }}"></script>
     {% endblock %}
 
     <div name="warning">
