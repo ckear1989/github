@@ -32,6 +32,10 @@
 
 {% endblock %}
 
+{% macro footer_space() %}
+<li class="footer-space">|</li>
+{% endmacro %}
+
 {% block body %}
 
     {% block navbar %}
@@ -93,15 +97,16 @@
         {% endif %}
     {% endblock %}
 
+
     {% block footer %}
         <div id="footer">
             <ul>
                 <li><a target="_blank" href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a></li>
-                <li> | </li>
+                {{ footer_space() }}
                 <li><a href="mailto:support@githubhealth.com" class="quicklink">support</a></li>
-                <li> | </li>
+                {{ footer_space() }}
                 <li><a target="_blank" class="quicklink" href="https://pypi.org/project/GitHubHealth/">pypi</a></li>
-                <li> | </li>
+                {{ footer_space() }}
                 <li><a target="_blank" href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a></li>
             </ul>
         </div>

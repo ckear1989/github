@@ -124,7 +124,7 @@ table.dataframe,
   border-width: 2px;
 }
 
-#table-metadata {
+#T_table-metadata {
   width: 500px;
 }
 
@@ -228,13 +228,19 @@ table.dataframe,
 
 ul.plots {
   height: 400px;
+  margin-left: 60px;
+}
+
+div.plot {
+  width: 400px;
 }
 
 .btn-direction {
-  margin-top: 180px;
-  margin-right: 28px;
+  margin-top: 160px;
+  margin-right: 38px;
   width: 80px;
   height: 80px;
+  border-radius: 40px;
 }
 
 img.btn-direction {
@@ -467,6 +473,11 @@ li.dropdown {
   white-space: nowrap;
 }
 
+li.footer-space {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
 textarea.content {
   background: inherit;
   color: inherit;
@@ -504,6 +515,7 @@ div.error,
   font-size: 16px;
   white-space: nowrap;
   margin: 20px;
+  width: 500px;
 }
 
 div.error {
@@ -512,6 +524,7 @@ div.error {
 
 div.warning {
   color: yellow;
+  background-color: inherit;
 }
 
 input#timeout {

@@ -145,11 +145,32 @@ def get_paginated_list_len(pl_obj):
     return sum([1 for i in pl_obj])
 
 
-def link_repo_name_url(name, url):
+def link_repo_name_url(name, url, target="_blank"):
     """
     concat repo name and url in hyperlink
     """
-    return f"<a href='{url}'>{name}</a>"
+    return f"<a target='{target}' href='{url}'>{name}</a>"
+
+
+def render_metadata_html_table(metadata_df, table_id=None):
+    """
+    format repo_df to html.
+    """
+    metadata_df_cpy = deepcopy(metadata_df)
+    if len(metadata_df_cpy) > 0:
+        metadata_df_cpy["name"] = metadata_df_cpy.apply(
+            lambda x: link_repo_name_url(x["name"], x["url"]), axis=1
+        )
+        metadata_df_cpy.drop("url", axis=1, inplace=True)
+
+    repo_html = metadata_df_cpy.style.hide_index()
+    if table_id is not None:
+        repo_html.set_uuid(table_id)
+    print(repo_html)
+    print(repo_html.uuid)
+    print(dir(repo_html))
+    repo_html = repo_html.render()
+    return repo_html
 
 
 def render_repo_html_table(repo_df):
@@ -228,11 +249,20 @@ class RequestedObject:
         """
         Main method to parse object metadata into pandas DataFrame.
         """
-        metadata_dict = {
-            "repos": [get_paginated_list_len(self.obj.get_repos())],
-            "orgs": [get_paginated_list_len(self.obj.get_orgs())],
-            "teams": [get_paginated_list_len(self.obj.get_teams())],
-        }
+        # resource_type, resource_name
+        metadata_dict = {"resource": [], "name": [], "url": []}
+        for repo in self.obj.get_repos():
+            metadata_dict["resource"].append("repo")
+            metadata_dict["name"].append(repo.name)
+            metadata_dict["url"].append(repo.html_url)
+        for resource in self.obj.get_orgs():
+            metadata_dict["resource"].append("org")
+            metadata_dict["name"].append(resource.name)
+            metadata_dict["url"].append(resource.html_url)
+        for resource in self.obj.get_teams():
+            metadata_dict["resource"].append("team")
+            metadata_dict["name"].append(resource.name)
+            metadata_dict["url"].append(resource.html_url)
         metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
         setattr(self, "metadata_df", metadata_df)
 
@@ -242,10 +272,8 @@ class RequestedObject:
         """
         if self.metadata_df is None:
             self.get_metadata_df()
-        metadata_html = self.metadata_df.to_html(
-            classes="dataframe",
-            table_id="table-metadata",
-            index=False,
+        metadata_html = render_metadata_html_table(
+            self.metadata_df, table_id="table-metadata"
         )
         setattr(self, "metadata_html", metadata_html)
 

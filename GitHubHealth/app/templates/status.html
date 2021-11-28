@@ -48,9 +48,9 @@
                         <!-- create divs where plot will be embedded -->
                         {% for plot in ghh.plots["users"] %}
                             {% if loop.index == 1 %}
-                                <div id="vis_user_{{loop.index}}" class="div-plot" style="display: block"></div>
+                                <div id="vis_user_{{loop.index}}" class="plot" style="display: block"></div>
                             {% else %}
-                                <div id="vis_user_{{loop.index}}" class="div-plot" style="display: none"></div>
+                                <div id="vis_user_{{loop.index}}" class="plot" style="display: none"></div>
                             {% endif %}
                         {% endfor %}
                     </li>
@@ -112,7 +112,7 @@
 
         <script>
             function showPlotLeft() {
-                var x = document.getElementsByClassName("div-plot");
+                var x = document.getElementsByClassName("plot");
                 l = x.length;
                 // from right to left disable display until we find already displayed
                 for (i = l-1; i > 0; i--) {
@@ -124,7 +124,7 @@
                 }
             }
             function showPlotRight() {
-                var x = document.getElementsByClassName("div-plot");
+                var x = document.getElementsByClassName("plot");
                 l = x.length;
                 // from left to right disable display until we find already displayed
                 for (i = 0; i < l-1; i++) {

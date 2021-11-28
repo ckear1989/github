@@ -28,8 +28,8 @@ def test_metadata_df_columns():
     Get a GithubHealth instance and check that expected columns are in DataFrame.
     """
     ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
-    ghh.get_repos(search_request="ckear1989", users=True)
+    # ghh.get_repos(search_request="ckear1989", users=True)
     ghh.user.get_metadata_df()
-    assert "repos" in ghh.user.metadata_df.columns
-    assert "orgs" in ghh.user.metadata_df.columns
-    assert "teams" in ghh.user.metadata_df.columns
+    assert "resource" in ghh.user.metadata_df.columns
+    assert "name" in ghh.user.metadata_df.columns
+    assert "url" in ghh.user.metadata_df.columns
