@@ -8,12 +8,13 @@ import os
 
 import altair as alt
 import pandas as pd
+from requests.exceptions import ReadTimeout
+
 from github import Github, MainClass
 from github.AuthenticatedUser import AuthenticatedUser
 from github.NamedUser import NamedUser
 from github.Organization import Organization
 from github.GithubException import UnknownObjectException
-
 
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
@@ -92,7 +93,9 @@ def get_repo_details(repo):
         + [get_branch_details(branch) for branch in repo.get_branches()],
         ignore_index=True,
     )
-    # print(dir(repo))
+    # will handle these errors later but for now let the value propagate through as None
+    issues, _ = get_paginated_list_len(repo.get_issues())
+    pull_requests, _ = get_paginated_list_len(repo.get_pulls())
     repo_dict = {
         "repo": [repo.name],
         "repo_url": [repo.html_url],
@@ -100,8 +103,8 @@ def get_repo_details(repo):
         "branch_count": [len(branch_df)],
         "min_branch_age_days": [branch_df["age"].min()],
         "max_branch_age_days": [branch_df["age"].max()],
-        "issues": get_paginated_list_len(repo.get_issues()),
-        "pull_requests": get_paginated_list_len(repo.get_pulls()),
+        "issues": [issues],
+        "pull_requests": [pull_requests],
     }
     languages = repo.get_languages()
     primary_language = None
@@ -142,7 +145,13 @@ def get_paginated_list_len(pl_obj):
     """
     No inbuilt method to get length so iterate through?
     """
-    return sum([1 for i in pl_obj])
+    try:
+        this_len = sum([1 for i in pl_obj])
+        error_message = None
+    except ReadTimeout as to_error:
+        this_len = None
+        error_message = to_error
+    return this_len, error_message
 
 
 def link_repo_name_url(name, url, target="_blank"):
@@ -166,9 +175,6 @@ def render_metadata_html_table(metadata_df, table_id=None):
     repo_html = metadata_df_cpy.style.hide_index()
     if table_id is not None:
         repo_html.set_uuid(table_id)
-    print(repo_html)
-    print(repo_html.uuid)
-    print(dir(repo_html))
     repo_html = repo_html.render()
     return repo_html
 
@@ -198,6 +204,24 @@ def render_repo_html_table(repo_df):
         .render(precision=0)
     )
     return repo_html
+
+
+def get_ghh_plot(plot_df, var):
+    """
+    Standard formatting of ghh plot.
+    """
+    plot = (
+        alt.Chart(plot_df)
+        .mark_bar()
+        .encode(
+            x="repo",
+            y=var,
+            tooltip=var,
+        )
+        .interactive()
+        .properties(title=f"{var.replace('_', ' ')} by repo")
+    )
+    return plot
 
 
 # pylint: disable=too-many-instance-attributes
@@ -295,89 +319,11 @@ class RequestedObject:
         """
         Get plots from repo df.
         """
-        branch_count_plot = (
-            alt.Chart(self.repo_df)
-            .mark_bar()
-            .encode(
-                x="repo",
-                y="branch_count",
-            )
-            .interactive()
-            .properties(title="branch count by repo")
-        )
-        # debug by saving plots to see raw html
-        # branch_count_plot_noni = (
-        #     alt.Chart(self.repo_df)
-        #     .mark_bar()
-        #     .encode(
-        #         x="repo",
-        #         y="branch_count",
-        #     )
-        #     .properties(title="branch count by repo")
-        # )
-        # if self.name == "ckear1989":
-        #     branch_count_plot.save("branch_count_plot.html")
-        #     branch_count_plot_noni.save("branch_count_plot_noni.html")
-        branch_age_max_plot = (
-            alt.Chart(self.repo_df)
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y(
-                    "max_branch_age_days",
-                    sort=alt.EncodingSortField(
-                        field="max_branch_age_days", op="sum", order="descending"
-                    ),
-                ),
-            )
-            .interactive()
-            .properties(title="max branch age by repo")
-        )
-        branch_age_min_plot = (
-            alt.Chart(self.repo_df)
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y(
-                    "min_branch_age_days",
-                    sort=alt.EncodingSortField(
-                        field="min_branch_age_days", op="sum", order="descending"
-                    ),
-                ),
-            )
-            .interactive()
-            .properties(title="min branch age by repo")
-        )
-        issues_plot = (
-            alt.Chart(self.repo_df)
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y(
-                    "issues",
-                    sort=alt.EncodingSortField(
-                        field="issues", op="sum", order="descending"
-                    ),
-                ),
-            )
-            .interactive()
-            .properties(title="issues by repo")
-        )
-        pr_plot = (
-            alt.Chart(self.repo_df)
-            .mark_bar()
-            .encode(
-                x="repo",
-                y=alt.Y(
-                    "pull_requests",
-                    sort=alt.EncodingSortField(
-                        field="pull_requests", op="sum", order="descending"
-                    ),
-                ),
-            )
-            .interactive()
-            .properties(title="pull requests by repo")
-        )
+        branch_count_plot = get_ghh_plot(self.repo_df, "branch_count")
+        branch_age_max_plot = get_ghh_plot(self.repo_df, "max_branch_age_days")
+        branch_age_min_plot = get_ghh_plot(self.repo_df, "min_branch_age_days")
+        issues_plot = get_ghh_plot(self.repo_df, "issues")
+        pr_plot = get_ghh_plot(self.repo_df, "pull_requests")
         plots = [
             branch_count_plot,
             branch_age_max_plot,

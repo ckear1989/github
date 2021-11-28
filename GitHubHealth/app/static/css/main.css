@@ -457,11 +457,17 @@ li.dropdown {
 
 .main-icon,
 .menu-icon {
+  color: inherit;
   width: 55px;
   height: 55px;
   margin: 5px;
   margin-top: 5px;
   border-radius: 28px;
+}
+
+#user-icon.menu-icon {
+  border-style: solid;
+  border-width: 2px;
 }
 
 #footer {

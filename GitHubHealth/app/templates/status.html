@@ -64,18 +64,26 @@
         {% if ghh.requested_org.obj is not none %}
             <div class="org_content">
                 <!-- embed table -->
-                <a id="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
+                <a class="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["orgs"]|safe }}
-                <table>
-                    <tr>
-                        <td>
-                            <!-- create div where plot will be embedded -->
-                            {% for plot in ghh.plots["orgs"] %}
-                                <div id="vis_org_{{loop.index}}"></div>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                </table>
+                <ul class="plots">
+                    <li>
+                        {{ direction_button_left("image-prev") }}
+                    </li>
+                    <li>
+                        <!-- create divs where plot will be embedded -->
+                        {% for plot in ghh.plots["orgs"] %}
+                            {% if loop.index == 1 %}
+                                <div id="vis_org_{{loop.index}}" class="plot" style="display: block"></div>
+                            {% else %}
+                                <div id="vis_org_{{loop.index}}" class="plot" style="display: none"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li>
+                        {{ direction_button_right("image-next") }}
+                    </li>
+                </ul>
             </div>
         {% endif %}
 

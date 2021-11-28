@@ -51,7 +51,7 @@
                         {% if ghh is defined %}
                             <img class="menu-icon" src="{{ ghh.user.avatar_url }}">
                         {% else %}
-                            <img class="menu-icon" src="{{ url_for('static', filename='assets/nouser.png') }}">
+                            <img class="menu-icon" id="user-icon" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
                         {% endif %}
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
