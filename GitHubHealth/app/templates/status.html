@@ -41,7 +41,7 @@
                 <a class="header" href={{ ghh.requested_user.url }}>{{ ghh.requested_user.name }}</a>
                 {{ ghh.repo_html["users"]|safe }}
                 <ul class="plots">
-                    <li>
+                    <li class="btn-direction">
                         {{ direction_button_left("image-prev") }}
                     </li>
                     <li>
@@ -54,7 +54,7 @@
                             {% endif %}
                         {% endfor %}
                     </li>
-                    <li>
+                    <li class="btn-direction">
                         {{ direction_button_right("image-next") }}
                     </li>
                 </ul>
@@ -67,7 +67,7 @@
                 <a class="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["orgs"]|safe }}
                 <ul class="plots">
-                    <li>
+                    <li class="btn-direction">
                         {{ direction_button_left("image-prev") }}
                     </li>
                     <li>
@@ -80,7 +80,7 @@
                             {% endif %}
                         {% endfor %}
                     </li>
-                    <li>
+                    <li class="btn-direction">
                         {{ direction_button_right("image-next") }}
                     </li>
                 </ul>

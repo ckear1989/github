@@ -17,10 +17,13 @@ function activateLightMode() {
         let inel = document.getElementById("lightMode");
         inel.className = "active";
         inel.setAttribute("class", "theme-pick-chosen")
+        localStorage.setItem("lightMode", true);
     } else {
         let inel = document.getElementById("lightMode");
         inel.className = "inactive";
         inel.setAttribute("class", "theme-pick")
+        element.classList.remove("light-mode");
+        localStorage.setItem("lightMode", false);
     }
 
     // deactivate dark-mode
@@ -29,7 +32,6 @@ function activateLightMode() {
     outel.className = 'inactive';
     outel.setAttribute("class", "theme-pick")
 
-    localStorage.setItem("lightMode", true);
     localStorage.setItem("darkMode", false);
 }
 
@@ -43,10 +45,13 @@ function activateDarkMode() {
         let inel = document.getElementById("darkMode");
         inel.className = "active";
         inel.setAttribute("class", "theme-pick-chosen")
+        localStorage.setItem("darkMode", true);
     } else {
         let inel = document.getElementById("darkMode");
         inel.className = "inactive";
         inel.setAttribute("class", "theme-pick")
+        element.classList.remove("dark-mode");
+        localStorage.setItem("darkMode", false);
     }
 
     // deactivate light-mode
@@ -55,6 +60,5 @@ function activateDarkMode() {
     outel.className = "inactive";
     outel.setAttribute("class", "theme-pick");
 
-    localStorage.setItem("darkMode", true);
     localStorage.setItem("lightMode", false);
 }

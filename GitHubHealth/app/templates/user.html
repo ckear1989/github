@@ -29,6 +29,9 @@
                 {{ search_form.csrf_token() }}
                 <div class="form-group" id="search-request">
                     {{ search_form.search_request }}
+                    <button class="btn-search" id="search" name="search" onclick="loading()" type="submit" value="Search">
+                        <img class="search" src="{{ url_for('static', filename='assets/search.svg') }}">
+                    </button>
                 </div>
                 <div class="form-check">
                     <label class="form-check-label">

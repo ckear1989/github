@@ -9,7 +9,7 @@ body {
 
 .light-mode {
   color: black;
-  background-color: #808080;
+  background-color: #e8e8e8;
   border-color: black;
 }
 
@@ -159,7 +159,7 @@ table.dataframe,
 }
 
 #search-request.form-group {
-  width: 400px;
+  width: 500px;
   height: 40px;
   padding: 0px;
   margin-top: 5px;
@@ -177,10 +177,27 @@ table.dataframe,
 
 .form-group > #search_request {
   border-radius: 10px;
-  width: 400px;
+  width: 450px;
   height: 40px;
   color: black;
   font-size: 24px;
+}
+
+.btn-search {
+  height: 30px;
+  width: 30px;
+  background-color: transparent;
+  border-style: none;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+  right: 40px;
+  top: 10px;
+}
+
+img.search {
+  height: 30px;
+  width: 30px;
 }
 
 .form-group > #ignore-repos {
@@ -227,7 +244,6 @@ table.dataframe,
 }
 
 ul.plots {
-  height: 400px;
   margin-left: 60px;
 }
 
@@ -235,12 +251,19 @@ div.plot {
   width: 400px;
 }
 
-.btn-direction {
-  margin-top: 160px;
-  margin-right: 38px;
-  width: 80px;
-  height: 80px;
-  border-radius: 40px;
+li.btn-direction {
+  position: relative;
+  top: 150px;
+  right: 25px;
+}
+
+button.btn-direction {
+  margin: 0px;
+  padding: 0px;
+  width: 55px;
+  height: 55px;
+  background-color: transparent;
+  border: none;
 }
 
 img.btn-direction {
@@ -248,6 +271,10 @@ img.btn-direction {
   height: 100%;
   margin: 0px;
   padding: 0px;
+  border-radius: 28px;
+  border-color: white;
+  border-width: 2px;
+  border-style: solid;
 }
 
 .invalid-feedback {
@@ -376,6 +403,12 @@ input[type="submit" i] {
   color: #dcdcdc;
 }
 
+li.menu-title {
+  margin-top: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
 .quicklink {
   font-size: 16px;
 }
@@ -465,9 +498,17 @@ li.dropdown {
   border-radius: 28px;
 }
 
-#user-icon.menu-icon {
+.user-icon {
   border-style: solid;
-  border-width: 2px;
+  border-width: 4px;
+}
+
+#user-icon-nouser.user-icon {
+  border-color: inherit;
+}
+
+#user-icon-user.user-icon {
+  border-color: green;
 }
 
 #footer {
@@ -548,6 +589,7 @@ div.snippet {
   border-style: dashed;
   padding: 5px;
   margin-left: 20px;
+  white-space: nowrap; /* this might overwrite clipboard.js example but IDGAF*/
 }
 
 /* https://clipboardjs.com/assets/styles/main.css */

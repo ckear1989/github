@@ -16,18 +16,7 @@
     {% endblock %}
 
     {% block onload %}
-        <script>
-            document.ready= function() {
-                if (localStorage.getItem("lightMode")) {
-                    document.getElementById("lightMode").checked = true;
-                    document.getElementById("darkMode").checked = false;
-                }
-                else if (localStorage.getItem("darkMode")) {
-                    document.getElementById("darkMode").checked = true;
-                    document.getElementById("lightMode").checked = false;
-                }
-            }
-        </script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/check_theme.js') }}"></script>
     {% endblock %}
 
 {% endblock %}
@@ -45,13 +34,13 @@
         <span class="header">
             <ul class="header">
                 <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='assets/apple-touch-icon.png') }}"></a></li>
-                <li><a href="{{ url_for("home") }}">GitHubHealth</a></li>
+                <li class="menu-title"><a href="{{ url_for("home") }}">GitHubHealth</a></li>
                 <li>
                     <div class="dropdown">
                         {% if ghh is defined %}
-                            <img class="menu-icon" src="{{ ghh.user.avatar_url }}">
+                            <img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
                         {% else %}
-                            <img class="menu-icon" id="user-icon" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
+                            <img class="menu-icon user-icon" id="user-icon-nouser" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
                         {% endif %}
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
