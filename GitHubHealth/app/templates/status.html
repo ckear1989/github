@@ -101,6 +101,7 @@
         <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/buttons.js') }}"></script>
 
         {% if ghh.requested_user.obj is not none %}
             {% for plot in ghh.plots["users"] %}
@@ -117,33 +118,6 @@
                 </script>
             {% endfor %}
         {% endif %}
-
-        <script>
-            function showPlotLeft() {
-                var x = document.getElementsByClassName("plot");
-                l = x.length;
-                // from right to left disable display until we find already displayed
-                for (i = l-1; i > 0; i--) {
-                    if (x[i].style.display == "block") {
-                        x[i].style.display = "none";
-                        x[i-1].style.display = "block";
-                        break;
-                    }
-                }
-            }
-            function showPlotRight() {
-                var x = document.getElementsByClassName("plot");
-                l = x.length;
-                // from left to right disable display until we find already displayed
-                for (i = 0; i < l-1; i++) {
-                    if (x[i].style.display == "block") {
-                        x[i].style.display = "none";
-                        x[i+1].style.display = "block";
-                        break;
-                    }
-                }
-            }
-        </script>
 
     {% endblock %}
 
