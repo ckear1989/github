@@ -515,7 +515,6 @@ li.dropdown {
   margin-left: 20px;
   font-size: 20px;
   vertical-align: top;
-  margin-bottom: 10px;
   color: inherit;
   white-space: nowrap;
 }
@@ -544,11 +543,12 @@ div.about {
 }
 
 div#loading {
-  width: 35px;
-  height: 35px;
   display: none;
-  background: url(/static/loadingimage.gif) no-repeat;
   cursor: wait;
+  z-index: 9;
+  position: absolute;
+  top: 200px;
+  left: 200px;
 }
 
 .flashes {

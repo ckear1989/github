@@ -56,22 +56,25 @@
                 </li>
             </ul>
         </span>
-
     {% endblock %}
 
-    <div id="loading">
-        {% block content %}
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class=flashes>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-        {% endblock %}
-    </div>
+    {% block loading %}
+        <div id="loading">
+            <img src="{{ url_for('static', filename='assets/loadingimage.gif') }}">
+        </div>
+    {% endblock %}
+
+    {% block content %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    {% endblock %}
 
     {% block error_warning %}
         {% if warning %}

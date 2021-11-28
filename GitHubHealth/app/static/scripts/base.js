@@ -1,6 +1,5 @@
 function loading(){
     $("#loading").show();
-    $("#content").hide();
 }
 
 function settings() {

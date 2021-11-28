@@ -1,15 +1,10 @@
 {% extends "base.html" %}
 
 {% block head %}
-
+    {{ super() }}
     {% block title %}
         <title>GitHubHealth: {{ ghh.user.name }}</title>
     {% endblock %}
-
-    {% block styles %}
-        {{ super() }}
-    {% endblock %}
-
 {% endblock %}
 
 {% macro direction_button_left(target) %}
@@ -86,13 +81,14 @@
                 </ul>
             </div>
         {% endif %}
+    {% endblock %}
 
-        <div id="warning"></div>
-        <div id="error"></div>
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
 
-        {% block footer %}
-            {{ super() }}
-        {% endblock %}
+    {% block footer %}
+        {{ super() }}
     {% endblock %}
 
     {% block scripts %}
@@ -119,10 +115,6 @@
             {% endfor %}
         {% endif %}
 
-    {% endblock %}
-
-    {% block error_warning %}
-        {{ super() }}
     {% endblock %}
 
 {% endblock %}
