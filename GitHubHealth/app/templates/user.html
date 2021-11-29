@@ -30,11 +30,11 @@
                 Start browsing or searching.
             </p>
             {{ ghh.user.metadata_html|safe }}
-            <form action="" method="post" class="form search-request" role="form">
+            <form action="" method="post" class="form search-request" id="search_form" role="form">
                 {{ search_form.csrf_token() }}
                 <div class="form-group" id="search-request">
                     {{ search_form.search_request }}
-                    <button class="btn-search" id="search" name="search" onclick="loading()" type="submit" value="Search">
+                    <button class="btn-search" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
                         <img class="search" src="{{ url_for('static', filename='assets/search.svg') }}">
                     </button>
                 </div>
@@ -52,7 +52,7 @@
                     <label class="form-control-label ignore-repos" for="ignore-repos">ignore repos</label>
                     {{ search_form.search_ignore_repos }}
                 </div>
-                <input class="btn btn-primary" id="search" name="search" onclick="loading()" type="submit" value="Search">
+                <input class="btn btn-primary" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
             </form>
         </div>
         {{ super() }}

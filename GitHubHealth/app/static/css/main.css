@@ -551,6 +551,11 @@ div#loading {
   left: 200px;
 }
 
+img.loading {
+  width: 100px;
+  height: 100px;
+}
+
 .flashes {
   justify-content: center;
   margin-left: 20px;

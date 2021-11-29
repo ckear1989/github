@@ -15,6 +15,7 @@ from flask.logging import create_logger
 from flask_wtf import CSRFProtect
 from flask_bootstrap import Bootstrap
 import pkg_resources
+import setuptools_scm
 from requests.exceptions import (
     ReadTimeout,
     ConnectionError as RequestsConnectionError,
@@ -32,14 +33,16 @@ from GitHubHealth.app.forms import (
     SearchForm,
 )
 
+version_scm = setuptools_scm.get_version()
 REQUIREMENTS = str(
     pkg_resources.resource_stream("GitHubHealth", "app/requirements.txt").read()
 )
-VERSION = [
+version_requirements = [
     x.strip().split("GitHubHealth==")[1]
     for x in REQUIREMENTS.split("\\n")
     if "GitHubHealth" in x
 ][0]
+VERSION = "|".join(list(set([version_scm, version_requirements])))
 
 
 def try_ghh(this_session):
@@ -103,6 +106,8 @@ def page_not_found(error_message):
 
 
 @app.route("/", methods=["POST", "GET"])
+@app.route("/home", methods=["POST", "GET"])
+@app.route("/index", methods=["POST", "GET"])
 def home():
     """
     Get home page.
@@ -116,7 +121,7 @@ def home():
             session["timeout"] = login_form.timeout.data
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                return user(ghh)
+                return user(ghh.user.name, ghh)
             return render_template(
                 "index.html",
                 login_form=login_form,
@@ -126,11 +131,11 @@ def home():
         if request.method == "POST":
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                return user(ghh)
+                return user(ghh.user.name, ghh)
     if request.method == "GET":
         ghh, _ = try_ghh(session)
         if ghh is not None:
-            return user(ghh)
+            return user(ghh.user.name, ghh)
     return render_template(
         "index.html",
         login_form=login_form,
@@ -163,11 +168,11 @@ def login():
     if "search" in request.form.keys():
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh)
+            return user(ghh.user.name, ghh)
     if request.method == "GET":
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh)
+            return user(ghh.user.name, ghh)
     login_form = LoginForm()
     if request.method == "POST" and login_form.validate():
         session["login_user"] = login_form.login_user.data
@@ -176,7 +181,7 @@ def login():
         session["timeout"] = login_form.timeout.data
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh)
+            return user(ghh.user.name, ghh)
         return render_template(
             "index.html",
             login_form=login_form,
@@ -198,11 +203,13 @@ def logout():
     if "gat" in session:
         del session["gat"]
     flash("logged out")
-    return home()
+    return login()
 
 
-@app.route("/user", methods=["POST", "GET"])
-def user(ghh):
+# is this the right way of handling view routes?
+# pylint: disable=unused-argument
+@app.route("/user/<username>", methods=["POST", "GET"])
+def user(username, ghh):
     """
     Get user page.
     """

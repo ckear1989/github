@@ -1,4 +1,18 @@
-function loading(){
+function loading_login(){
+    for (const el of document.getElementById("login_form").querySelectorAll("[required]")) {
+        if (!el.reportValidity()) {
+            return;
+        }
+    }
+    $("#loading").show();
+}
+
+function loading_search(){
+    for (const el of document.getElementById("search_form").querySelectorAll("[required]")) {
+        if (!el.reportValidity()) {
+            return;
+        }
+    }
     $("#loading").show();
 }
 

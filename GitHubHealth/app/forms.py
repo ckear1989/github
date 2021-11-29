@@ -24,7 +24,7 @@ class LoginForm(FlaskForm):
         "hostname", [validators.DataRequired()], default="github.com"
     )
     timeout = IntegerField("timeout", [validators.DataRequired()], default=2)
-    login = SubmitField(render_kw={"onclick": "loading()"})
+    login = SubmitField(render_kw={"onclick": "loading_login()"})
 
     def validate(self, extra_validators=None):
         if not super().validate(extra_validators=extra_validators):
@@ -50,7 +50,7 @@ class SearchForm(FlaskForm):
     search_users = BooleanField("users")
     search_orgs = BooleanField("orgs")
     search_ignore_repos = StringField("ignore repos", id="ignore-repos")
-    search = SubmitField(render_kw={"onclick": "loading()"})
+    search = SubmitField(render_kw={"onclick": "loading_search()"})
 
     def validate(self, extra_validators=None):
         if not super().validate(extra_validators=extra_validators):
