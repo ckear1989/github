@@ -105,7 +105,7 @@ a:active {
 p {
   margin: 20px;
   margin-top: 10px;
-  white-space: nowrap;
+  width: 600px;
 }
 
 tr {
@@ -424,12 +424,9 @@ ul.header {
 
 li {
   float: left;
-  display: inline-block;
 }
 
-li a,
- {
-  display: inline-block;
+li a {  display: inline-block;
   color: white;
   text-align: center;
   padding: 14px 16px;

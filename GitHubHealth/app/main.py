@@ -7,6 +7,7 @@ import os
 from flask import (
     Flask,
     flash,
+    g,
     render_template,
     request,
     session,
@@ -50,6 +51,8 @@ def try_ghh(this_session):
     Try ghh object.
     Useful for quickly verifying if credentials can be used to login.
     """
+    if "ghh" in g:
+        return g.ghh, None
     required = ["login_user", "gat", "hostname", "timeout"]
     if all(x in this_session for x in required):
         try:
@@ -105,6 +108,8 @@ def page_not_found(error_message):
     )
 
 
+# who knows how this works?
+# pylint: disable=assigning-non-slot
 @app.route("/", methods=["POST", "GET"])
 @app.route("/home", methods=["POST", "GET"])
 @app.route("/index", methods=["POST", "GET"])
@@ -121,7 +126,8 @@ def home():
             session["timeout"] = login_form.timeout.data
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                return user(ghh.user.name, ghh)
+                g.ghh = ghh
+                return user(ghh.user.name)
             return render_template(
                 "index.html",
                 login_form=login_form,
@@ -131,11 +137,13 @@ def home():
         if request.method == "POST":
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                return user(ghh.user.name, ghh)
+                g.ghh = ghh
+                return user(ghh.user.name)
     if request.method == "GET":
         ghh, _ = try_ghh(session)
         if ghh is not None:
-            return user(ghh.user.name, ghh)
+            g.ghh = ghh
+            return user(ghh.user.name)
     return render_template(
         "index.html",
         login_form=login_form,
@@ -168,11 +176,13 @@ def login():
     if "search" in request.form.keys():
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh.user.name, ghh)
+            g.ghh = ghh
+            return user(ghh.user.name)
     if request.method == "GET":
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh.user.name, ghh)
+            g.ghh = ghh
+            return user(ghh.user.name)
     login_form = LoginForm()
     if request.method == "POST" and login_form.validate():
         session["login_user"] = login_form.login_user.data
@@ -181,7 +191,8 @@ def login():
         session["timeout"] = login_form.timeout.data
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            return user(ghh.user.name, ghh)
+            g.ghh = ghh
+            return user(ghh.user.name)
         return render_template(
             "index.html",
             login_form=login_form,
@@ -202,6 +213,8 @@ def logout():
         del session["login_user"]
     if "gat" in session:
         del session["gat"]
+    if "ghh" in g:
+        _ = g.pop("ghh", None)
     flash("logged out")
     return login()
 
@@ -209,10 +222,11 @@ def logout():
 # is this the right way of handling view routes?
 # pylint: disable=unused-argument
 @app.route("/user/<username>", methods=["POST", "GET"])
-def user(username, ghh):
+def user(username):
     """
     Get user page.
     """
+    ghh = g.ghh
     ghh.user.get_metadata_html()
     search_form = SearchForm()
     if request.method == "POST" and search_form.validate():
@@ -240,7 +254,7 @@ def user(username, ghh):
         ghh.get_repo_dfs()
         ghh.render_repo_html_tables()
         ghh.get_plots()
-        return status(ghh)
+        return status(ghh.user.name)
     if request.method == "POST" and search_form.validate() is False:
         warning = search_form.search_request.errors[0]
         return render_template(
@@ -264,11 +278,12 @@ def user(username, ghh):
     )
 
 
-@app.route("/status")
-def status(ghh):
+@app.route("/status/<string:username>")
+def status(username):
     """
-    Print status of app.
+    Return status of search.
     """
+    ghh = g.ghh
     return render_template(
         "status.html",
         ghh=ghh,
