@@ -34,7 +34,11 @@ from GitHubHealth.app.forms import (
     SearchForm,
 )
 
-version_scm = setuptools_scm.get_version()
+# pylint: disable=invalid-name
+try:
+    version_scm = setuptools_scm.get_version()
+except LookupError:
+    version_scm = "?"
 REQUIREMENTS = str(
     pkg_resources.resource_stream("GitHubHealth", "app/requirements.txt").read()
 )
