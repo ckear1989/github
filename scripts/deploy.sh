@@ -8,12 +8,14 @@ conda create -n deploy python==3.8 -y
 conda activate deploy
 pip install build
 pip install setuptools_scm
+pip install gunicorn
 python -m build
 git tag -d $tag
 twine check dist/*
 twine upload dist/*
-pip install -e .[deploy]
+sleep 10 # allow the package to register before trying to pip install it
 cd GitHubHealth/app
+pip install GitHubHealth --upgrade
 pip freeze > requirements2.txt
 diff requirements.txt requirements2.txt
 mv requirements2.txt requirements.txt
