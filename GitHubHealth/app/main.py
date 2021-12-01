@@ -293,5 +293,14 @@ def status(username, ghh):
     return redirect(url_for("home"))
 
 
+@app.route("/repo_status/<string:repo_name>")
+def repo_status(repo_name):
+    """
+    Return status of repo.
+    """
+    return f"Health of {repo_name} coming soon!"
+    # return redirect(url_for("home"))
+
+
 if __name__ == "__main__":
     app.run(debug=True)

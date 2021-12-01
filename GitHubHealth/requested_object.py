@@ -105,19 +105,24 @@ class RequestedObject:
         Main method to parse object metadata into pandas DataFrame.
         """
         # resource_type, resource_name
-        metadata_dict = {"resource": [], "name": [], "url": []}
+        # url is external link to github
+        # health is internal link dynamically created by javascript in user.html
+        metadata_dict = {"resource": [], "name": [], "url": [], "health": []}
         for repo in self.obj.get_repos():
             metadata_dict["resource"].append("repo")
             metadata_dict["name"].append(repo.name)
             metadata_dict["url"].append(repo.html_url)
+            metadata_dict["health"].append("health")
         for resource in self.obj.get_orgs():
             metadata_dict["resource"].append("org")
             metadata_dict["name"].append(resource.name)
             metadata_dict["url"].append(resource.html_url)
+            metadata_dict["health"].append("health")
         for resource in self.obj.get_teams():
             metadata_dict["resource"].append("team")
             metadata_dict["name"].append(resource.name)
             metadata_dict["url"].append(resource.html_url)
+            metadata_dict["health"].append("health")
         metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
         setattr(self, "metadata_df", metadata_df)
 
