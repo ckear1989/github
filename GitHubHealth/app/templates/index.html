@@ -18,14 +18,37 @@
         {{ super() }}
     {% endblock %}
 
+    {% block loading %}
+        {{ super() }}
+    {% endblock %}
+
     {% block content %}
-<textarea readonly class="content" rows="40">
-Welcome to GitHubHealth.com!
-
-This webb app allows you to query the GitHub api and view formatted results and plots.
-
-How healthy is your GitHub?
-</textarea>
+        <p>
+            Welcome to GitHubHealth.com!
+            This web app allows you to query the GitHub api and view formatted results and plots.
+        </p>
+        {% if login_form is defined %}
+            <form action="" method="post" class="form login" id="login_form" role="form">
+                {{ login_form.csrf_token() }}
+                <div class="form-group">
+                    <label class="form-control-label">user login</label>
+                    <input class="form-control" id="login_user" name="login_user" required type="text" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label">github token</label>
+                    <input class="form-control" id="gat" name="gat" required type="password" autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label">hostname</label>
+                    <input class="form-control" id="hostname" name="hostname" required type="text" value="github.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-control-label">timeout</label>
+                    <input class="form-control" id="timeout" name="timeout" required type="number" value="2">
+                </div>
+                <input class="btn btn-primary" id="login" name="login" onclick="loading_login()" type="submit" value="Login">
+            </form>
+        {% endif %}
         {{ super() }}
     {% endblock %}
 
@@ -34,12 +57,11 @@ How healthy is your GitHub?
     {% endblock %}
 
     {% block scripts %}
+        {{ super() }}
     {% endblock %}
 
-    <div name="warning">
-        {{ warning }}
-    </div>
-    <div name="error">
-        {{ error }}
-    </div>
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
+
 {% endblock %}

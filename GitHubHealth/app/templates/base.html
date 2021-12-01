@@ -5,85 +5,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     {% block title %}
     {% endblock %}
-
     {% block styles %}
+        <link rel="stylesheet" href="https://clipboardjs.com/bower_components/primer-css/css/primer.css">
+        <link rel="stylesheet" href="https://clipboardjs.com/bower_components/highlightjs/styles/github.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+    {% endblock %}
+
+    {% block onload %}
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/check_theme.js') }}"></script>
     {% endblock %}
 
 {% endblock %}
 
+{% macro footer_space() %}
+<li class="footer-space">|</li>
+{% endmacro %}
+
 {% block body %}
 
-        {% block navbar %}
-        {% endblock %}
+    {% block navbar %}
+    {% endblock %}
 
-        {% block header %}
-            <span class="header">
-                <ul>
-                    <li>  <a href="{{ url_for("home") }}">GitHubHealth</a></li>
-                    <li>  <a class="quicklink" href="{{ url_for("search") }}">search</a></li>
-                    <li> <a class="quicklink" href="{{ url_for("login") }}">login</a></li>
-                    <li> <a class="quicklink" href="{{ url_for("logout") }}">logout</a></li>
-                    <li >
+    {% block header %}
+        <span class="header">
+            <ul class="header">
+                <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='assets/apple-touch-icon.png') }}"></a></li>
+                <li class="menu-title"><a href="{{ url_for("home") }}">GitHubHealth</a></li>
+                <li>
+                    <div class="dropdown">
                         {% if ghh is defined %}
-                            <img class="settings" src="{{ ghh.user.avatar_url }}">
+                            <img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
                         {% else %}
-                            <img class="settings"  src="{{ url_for('static', filename='nouser.png') }}"></li>
+                            <img class="menu-icon user-icon" id="user-icon-nouser" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
                         {% endif %}
-                    <li >
-                        <div class="dropdown">
-                            <img class="settings"  onclick="settings()" src="{{ url_for('static', filename='wheel.png') }}">
-                            <div id="settingsDropdown" class="dropdown-content">
-                                <a href="#" onclick="toggleMode()">Toggle dark mode </a>
-                            </div>
+                        <div id="settingsDropdown" class="dropdown-content">
+                            <a class="quicklink" href="{{ url_for("login") }}">login</a>
+                            <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
+                            <button class="theme-pick" onclick="activateLightMode()">
+                                <img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='assets/sun.svg') }}">
+                            </button>
+                            <button class="theme-pick" onclick="activateDarkMode()">
+                                <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='assets/moon.svg') }}">
+                            </button>
                         </div>
-                    </li>
+                    </div>
+                </li>
+            </ul>
+        </span>
+    {% endblock %}
+
+    {% block loading %}
+        <div id="loading">
+            <img class="loading" src="{{ url_for('static', filename='assets/loadingimage.gif') }}">
+        </div>
+    {% endblock %}
+
+    {% block content %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
                 </ul>
-            </span>
+            {% endif %}
+        {% endwith %}
+    {% endblock %}
 
-            <script >
-                function settings() {
-                    document.getElementById("settingsDropdown").classList.toggle("show");
-                }
-            </script>
-            <script >
-                function toggleMode() {
-                    var element = document.body;
-                    element.classList.toggle("light-mode");
-                    document.getElementById("settingsDropdown").classList.toggle("hide");
-                }
-            </script>
-        {% endblock %}
-
-        {% block content %}
-            <div id="loading"></div>
-        {% endblock %}
-
-        {% block footer %}
-            <div id="footer">
-                <a href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a>
-                <a href=mailto:support@githubhealth.com" class="quicklink">support</a>
-                <a href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a>
+    {% block error_warning %}
+        {% if warning %}
+            <div class="warning">
+                {{ warning }}
             </div>
-        {% endblock %}
+        {% endif %}
+        {% if error %}
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endif %}
+    {% endblock %}
 
-        {% block scripts %}
-            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-            <script>window.jQuery || document.write('<script src="{{
-              url_for('static', filename='jquery.js') }}">\x3C/script>')
-            </script>
 
-            <script type="text/javascript">// <![CDATA[
-                function loading(){
-                    $("#loading").show();
-                    $("#content").hide();
-                }
-            // ]]></script>
-        {% endblock %}
+    {% block footer %}
+        <div id="footer">
+            <ul>
+                <li><a target="_blank" href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a></li>
+                {{ footer_space() }}
+                <li><a href="mailto:support@githubhealth.com" class="quicklink">support</a></li>
+                {{ footer_space() }}
+                <li><a target="_blank" class="quicklink" href="https://pypi.org/project/GitHubHealth/">pypi</a></li>
+                {{ footer_space() }}
+                <li><a target="_blank" href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a></li>
+            </ul>
+        </div>
+    {% endblock %}
+
+    {% block scripts %}
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/base.js') }}"></script>
+    {% endblock %}
 
 {% endblock %}

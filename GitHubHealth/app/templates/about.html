@@ -7,7 +7,6 @@
     {% endblock %}
 {% endblock %}
 
-
 {% block body %}
 
     {% block navbar %}
@@ -18,9 +17,43 @@
     {% endblock %}
 
     {% block content %}
-<textarea readonly class="content" rows="40">
-about
-</textarea>
+        <div class="about">
+            <p>
+                GitHubHealth is a hobby website. I am a data scientist looking for a fun side project to develop my app building skills.
+            </p>
+            <p>
+                I started gathering metadata from <a target="_blank" ref="https://github.com/">Github</a> for reports to help inform decisions about code clean up and refactoring.
+            </p>
+            <p>
+                Diving deeper into the data from the Github api we can perform more complex analyses on code bases and create automated reporting, linting, test running etc.
+            </p>
+            <p>
+                This app is built in <a target="_blank" href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a> and uses the <a target="_blank" href="https://docs.github.com/en/rest">GitHub REST API</a> as implemented by <a href="https://github.com/PyGithub/PyGithub">PyGitHub</a>.
+                GitHubHealth takes the data retrieved from the API calls and renders it in pandas dataframes and altair plots.
+            </p>
+            <p>
+                To log in, you will need your login and <a target="_blank" href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">Github access token</a>.
+                You can also provide a hostname (default is github.com) and timeout option (default 2 seconds).
+                This web app should work for all hostnames but your enterprise may require SSL authentication to make requests.
+            </p>
+            <p>
+                All the code is publicly available:
+            </p>
+            <p>
+                Github
+                https:
+                <div class="snippet" id="clone-https"><code>git clone https://github.com/ckear1989/github.git</code></div>
+            </p>
+            <p>
+                or ssh:
+                <div class="snippet" id="clone-ssh"><code>git clone git@github.com:ckear1989/github.git</code></div>
+            </p>
+            <p>
+                PyPi:
+                <div class="snippet" id="pip-install"><code>pip install GitHubHealth</code></div>
+            </p>
+            <p>currently running version {{ version }}</p>
+        </div>
         {{ super() }}
     {% endblock %}
 
@@ -29,6 +62,11 @@ about
     {% endblock %}
 
     {% block scripts %}
+        {{ super() }}
+        <script src="https://clipboardjs.com/bower_components/highlightjs/highlight.pack.min.js"></script>
+        <script src="https://clipboardjs.com/dist/clipboard.min.js"></script>
+        <script src="{{ url_for('static', filename='scripts/tooltips.js') }}"></script>
+        <script src="{{ url_for('static', filename='scripts/snippets.js') }}"></script>
     {% endblock %}
 
     <div name="warning">

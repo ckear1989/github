@@ -18,14 +18,47 @@
         {{ super() }}
     {% endblock %}
 
+
+    {% block loading %}
+        {{ super() }}
+    {% endblock %}
+
     {% block content %}
-<textarea readonly class="content" rows=3">
-Logged in as {{ ghh.user.name }}.
-Start browsing or searching.
-</textarea>
         <div class="user_content">
+            <p>
+                Logged in as <a href="{{ ghh.user.url }}">{{ ghh.user.name }}</a>.
+                Start browsing or searching.
+            </p>
             {{ ghh.user.metadata_html|safe }}
+            <form action="" method="post" class="form search-request" id="search_form" role="form">
+                {{ search_form.csrf_token() }}
+                <div class="form-group" id="search-request">
+                    {{ search_form.search_request }}
+                    <button class="btn-search" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
+                        <img class="search" src="{{ url_for('static', filename='assets/search.svg') }}">
+                    </button>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" id="search_users" name="search_users" type="checkbox" value="y"> users
+                    </label>
+                </div>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" id="search_orgs" name="search_orgs" type="checkbox" value="y"> orgs
+                    </label>
+                </div>
+                <div class="form-group" id="ignore-repos">
+                    <label class="form-control-label ignore-repos" for="ignore-repos">ignore repos</label>
+                    {{ search_form.search_ignore_repos }}
+                </div>
+                <input class="btn btn-primary" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
+            </form>
         </div>
+        {{ super() }}
+    {% endblock %}
+
+    {% block error_warning %}
         {{ super() }}
     {% endblock %}
 
@@ -34,12 +67,7 @@ Start browsing or searching.
     {% endblock %}
 
     {% block scripts %}
+        {{ super() }}
     {% endblock %}
 
-    <div name="warning">
-        {{ warning }}
-    </div>
-    <div name="error">
-        {{ error }}
-    </div>
 {% endblock %}
