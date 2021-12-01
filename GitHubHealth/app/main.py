@@ -298,8 +298,18 @@ def repo_status(repo_name):
     """
     Return status of repo.
     """
-    return f"Health of {repo_name} coming soon!"
-    # return redirect(url_for("home"))
+    ghh, _ = try_ghh(session)
+    if ghh is not None:
+        repo_full_name = f"{ghh.user.name}/{repo_name}"
+        repo = ghh.get_repo(repo_full_name)
+        repo.get_repo_df()
+        repo.get_html_table()
+        repo.get_plots()
+        return render_template(
+            "repo_status.html",
+            repo=repo,
+        )
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":

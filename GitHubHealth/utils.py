@@ -40,6 +40,18 @@ def get_branch_details(branch):
     return branch_df
 
 
+def get_single_repo_details(repo):
+    """
+    Get information on repo from PyGitHub API and format in pandas DataFrame.
+    """
+    branch_df = pd.concat(
+        [BRANCH_TEMPLATE_DF]
+        + [get_branch_details(branch) for branch in repo.get_branches()],
+        ignore_index=True,
+    )
+    return branch_df
+
+
 def get_repo_details(repo):
     """
     Get information on repo from PyGitHub API and format in pandas DataFrame.
@@ -135,6 +147,18 @@ def render_metadata_html_table(metadata_df, table_id=None):
     return repo_html
 
 
+def render_single_repo_html_table(repo_df, table_id=None):
+    """
+    format repo_df to html.
+    """
+    repo_df_cpy = deepcopy(repo_df)
+    repo_html = repo_df_cpy.style.hide_index()
+    if table_id is not None:
+        repo_html.set_uuid(table_id)
+    repo_html = repo_html.render()
+    return repo_html
+
+
 def render_repo_html_table(repo_df):
     """
     format repo_df to html.
@@ -176,5 +200,23 @@ def get_ghh_plot(plot_df, var):
         )
         .interactive()
         .properties(title=f"{var.replace('_', ' ')} by repo")
+    )
+    return plot
+
+
+def get_ghh_repo_plot(plot_df, var):
+    """
+    Standard formatting of ghh plot.
+    """
+    plot = (
+        alt.Chart(plot_df)
+        .mark_bar()
+        .encode(
+            x="branch",
+            y=var,
+            tooltip=var,
+        )
+        .interactive()
+        .properties(title=f"{var.replace('_', ' ')} by branch")
     )
     return plot

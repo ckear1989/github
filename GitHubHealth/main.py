@@ -8,6 +8,7 @@ from github.GithubException import UnknownObjectException
 
 from .requested_object import (
     RequestedObject,
+    RequestedRepo,
     get_connection,
 )
 from .utils import (
@@ -57,6 +58,14 @@ class GitHubHealth:
         self.plots = None
         self.requested_user = None
         self.requested_org = None
+
+    def get_repo(self, repo_full_name):
+        """
+        Method to get repos as a class object.
+        """
+        this_repo = self.con.get_repo(repo_full_name)
+        requested_repo = RequestedRepo(this_repo, this_repo.html_url)
+        return requested_repo
 
     def get_repos(self, search_request, users=False, orgs=False, ignore_repos=None):
         """

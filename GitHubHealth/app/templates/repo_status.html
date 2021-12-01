@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+    {% block title %}
+        <title>GitHubHealth: {{ repo.name }}</title>
+    {% endblock %}
+{% endblock %}
+
+{% macro direction_button_left(target) %}
+<button class="btn-direction" id="left" onclick="showPlotLeft()">
+    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
+</button>
+{% endmacro %}
+
+{% macro direction_button_right(target) %}
+<button class="btn-direction" id="right" onclick="showPlotRight()">
+    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
+</button>
+{% endmacro %}
+
+{% block body %}
+
+    {% block navbar %}
+    {% endblock %}
+
+    {% block header %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block content %}
+
+        {% if repo is not none %}
+            <div class="repo_content">
+                <!-- embed table -->
+                <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
+                {{ repo.html_table|safe }}
+                <ul class="plots">
+                    <li class="btn-direction">
+                        {{ direction_button_left("image-prev") }}
+                    </li>
+                    <li>
+                        <!-- create divs where plot will be embedded -->
+                        {% for plot in repo.plots %}
+                            {% if loop.index == 1 %}
+                                <div id="vis_repo_{{loop.index}}" class="plot" style="display: block"></div>
+                            {% else %}
+                                <div id="vis_repo_{{loop.index}}" class="plot" style="display: none"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li class="btn-direction">
+                        {{ direction_button_right("image-next") }}
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+
+    {% endblock %}
+
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block footer %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block scripts %}
+        {{ super() }}
+        <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/buttons.js') }}"></script>
+
+        {% if repo is not none %}
+            {% for plot in repo.plots %}
+                <script>
+                    vegaEmbedPlot({{ plot|safe }}, "vis{{loop.index}}", "#vis_repo_{{loop.index}}");
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endblock %}
+
+{% endblock %}

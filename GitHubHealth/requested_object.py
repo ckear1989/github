@@ -11,13 +11,17 @@ from github import (
 from github.AuthenticatedUser import AuthenticatedUser
 from github.NamedUser import NamedUser
 from github.Organization import Organization
+from github.Repository import Repository
 
 from .utils import (
     REPOS_TEMPLATE_DF,
     TIMEOUT,
     get_ghh_plot,
+    get_ghh_repo_plot,
     get_repo_details,
+    get_single_repo_details,
     render_metadata_html_table,
+    render_single_repo_html_table,
 )
 
 
@@ -74,6 +78,8 @@ class RequestedObject:
         elif isinstance(obj, Organization):
             self.name = self.obj.login
             self.avatar_url = obj.avatar_url
+        elif isinstance(obj, Repository):
+            self.name = self.obj.name
         self.url = url
         self.metadata_df = None
         self.metadata_html = None
@@ -169,3 +175,38 @@ class RequestedObject:
         ]
         plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
         setattr(self, "plots", plots)
+
+
+class RequestedRepo(RequestedObject):
+    """
+    Container for requested objects.
+    """
+
+    def get_repo_df(self):
+        """
+        Main method to parse repo details into pandas DataFrame.
+        """
+        repo_df = get_single_repo_details(self.obj)
+        setattr(self, "repo_df", repo_df)
+
+    def get_plots(self):
+        """
+        Get plots from repo df.
+        """
+        branch_age_plot = get_ghh_repo_plot(self.repo_df, "age")
+        plots = [
+            branch_age_plot,
+        ]
+        plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
+        setattr(self, "plots", plots)
+
+    def get_html_table(self):
+        """
+        Get html table.
+        """
+        if self.repo_df is None:
+            self.get_repo_df()
+        html_table = render_single_repo_html_table(
+            self.repo_df,
+        )
+        setattr(self, "html_table", html_table)

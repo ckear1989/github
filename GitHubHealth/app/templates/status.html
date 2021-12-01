@@ -59,7 +59,7 @@
         {% if ghh.requested_org.obj is not none %}
             <div class="org_content">
                 <!-- embed table -->
-                <a class="header" href={{ ghh.requested_org.url }}>{{ ghh.requested_org.name }}</a>
+                <a class="header" href={{ ghh.requested_org.url }} target="_blank">{{ ghh.requested_org.name }}</a>
                 {{ ghh.repo_html["orgs"]|safe }}
                 <ul class="plots">
                     <li class="btn-direction">
