@@ -245,6 +245,7 @@ img.search {
 
 ul.plots {
   margin-left: 60px;
+  display: flex;
 }
 
 div.plot {

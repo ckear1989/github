@@ -7,10 +7,11 @@ import os
 from flask import (
     Flask,
     flash,
-    g,
+    redirect,
     render_template,
     request,
     session,
+    url_for,
 )
 from flask.logging import create_logger
 from flask_wtf import CSRFProtect
@@ -55,8 +56,6 @@ def try_ghh(this_session):
     Try ghh object.
     Useful for quickly verifying if credentials can be used to login.
     """
-    if "ghh" in g:
-        return g.ghh, None
     required = ["login_user", "gat", "hostname", "timeout"]
     if all(x in this_session for x in required):
         try:
@@ -130,8 +129,7 @@ def home():
             session["timeout"] = login_form.timeout.data
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                g.ghh = ghh
-                return user(ghh.user.name)
+                return redirect(url_for("user", username=ghh.user.name))
             return render_template(
                 "index.html",
                 login_form=login_form,
@@ -141,13 +139,11 @@ def home():
         if request.method == "POST":
             ghh, error_message = try_ghh(session)
             if ghh is not None:
-                g.ghh = ghh
-                return user(ghh.user.name)
+                return redirect(url_for("user", username=ghh.user.name))
     if request.method == "GET":
         ghh, _ = try_ghh(session)
         if ghh is not None:
-            g.ghh = ghh
-            return user(ghh.user.name)
+            return redirect(url_for("user", username=ghh.user.name))
     return render_template(
         "index.html",
         login_form=login_form,
@@ -180,13 +176,11 @@ def login():
     if "search" in request.form.keys():
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            g.ghh = ghh
-            return user(ghh.user.name)
+            return redirect(url_for("user", username=ghh.user.name))
     if request.method == "GET":
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            g.ghh = ghh
-            return user(ghh.user.name)
+            return redirect(url_for("user", username=ghh.user.name))
     login_form = LoginForm()
     if request.method == "POST" and login_form.validate():
         session["login_user"] = login_form.login_user.data
@@ -195,8 +189,7 @@ def login():
         session["timeout"] = login_form.timeout.data
         ghh, error_message = try_ghh(session)
         if ghh is not None:
-            g.ghh = ghh
-            return user(ghh.user.name)
+            return redirect(url_for("user", username=ghh.user.name))
         return render_template(
             "index.html",
             login_form=login_form,
@@ -217,81 +210,87 @@ def logout():
         del session["login_user"]
     if "gat" in session:
         del session["gat"]
-    if "ghh" in g:
-        _ = g.pop("ghh", None)
     flash("logged out")
-    return login()
+    return redirect(url_for("home"))
 
 
 # is this the right way of handling view routes?
 # pylint: disable=unused-argument
+# pylint: disable=too-many-return-statements
 @app.route("/user/<username>", methods=["POST", "GET"])
 def user(username):
     """
     Get user page.
     """
-    ghh = g.ghh
-    ghh.user.get_metadata_html()
-    search_form = SearchForm()
-    if request.method == "POST" and search_form.validate():
-        try:
-            ghh.get_repos(
-                search_request=search_form.search_request.data,
-                users=search_form.search_users.data,
-                orgs=search_form.search_orgs.data,
-                ignore_repos=search_form.search_ignore_repos.data,
-            )
-        except UnknownObjectException as uoe_error:
+    ghh, _ = try_ghh(session)
+    if ghh is not None:
+        ghh.user.get_metadata_html()
+        search_form = SearchForm()
+        if request.method == "POST" and search_form.validate():
+            try:
+                ghh.get_repos(
+                    search_request=search_form.search_request.data,
+                    users=search_form.search_users.data,
+                    orgs=search_form.search_orgs.data,
+                    ignore_repos=search_form.search_ignore_repos.data,
+                )
+            except UnknownObjectException as uoe_error:
+                return render_template(
+                    "user.html",
+                    ghh=ghh,
+                    search_form=search_form,
+                    error=uoe_error,
+                )
+            except ReadTimeout as timeout_error:
+                return render_template(
+                    "user.html",
+                    ghh=ghh,
+                    search_form=search_form,
+                    error=timeout_error,
+                )
+            ghh.get_repo_dfs()
+            ghh.render_repo_html_tables()
+            ghh.get_plots()
+            return status(ghh.user.name, ghh)
+        if request.method == "POST" and search_form.validate() is False:
+            warning = search_form.search_request.errors[0]
             return render_template(
                 "user.html",
                 ghh=ghh,
                 search_form=search_form,
-                error=uoe_error,
+                warning=warning,
             )
-        except ReadTimeout as timeout_error:
+        if all(
+            x in request.form.keys() for x in ["login_user", "gat", "hostname", "login"]
+        ):
             return render_template(
                 "user.html",
                 ghh=ghh,
                 search_form=search_form,
-                error=timeout_error,
             )
-        ghh.get_repo_dfs()
-        ghh.render_repo_html_tables()
-        ghh.get_plots()
-        return status(ghh.user.name)
-    if request.method == "POST" and search_form.validate() is False:
-        warning = search_form.search_request.errors[0]
-        return render_template(
-            "user.html",
-            ghh=ghh,
-            search_form=search_form,
-            warning=warning,
-        )
-    if all(
-        x in request.form.keys() for x in ["login_user", "gat", "hostname", "login"]
-    ):
         return render_template(
             "user.html",
             ghh=ghh,
             search_form=search_form,
         )
-    return render_template(
-        "user.html",
-        ghh=ghh,
-        search_form=search_form,
-    )
+    return redirect(url_for("home"))
 
 
 @app.route("/status/<string:username>")
-def status(username):
+def status(username, ghh):
     """
     Return status of search.
     """
-    ghh = g.ghh
-    return render_template(
-        "status.html",
-        ghh=ghh,
-    )
+    # there has to be a better way of storing ghh
+    # flask.g only remains for 1 request cycle
+    # redis and memchache look difficult
+    # as does multiprocessing.Manager
+    if ghh is not None:
+        return render_template(
+            "status.html",
+            ghh=ghh,
+        )
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
