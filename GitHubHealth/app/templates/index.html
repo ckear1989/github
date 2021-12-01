@@ -32,19 +32,19 @@
                 {{ login_form.csrf_token() }}
                 <div class="form-group">
                     <label class="form-control-label">user login</label>
-                    <input class="form-control" id="login_user" name="login_user" required type="text" autocomplete="username">
+                    <input class="form-control" id="login_user" name="login_user" required type="text" autocomplete="username" data-toggle="tooltip" title="GitHub user login.">
                 </div>
                 <div class="form-group">
                     <label class="form-control-label">github token</label>
-                    <input class="form-control" id="gat" name="gat" required type="password" autocomplete="current-password">
+                    <input class="form-control" id="gat" name="gat" required type="password" autocomplete="current-password" data-toggle="tooltip" title="Github Access Token. See about for more details.">
                 </div>
                 <div class="form-group">
                     <label class="form-control-label">hostname</label>
-                    <input class="form-control" id="hostname" name="hostname" required type="text" value="github.com">
+                    <input class="form-control" id="hostname" name="hostname" required type="text" value="github.com" data-toggle="tooltip" title="hostname of your GitHub instance.">
                 </div>
                 <div class="form-group">
                     <label class="form-control-label">timeout</label>
-                    <input class="form-control" id="timeout" name="timeout" required type="number" value="2">
+                    <input class="form-control" id="timeout" name="timeout" required type="number" value="2" data-toggle="tooltip" title="timeout for PyGitHub requests.">
                 </div>
                 <input class="btn btn-primary" id="login" name="login" onclick="loading_login()" type="submit" value="Login">
             </form>
