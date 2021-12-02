@@ -503,6 +503,11 @@ li.dropdown {
   border-width: 4px;
 }
 
+th.col2, td.col2 {
+  width: 35px;
+  text-align: center;
+}
+
 #user-icon-nouser.user-icon {
   border-color: inherit;
 }
