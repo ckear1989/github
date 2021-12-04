@@ -138,11 +138,18 @@ class RequestedObject:
         # health is internal link dynamically created by javascript in user.html
         i = 0
         # limit results to 10 with option to get more
-        metadata_dict = {"resource": [], "name": [], "url": [], "health": []}
+        metadata_dict = {
+            "resource": [],
+            "owner": [],
+            "name": [],
+            "url": [],
+            "health": [],
+        }
         for repo in self.obj.get_repos():
             i += 1
             if i <= limit:
                 metadata_dict["resource"].append("repo")
+                metadata_dict["owner"].append(repo.owner.login)
                 metadata_dict["name"].append(repo.name)
                 metadata_dict["url"].append(repo.html_url)
                 metadata_dict["health"].append("health")
@@ -150,6 +157,7 @@ class RequestedObject:
             i += 1
             if i <= limit:
                 metadata_dict["resource"].append("org")
+                metadata_dict["owner"].append(resource.owner.login)
                 metadata_dict["name"].append(resource.name)
                 metadata_dict["url"].append(resource.html_url)
                 metadata_dict["health"].append("health")
@@ -157,6 +165,7 @@ class RequestedObject:
             i += 1
             if i <= limit:
                 metadata_dict["resource"].append("team")
+                metadata_dict["owner"].append(resource.owner.login)
                 metadata_dict["name"].append(resource.name)
                 try:
                     metadata_dict["url"].append(resource.html_url)

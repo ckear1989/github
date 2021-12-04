@@ -237,7 +237,6 @@ def user(username):
         ghh.user.get_metadata_html()
         search_form = SearchForm()
         more_form = MoreForm()
-        print(request.form.keys())
         if all(x in request.form.keys() for x in ["more", "increment"]):
             ghh.user.increase_metadata_limit(more_form.increment.data)
             ghh.user.get_metadata_df()
@@ -320,15 +319,14 @@ def status(username, ghh):
     return redirect(url_for("home"))
 
 
-@app.route("/repo_status/<string:repo_name>")
-def repo_status(repo_name):
+@app.route("/repo_status/<string:repo_owner>/<string:repo_name>")
+def repo_status(repo_owner, repo_name):
     """
     Return status of repo.
     """
     ghh, _ = try_ghh(session)
     if ghh is not None:
-        repo_full_name = f"{ghh.user.name}/{repo_name}"
-        repo = ghh.get_repo(repo_full_name)
+        repo = ghh.get_repo(repo_owner, repo_name)
         repo.get_repo_df()
         repo.get_html_table()
         repo.get_plots()

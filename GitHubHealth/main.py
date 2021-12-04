@@ -66,11 +66,11 @@ class GitHubHealth:
         self.requested_user = None
         self.requested_org = None
 
-    def get_repo(self, repo_full_name):
+    def get_repo(self, repo_owner, repo_name):
         """
         Method to get repos as a class object.
         """
-        this_repo = self.con.get_repo(repo_full_name)
+        this_repo = self.con.get_repo(f"{repo_owner}/{repo_name}")
         requested_repo = RequestedRepo(
             this_repo, this_repo.html_url, self.results_limit
         )
