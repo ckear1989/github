@@ -29,14 +29,17 @@ class GitHubHealth:
         login (str)         : default None
         password (str)      : default None
         gat (str)           : default None
-        org (str)           : default None
         timeout (int)       : default TIMEOUT
-    If user is None then try to get organisation for repo_table.
-    If org is None then fall back on user retrieved from GITHUB_TOKEN.
     """
 
     def __init__(
-        self, hostname=None, login=None, password=None, gat=None, timeout=TIMEOUT
+        self,
+        hostname=None,
+        login=None,
+        password=None,
+        gat=None,
+        results_limit=None,
+        timeout=TIMEOUT,
     ):
         """
         Create connection based on (login+password) or (gat).
@@ -48,8 +51,12 @@ class GitHubHealth:
         else:
             self.base_url = f"https://{hostname}/api/v3"
         self.public_url = f"https://{hostname}/"
-
-        self.con, self.user = get_connection(hostname, login, password, gat, timeout)
+        if results_limit is None:
+            results_limit = 10
+        self.results_limit = results_limit
+        self.con, self.user = get_connection(
+            hostname, login, password, gat, timeout, self.results_limit
+        )
         self.username = self.user.name
         self.user_url = self.user.url
         self.repos = []
@@ -64,7 +71,9 @@ class GitHubHealth:
         Method to get repos as a class object.
         """
         this_repo = self.con.get_repo(repo_full_name)
-        requested_repo = RequestedRepo(this_repo, this_repo.html_url)
+        requested_repo = RequestedRepo(
+            this_repo, this_repo.html_url, self.results_limit
+        )
         return requested_repo
 
     def get_repos(self, search_request, users=False, orgs=False, ignore_repos=None):
@@ -87,29 +96,39 @@ class GitHubHealth:
         if users is True:
             try:
                 this_user = self.con.get_user(search_request)
-                requested_user = RequestedObject(this_user, this_user.html_url)
+                requested_user = RequestedObject(
+                    this_user, this_user.html_url, self.results_limit
+                )
                 requested_user.get_repos(ignore_repos)
                 repos["users"] = requested_user.return_repos()
             except UnknownObjectException:
                 requested_user = RequestedObject(
-                    None, f"{self.public_url}/{search_request}"
+                    None,
+                    f"{self.public_url}/{search_request}",
+                    None,
                 )
         else:
             requested_user = RequestedObject(
-                None, f"{self.public_url}/{search_request}"
+                None,
+                f"{self.public_url}/{search_request}",
+                None,
             )
         if orgs is True:
             try:
                 this_org = self.con.get_organization(search_request)
-                requested_org = RequestedObject(this_org, this_org.html_url)
+                requested_org = RequestedObject(
+                    this_org, this_org.html_url, self.results_limit
+                )
                 requested_org.get_repos(ignore_repos)
                 repos["orgs"] = requested_org.return_repos()
             except UnknownObjectException:
                 requested_org = RequestedObject(
-                    None, f"{self.public_url}/{search_request}"
+                    None, f"{self.public_url}/{search_request}", None
                 )
         else:
-            requested_org = RequestedObject(None, f"{self.public_url}/{search_request}")
+            requested_org = RequestedObject(
+                None, f"{self.public_url}/{search_request}", None
+            )
         setattr(self, "repos", repos)
         setattr(self, "requested_user", requested_user)
         setattr(self, "requested_org", requested_org)

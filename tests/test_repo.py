@@ -35,3 +35,21 @@ def test_get_org_repos():
     ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
     ghh.get_repos(search_request="PyGitHub", orgs=True)
     assert "PyGithub" in [repo.name for repo in ghh.repos["orgs"]]
+
+
+def test_results_limit():
+    """
+    Test get repos from known user with limiting of results.
+    """
+    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=2)
+    ghh.get_repos(search_request="ckear1989", users=True)
+    ghh.user.get_metadata_df()
+    assert len(ghh.user.metadata_df) <= 2
+    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=4)
+    ghh.get_repos(search_request="ckear1989", users=True)
+    ghh.user.get_metadata_df()
+    assert len(ghh.user.metadata_df) <= 4
+    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=10)
+    ghh.get_repos(search_request="ckear1989", users=True)
+    ghh.user.get_metadata_df()
+    assert len(ghh.user.metadata_df) <= 10

@@ -43,8 +43,12 @@
                     <input class="form-control" id="hostname" name="hostname" required type="text" value="github.com" data-toggle="tooltip" title="hostname of your GitHub instance.">
                 </div>
                 <div class="form-group">
+                    <label class="form-control-label">results limit</label>
+                    <input class="form-control nbr-input" name="results_limit" required type="number" value="10" data-toggle="tooltip" title="number of results shown per request.">
+                </div>
+                <div class="form-group">
                     <label class="form-control-label">timeout</label>
-                    <input class="form-control" id="timeout" name="timeout" required type="number" value="2" data-toggle="tooltip" title="timeout for PyGitHub requests.">
+                    <input class="form-control nbr-input" name="timeout" required type="number" value="2" data-toggle="tooltip" title="timeout for PyGitHub requests.">
                 </div>
                 <input class="btn btn-primary" id="login" name="login" onclick="loading_login()" type="submit" value="Login">
             </form>

@@ -2,6 +2,8 @@
 RequesteObject class define attributes for easily retrieval.
 """
 
+import warnings
+
 import pandas as pd
 
 from github import (
@@ -25,7 +27,15 @@ from .utils import (
 )
 
 
-def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TIMEOUT):
+# pylint: disable=too-many-arguments
+def get_connection(
+    hostname=None,
+    user=None,
+    password=None,
+    gat=None,
+    timeout=TIMEOUT,
+    results_limit=None,
+):
     """
     Get connection and login.
     """
@@ -35,6 +45,9 @@ def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TI
         base_url = MainClass.DEFAULT_BASE_URL
     else:
         base_url = f"https://{hostname}/api/v3"
+    if results_limit is None:
+        results_limit = 10
+    assert isinstance(results_limit, int)
     if gat is not None:
         github_con = Github(
             base_url=base_url,
@@ -55,7 +68,7 @@ def get_connection(hostname=None, user=None, password=None, gat=None, timeout=TI
         raise Exception("provide either user+password or gat")
     this_user = github_con.get_user()
     _ = this_user.login
-    this_user = RequestedObject(this_user, this_user.html_url)
+    this_user = RequestedObject(this_user, this_user.html_url, results_limit)
     return github_con, this_user
 
 
@@ -65,7 +78,7 @@ class RequestedObject:
     Container for requested objects.
     """
 
-    def __init__(self, obj, url):
+    def __init__(self, obj, url, results_limit):
         self.obj = obj
         self.name = None
         self.avatar_url = None
@@ -82,10 +95,19 @@ class RequestedObject:
             self.name = self.obj.name
         self.url = url
         self.metadata_df = None
+        self.metadata_limit = results_limit
+        self.metadata_limit_reached = False
         self.metadata_html = None
         self.repos = []
         self.repo_df = None
         self.plots = []
+
+    def increase_metadata_limit(self, increment=2):
+        """
+        Add more to metadata limit.
+        """
+        increment = max(0, increment)
+        self.metadata_limit += increment
 
     def get_repos(self, ignore_repos=None):
         """
@@ -110,27 +132,42 @@ class RequestedObject:
         """
         Main method to parse object metadata into pandas DataFrame.
         """
+        limit = self.metadata_limit
         # resource_type, resource_name
         # url is external link to github
         # health is internal link dynamically created by javascript in user.html
+        i = 0
+        # limit results to 10 with option to get more
         metadata_dict = {"resource": [], "name": [], "url": [], "health": []}
         for repo in self.obj.get_repos():
-            metadata_dict["resource"].append("repo")
-            metadata_dict["name"].append(repo.name)
-            metadata_dict["url"].append(repo.html_url)
-            metadata_dict["health"].append("health")
+            i += 1
+            if i <= limit:
+                metadata_dict["resource"].append("repo")
+                metadata_dict["name"].append(repo.name)
+                metadata_dict["url"].append(repo.html_url)
+                metadata_dict["health"].append("health")
         for resource in self.obj.get_orgs():
-            metadata_dict["resource"].append("org")
-            metadata_dict["name"].append(resource.name)
-            metadata_dict["url"].append(resource.html_url)
-            metadata_dict["health"].append("health")
+            i += 1
+            if i <= limit:
+                metadata_dict["resource"].append("org")
+                metadata_dict["name"].append(resource.name)
+                metadata_dict["url"].append(resource.html_url)
+                metadata_dict["health"].append("health")
         for resource in self.obj.get_teams():
-            metadata_dict["resource"].append("team")
-            metadata_dict["name"].append(resource.name)
-            metadata_dict["url"].append(resource.html_url)
-            metadata_dict["health"].append("health")
+            i += 1
+            if i <= limit:
+                metadata_dict["resource"].append("team")
+                metadata_dict["name"].append(resource.name)
+                try:
+                    metadata_dict["url"].append(resource.html_url)
+                except AttributeError:
+                    warnings.warn("team html_url not found")
+                    metadata_dict["url"].append(resource.members_url)
+                metadata_dict["health"].append("health")
         metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
+        metadata_limit_reached = i > limit
         setattr(self, "metadata_df", metadata_df)
+        setattr(self, "metadata_limit_reached", metadata_limit_reached)
 
     def get_metadata_html(self):
         """

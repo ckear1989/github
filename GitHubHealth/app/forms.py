@@ -23,6 +23,9 @@ class LoginForm(FlaskForm):
     hostname = StringField(
         "hostname", [validators.DataRequired()], default="github.com"
     )
+    results_limit = IntegerField(
+        "results limit", [validators.DataRequired()], default=10
+    )
     timeout = IntegerField("timeout", [validators.DataRequired()], default=2)
     login = SubmitField(render_kw={"onclick": "loading_login()"})
 
@@ -36,6 +39,10 @@ class LoginForm(FlaskForm):
             return False
         if self.timeout.data < 1 or self.timeout.data > 10:
             msg = "timeout must be a value between 1 and 10"
+            self.timeout.errors.append(msg)
+            return False
+        if self.results_limit.data < 1 or self.results_limit.data > 50:
+            msg = "timeout must be a value between 1 and 50"
             self.timeout.errors.append(msg)
             return False
         return True
@@ -70,3 +77,12 @@ class SearchForm(FlaskForm):
             self.search_request.errors.append(msg)
             return False
         return True
+
+
+class MoreForm(FlaskForm):
+    """
+    Form for github user class.
+    """
+
+    more = SubmitField()
+    increment = IntegerField("increment", [validators.DataRequired()], default=2)

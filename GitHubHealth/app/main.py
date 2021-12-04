@@ -32,6 +32,7 @@ from github.GithubException import (
 from GitHubHealth import GitHubHealth
 from GitHubHealth.app.forms import (
     LoginForm,
+    MoreForm,
     SearchForm,
 )
 
@@ -56,13 +57,14 @@ def try_ghh(this_session):
     Try ghh object.
     Useful for quickly verifying if credentials can be used to login.
     """
-    required = ["login_user", "gat", "hostname", "timeout"]
+    required = ["login_user", "gat", "hostname", "results_limit", "timeout"]
     if all(x in this_session for x in required):
         try:
             ghh = get_ghh(
                 this_session["login_user"],
                 this_session["gat"],
                 this_session["hostname"],
+                this_session["results_limit"],
                 this_session["timeout"],
             )
         except (
@@ -77,12 +79,18 @@ def try_ghh(this_session):
     return None, error_msg
 
 
-def get_ghh(login_user, gat, hostname, timeout):
+def get_ghh(login_user, gat, hostname, results_limit, timeout):
     """
     Get ghh object.
     Useful for quickly verifying if credentials can be used to login.
     """
-    ghh = GitHubHealth(login=login_user, gat=gat, hostname=hostname, timeout=timeout)
+    ghh = GitHubHealth(
+        login=login_user,
+        gat=gat,
+        hostname=hostname,
+        results_limit=results_limit,
+        timeout=timeout,
+    )
     return ghh
 
 
@@ -126,6 +134,7 @@ def home():
             session["login_user"] = login_form.login_user.data
             session["gat"] = login_form.gat.data
             session["hostname"] = login_form.hostname.data
+            session["results_limit"] = login_form.results_limit.data
             session["timeout"] = login_form.timeout.data
             ghh, error_message = try_ghh(session)
             if ghh is not None:
@@ -186,6 +195,7 @@ def login():
         session["login_user"] = login_form.login_user.data
         session["gat"] = login_form.gat.data
         session["hostname"] = login_form.hostname.data
+        session["results_limit"] = login_form.results_limit.data
         session["timeout"] = login_form.timeout.data
         ghh, error_message = try_ghh(session)
         if ghh is not None:
@@ -226,6 +236,18 @@ def user(username):
     if ghh is not None:
         ghh.user.get_metadata_html()
         search_form = SearchForm()
+        more_form = MoreForm()
+        print(request.form.keys())
+        if all(x in request.form.keys() for x in ["more", "increment"]):
+            ghh.user.increase_metadata_limit(more_form.increment.data)
+            ghh.user.get_metadata_df()
+            ghh.user.get_metadata_html()
+            return render_template(
+                "user.html",
+                ghh=ghh,
+                more_form=more_form,
+                search_form=search_form,
+            )
         if request.method == "POST" and search_form.validate():
             try:
                 ghh.get_repos(
@@ -238,6 +260,7 @@ def user(username):
                 return render_template(
                     "user.html",
                     ghh=ghh,
+                    more_form=more_form,
                     search_form=search_form,
                     error=uoe_error,
                 )
@@ -245,6 +268,7 @@ def user(username):
                 return render_template(
                     "user.html",
                     ghh=ghh,
+                    more_form=more_form,
                     search_form=search_form,
                     error=timeout_error,
                 )
@@ -257,6 +281,7 @@ def user(username):
             return render_template(
                 "user.html",
                 ghh=ghh,
+                more_form=more_form,
                 search_form=search_form,
                 warning=warning,
             )
@@ -266,11 +291,13 @@ def user(username):
             return render_template(
                 "user.html",
                 ghh=ghh,
+                more_form=more_form,
                 search_form=search_form,
             )
         return render_template(
             "user.html",
             ghh=ghh,
+            more_form=more_form,
             search_form=search_form,
         )
     return redirect(url_for("home"))
@@ -307,6 +334,7 @@ def repo_status(repo_name):
         repo.get_plots()
         return render_template(
             "repo_status.html",
+            ghh=ghh,
             repo=repo,
         )
     return redirect(url_for("home"))
