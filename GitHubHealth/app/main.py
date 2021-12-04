@@ -14,7 +14,8 @@ from flask import (
     url_for,
 )
 from flask.logging import create_logger
-from flask_wtf import CSRFProtect
+
+# from flask_wtf import CSRFProtect
 from flask_bootstrap import Bootstrap
 import pkg_resources
 import setuptools_scm
@@ -96,8 +97,8 @@ def get_ghh(login_user, gat, hostname, results_limit, timeout):
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(32)
-csrf = CSRFProtect()
-csrf.init_app(app)
+# csrf = CSRFProtect()
+# csrf.init_app(app)
 LOG = create_logger(app)
 Bootstrap(app)
 
