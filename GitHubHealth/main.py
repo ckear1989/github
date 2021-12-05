@@ -9,6 +9,7 @@ from github.GithubException import UnknownObjectException
 from .requested_object import (
     RequestedObject,
     RequestedRepo,
+    SearchResults,
     get_connection,
 )
 from .utils import (
@@ -63,6 +64,8 @@ class GitHubHealth:
         self.repo_dfs = {}
         self.repo_html = {}
         self.plots = None
+        self.requested_df = None
+        self.requested_object = None
         self.requested_user = None
         self.requested_org = None
 
@@ -75,6 +78,61 @@ class GitHubHealth:
             this_repo, this_repo.html_url, self.results_limit
         )
         return requested_repo
+
+    def search(self, search_request, users=False, orgs=False, ignore_repos=None):
+        """
+        Search for users and/or orgs and get results table.
+        """
+        if ignore_repos is None:
+            ignore_repos = ""
+        search_request = search_request.strip("")
+        assert isinstance(search_request, str)
+        assert isinstance(users, bool)
+        assert isinstance(orgs, bool)
+        assert isinstance(ignore_repos, str)
+        ignore_repos = ignore_repos.split(",")
+        assert isinstance(ignore_repos, list)
+        search_results = SearchResults(self, search_request, users, orgs, ignore_repos)
+        search_results.search()
+        setattr(self, "search_results_table", search_results.table)
+
+    def get_requested_object(self, resource_name):
+        """
+        Method to get repos as a class object.
+        """
+        try:
+            this_user = self.con.get_user(resource_name)
+            requested_user = RequestedObject(
+                this_user, this_user.html_url, self.results_limit
+            )
+        except UnknownObjectException:
+            requested_user = RequestedObject(
+                None,
+                f"{self.public_url}/{resource_name}",
+                None,
+            )
+        setattr(self, "requested_object", requested_user)
+
+    def get_requested_repos(self):
+        """
+        Main method to parse repo details into pandas DataFrame.
+        """
+        self.requested_object.get_repos()
+        setattr(self, "requested_repos", self.requested_object.repos)
+
+    def get_requested_df(self):
+        """
+        Main method to parse repo details into pandas DataFrame.
+        """
+        self.requested_object.get_repo_df()
+        setattr(self, "requested_df", self.requested_object.repo_df)
+
+    def render_requested_html_table(self):
+        """
+        Render pandas df to html with formatting of cells etc.
+        """
+        requested_html = render_repo_html_table(self.requested_df)
+        setattr(self, "repo_html", requested_html)
 
     def get_repos(self, search_request, users=False, orgs=False, ignore_repos=None):
         """
@@ -161,10 +219,5 @@ class GitHubHealth:
         """
         get altair plot objects as html.
         """
-        self.requested_user.get_plots()
-        self.requested_org.get_plots()
-        plots = {
-            "users": self.requested_user.plots,
-            "orgs": self.requested_org.plots,
-        }
-        setattr(self, "plots", plots)
+        self.requested_object.get_plots()
+        setattr(self, "plots", self.requested_object.plots)

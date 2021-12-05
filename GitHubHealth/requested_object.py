@@ -72,6 +72,42 @@ def get_connection(
     return github_con, this_user
 
 
+# pylint: disable=too-few-public-methods
+class SearchResults:
+    """
+    Use ghh object to search for users and/or orgs.
+    """
+
+    def __init__(self, ghh, search_request, users, orgs, ignore_repos):
+        self.ghh = ghh
+        self.search_request = search_request
+        self.users = users
+        self.orgs = orgs
+        self.ignore_repos = ignore_repos
+        self.table = None
+
+    def search(self):
+        """
+        Let's search for some shit.
+        """
+        user_results = self.ghh.con.search_users(self.search_request)
+        metadata_dict = {
+            "resource": [],
+            "name": [],
+            "url": [],
+            "health": [],
+        }
+        for user in user_results:
+            metadata_dict["resource"].append("user")
+            metadata_dict["name"].append(user.login)
+            metadata_dict["url"].append(user.html_url)
+            metadata_dict["health"].append("health")
+        table = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
+        table = render_metadata_html_table(table, table_id="search-metadata")
+        setattr(self, "user_results", user_results)
+        setattr(self, "table", table)
+
+
 # pylint: disable=too-many-instance-attributes
 class RequestedObject:
     """

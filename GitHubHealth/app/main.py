@@ -266,33 +266,13 @@ def user(username):
                 search_form=search_form,
             )
         if request.method == "POST" and search_form.validate():
-            try:
-                ghh.get_repos(
-                    search_request=search_form.search_request.data,
-                    users=search_form.search_users.data,
-                    orgs=search_form.search_orgs.data,
-                    ignore_repos=search_form.search_ignore_repos.data,
-                )
-            except UnknownObjectException as uoe_error:
-                return render_template(
-                    "user.html",
-                    ghh=ghh,
-                    more_form=more_form,
-                    search_form=search_form,
-                    error=uoe_error,
-                )
-            except ReadTimeout as timeout_error:
-                return render_template(
-                    "user.html",
-                    ghh=ghh,
-                    more_form=more_form,
-                    search_form=search_form,
-                    error=timeout_error,
-                )
-            ghh.get_repo_dfs()
-            ghh.render_repo_html_tables()
-            ghh.get_plots()
-            return status(ghh.user.name, ghh)
+            return search_results(
+                ghh,
+                search_form.search_request.data,
+                search_form.search_users.data,
+                search_form.search_orgs.data,
+                search_form.search_ignore_repos.data,
+            )
         if request.method == "POST" and search_form.validate() is False:
             warning = search_form.search_request.errors[0]
             return render_template(
@@ -320,8 +300,44 @@ def user(username):
     return redirect(url_for("home"))
 
 
-@app.route("/status/<string:username>")
-def status(username, ghh):
+@app.route("/search/")
+def search_results(ghh, search_request, search_users, search_orgs, search_ignore_repos):
+    """
+    Search results from given search paramaters.
+    """
+    search_form = SearchForm()
+    more_form = MoreForm()
+    try:
+        ghh.search(
+            search_request=search_request,
+            users=search_users,
+            orgs=search_orgs,
+            ignore_repos=search_ignore_repos,
+        )
+    except UnknownObjectException as uoe_error:
+        return render_template(
+            "user.html",
+            ghh=ghh,
+            more_form=more_form,
+            search_form=search_form,
+            error=uoe_error,
+        )
+    except ReadTimeout as timeout_error:
+        return render_template(
+            "user.html",
+            ghh=ghh,
+            more_form=more_form,
+            search_form=search_form,
+            error=timeout_error,
+        )
+    return render_template(
+        "search_results.html",
+        ghh=ghh,
+    )
+
+
+@app.route("/status/<string:resource_name>")
+def status(resource_name):
     """
     Return status of search.
     """
@@ -329,7 +345,32 @@ def status(username, ghh):
     # flask.g only remains for 1 request cycle
     # redis and memchache look difficult
     # as does multiprocessing.Manager
+    search_form = SearchForm()
+    more_form = MoreForm()
+    ghh, _ = try_ghh(session)
     if ghh is not None:
+        try:
+            ghh.get_requested_object(resource_name)
+            ghh.get_requested_repos()
+            ghh.get_requested_df()
+            ghh.render_requested_html_table()
+            ghh.get_plots()
+        except UnknownObjectException as uoe_error:
+            return render_template(
+                "user.html",
+                ghh=ghh,
+                more_form=more_form,
+                search_form=search_form,
+                error=uoe_error,
+            )
+        except ReadTimeout as timeout_error:
+            return render_template(
+                "user.html",
+                ghh=ghh,
+                more_form=more_form,
+                search_form=search_form,
+                error=timeout_error,
+            )
         return render_template(
             "status.html",
             ghh=ghh,

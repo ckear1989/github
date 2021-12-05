@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block head %}
+    {{ super() }}
+    {% block title %}
+        <title>GitHubHealth: search results</title>
+    {% endblock %}
+{% endblock %}
+
+{% block body %}
+
+    {% block navbar %}
+    {% endblock %}
+
+    {% block header %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block content %}
+        {% if ghh.search_results_table is not none %}
+            <div class="user_content">
+                {{ ghh.search_results_table|safe }}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block error_warning %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block footer %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block scripts %}
+        {{ super() }}
+        <script>
+            // update all table "health" elements to a link for that resource
+            $("#T_search-metadata").children("tbody").children("tr").children("td").each(function () {
+                if (this.cellIndex == 2) {
+                    if (this.innerText == "health") {
+                        let this_resource_name = this.previousElementSibling.innerText;
+                        let this_resource_status_url="/status/".concat(this_resource_name);
+                        this.innerHTML = '<a href="'.concat(this_resource_status_url,  '" class="quicklink" target="_blank"><img class="health-icon" src="/static/favicon.ico"></a>');
+                    };
+                };
+            });
+        </script>
+    {% endblock %}
+
+{% endblock %}

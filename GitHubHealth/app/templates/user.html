@@ -87,7 +87,6 @@
                         let this_repo_owner = this.previousElementSibling.previousElementSibling.innerText;
                         let this_repo_name = this.previousElementSibling.innerText;
                         let this_repo_status_url="/repo_status/".concat(this_repo_owner).concat("/").concat(this_repo_name);
-                        console.log(this_repo_status_url);
                         this.innerHTML = '<a href="'.concat(this_repo_status_url,  '" class="quicklink" target="_blank"><img class="health-icon" src="/static/favicon.ico"></a>');
                     };
                 };
