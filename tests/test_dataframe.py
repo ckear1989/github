@@ -15,12 +15,13 @@ def test_search_df_columns():
     Get a GithubHealth instance and check that expected columns are in DataFrame.
     """
     ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
-    ghh.get_repos(search_request="ckear1989", users=True)
-    ghh.get_repo_dfs()
-    assert "private" in ghh.repo_dfs["users"].columns
-    assert "branch_count" in ghh.repo_dfs["users"].columns
-    assert "max_branch_age_days" in ghh.repo_dfs["users"].columns
-    assert "primary_language" in ghh.repo_dfs["users"].columns
+    ghh.get_requested_object("ckear1989")
+    ghh.requested_object.get_repos()
+    ghh.requested_object.get_repo_df()
+    assert "private" in ghh.requested_object.repo_df.columns
+    assert "branch_count" in ghh.requested_object.repo_df.columns
+    assert "max_branch_age_days" in ghh.requested_object.repo_df.columns
+    assert "primary_language" in ghh.requested_object.repo_df.columns
 
 
 def test_metadata_df_columns():

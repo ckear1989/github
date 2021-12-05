@@ -56,7 +56,7 @@ class SearchForm(FlaskForm):
     search_request = StringField()
     search_users = BooleanField("users")
     search_orgs = BooleanField("orgs")
-    search_ignore_repos = StringField("ignore repos", id="ignore-repos")
+    ignore = StringField("ignore", id="ignore")
     search = SubmitField(render_kw={"onclick": "loading_search()"})
 
     def validate(self, extra_validators=None):

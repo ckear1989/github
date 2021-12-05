@@ -25,13 +25,12 @@
 
     {% block content %}
         <div class="user_content">
-            <p>
-                Logged in as <a href="{{ ghh.user.url }}">{{ ghh.user.name }}</a>.
-                Start browsing or searching.
-            </p>
+            <p>Logged in as <a href="{{ ghh.user.url }}">{{ ghh.user.name }}</a>.</p>
+            <p>Here are the resources associated with your account.  You can browse them on GitHub or check their health status here.</p>
             <div id="user-table">
                 {{ ghh.user.metadata_html|safe }}
             </div>
+            <p>or seach for more resources (users, orgs, repos):</p>
             {% if ghh.user.metadata_limit_reached %}
                 <form action="" method="post" class="limit" id="limit_form" role="form">
                     {{ more_form.csrf_token() }}
@@ -58,9 +57,9 @@
                         <input class="form-check-input" id="search_orgs" name="search_orgs" type="checkbox" value="y" data-toggle="tooltip" title="include orgs in search?"> orgs
                     </label>
                 </div>
-                <div class="form-group" id="ignore-repos">
-                    <label class="form-control-label ignore-repos" for="ignore-repos">ignore repos</label>
-                    <input id="ignore-repos" name="search_ignore_repos" type="text" value data-toggle="tooltip" title="ignore any repos from search results. Separate with comma (,).">
+                <div class="form-group" id="ignore">
+                    <label class="form-control-label ignore" for="ignore">ignore</label>
+                    <input id="ignore" name="ignore" type="text" value data-toggle="tooltip" title="exclude from search results. Separate with comma (,).">
                 </div>
                 <input class="btn btn-primary" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
             </form>

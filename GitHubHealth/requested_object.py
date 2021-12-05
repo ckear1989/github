@@ -78,30 +78,62 @@ class SearchResults:
     Use ghh object to search for users and/or orgs.
     """
 
-    def __init__(self, ghh, search_request, users, orgs, ignore_repos):
+    def __init__(self, ghh, search_request, users, orgs, ignore, results_limit):
         self.ghh = ghh
         self.search_request = search_request
         self.users = users
         self.orgs = orgs
-        self.ignore_repos = ignore_repos
+        self.ignore = []
+        self.get_ignore(ignore)
+        self.results_limit = results_limit
         self.table = None
+
+    def get_ignore(self, ignore):
+        """
+        format ignore string to list.
+        """
+        ignore = ignore.strip()
+        ignore = ignore.split(",")
+        setattr(self, "ignore", ignore)
 
     def search(self):
         """
         Let's search for some shit.
         """
         user_results = self.ghh.con.search_users(self.search_request)
+        repo_results = self.ghh.con.search_repositories(self.search_request)
         metadata_dict = {
             "resource": [],
             "name": [],
             "url": [],
             "health": [],
         }
+        i = 0
         for user in user_results:
-            metadata_dict["resource"].append("user")
-            metadata_dict["name"].append(user.login)
-            metadata_dict["url"].append(user.html_url)
-            metadata_dict["health"].append("health")
+            i += 1
+            if i <= self.results_limit:
+                if isinstance(user, NamedUser):
+                    if user.login not in self.ignore:
+                        metadata_dict["resource"].append("user")
+                        metadata_dict["name"].append(user.login)
+                        metadata_dict["url"].append(user.html_url)
+                        metadata_dict["health"].append("health")
+                else:
+                    warnings.warn(
+                        f"unexpected search result found: {type(user)} {user.login}"
+                    )
+        for repo in repo_results:
+            if i <= self.results_limit:
+                if isinstance(repo, Repository):
+                    if repo.name not in self.ignore:
+                        metadata_dict["resource"].append("repo")
+                        metadata_dict["name"].append(repo.name)
+                        metadata_dict["url"].append(repo.html_url)
+                        metadata_dict["health"].append("health")
+                else:
+                    warnings.warn(
+                        f"unexpected search result found: {type(repo)} {repo.name}"
+                    )
         table = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
         table = render_metadata_html_table(table, table_id="search-metadata")
         setattr(self, "user_results", user_results)
@@ -145,23 +177,23 @@ class RequestedObject:
         increment = max(0, increment)
         self.metadata_limit += increment
 
-    def get_repos(self, ignore_repos=None):
+    def get_repos(self, ignore=None):
         """
         Get repos of requested object.
         """
-        if ignore_repos is None:
-            ignore_repos = []
-        repos = [x for x in self.obj.get_repos() if x.name not in ignore_repos]
+        if ignore is None:
+            ignore = []
+        repos = [x for x in self.obj.get_repos() if x.name not in ignore]
         setattr(self, "repos", repos)
 
-    def return_repos(self, ignore_repos=None):
+    def return_repos(self, ignore=None):
         """
         Get repos of requested object.
         """
-        if ignore_repos is None:
-            ignore_repos = []
+        if ignore is None:
+            ignore = []
         if self.repos == []:
-            self.get_repos(ignore_repos=ignore_repos)
+            self.get_repos(ignore=ignore)
         return self.repos
 
     def get_metadata_df(self):
@@ -289,6 +321,6 @@ class RequestedRepo(RequestedObject):
         if self.repo_df is None:
             self.get_repo_df()
         html_table = render_single_repo_html_table(
-            self.repo_df,
+            self.repo_df, table_id="repo-metadata"
         )
         setattr(self, "html_table", html_table)

@@ -159,7 +159,7 @@ def render_single_repo_html_table(repo_df, table_id=None):
     return repo_html
 
 
-def render_repo_html_table(repo_df):
+def render_repo_html_table(repo_df, table_id=None):
     """
     format repo_df to html.
     """
@@ -181,8 +181,10 @@ def render_repo_html_table(repo_df):
         .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
         .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
         .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
-        .render(precision=0)
     )
+    if table_id is not None:
+        repo_html.set_uuid(table_id)
+    repo_html = repo_html.render(precision=0)
     return repo_html
 
 

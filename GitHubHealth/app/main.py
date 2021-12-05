@@ -271,7 +271,7 @@ def user(username):
                 search_form.search_request.data,
                 search_form.search_users.data,
                 search_form.search_orgs.data,
-                search_form.search_ignore_repos.data,
+                search_form.ignore.data,
             )
         if request.method == "POST" and search_form.validate() is False:
             warning = search_form.search_request.errors[0]
@@ -301,7 +301,7 @@ def user(username):
 
 
 @app.route("/search/")
-def search_results(ghh, search_request, search_users, search_orgs, search_ignore_repos):
+def search_results(ghh, search_request, search_users, search_orgs, ignore):
     """
     Search results from given search paramaters.
     """
@@ -312,7 +312,7 @@ def search_results(ghh, search_request, search_users, search_orgs, search_ignore
             search_request=search_request,
             users=search_users,
             orgs=search_orgs,
-            ignore_repos=search_ignore_repos,
+            ignore=ignore,
         )
     except UnknownObjectException as uoe_error:
         return render_template(
