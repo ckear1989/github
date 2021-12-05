@@ -53,6 +53,14 @@ version_requirements = [
 VERSION = "|".join(list(set([version_scm, version_requirements])))
 
 
+def get_csrf_token():
+    """
+    format csrf token for meta tag in header.
+    """
+    return_tag = f"<meta name=\"csrf-token\" content=\"{session['csrf_token']}\">"
+    return return_tag
+
+
 def try_ghh(this_session):
     """
     Try ghh object.

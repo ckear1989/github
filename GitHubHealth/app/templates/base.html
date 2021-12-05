@@ -7,11 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    {% if login_form is defined %}
-        {{ login_form.csrf_token() }}
-    {% elif search_form is defined %}
-        {{ search_form.csrf_token() }}
-    {% endif %}
+    <!-- may be overkill but we want to "protect" every view regarless of having a form -->
+    <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
 
     {% block title %}
     {% endblock %}

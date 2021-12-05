@@ -72,13 +72,21 @@ def get_connection(
     return github_con, this_user
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-many-instance-attributes
 class SearchResults:
     """
     Use ghh object to search for users and/or orgs.
     """
 
-    def __init__(self, ghh, search_request, users, orgs, ignore, results_limit):
+    def __init__(
+        self,
+        ghh,
+        search_request,
+        users=False,
+        orgs=False,
+        ignore=None,
+        results_limit=10,
+    ):
         self.ghh = ghh
         self.search_request = search_request
         self.users = users
@@ -86,12 +94,15 @@ class SearchResults:
         self.ignore = []
         self.get_ignore(ignore)
         self.results_limit = results_limit
+        self.table_df = None
         self.table = None
 
     def get_ignore(self, ignore):
         """
         format ignore string to list.
         """
+        if ignore is None:
+            ignore = ""
         ignore = ignore.strip()
         ignore = ignore.split(",")
         setattr(self, "ignore", ignore)
@@ -135,9 +146,9 @@ class SearchResults:
                         f"unexpected search result found: {type(repo)} {repo.name}"
                     )
         table = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
-        table = render_metadata_html_table(table, table_id="search-metadata")
-        setattr(self, "user_results", user_results)
-        setattr(self, "table", table)
+        html_table = render_metadata_html_table(table, table_id="search-metadata")
+        setattr(self, "table_df", table)
+        setattr(self, "table", html_table)
 
 
 # pylint: disable=too-many-instance-attributes

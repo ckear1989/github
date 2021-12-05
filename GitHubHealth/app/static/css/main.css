@@ -41,7 +41,7 @@ body {
 
 .dark-mode .form {
   color: inherit;
-  background-color: #15172b;
+  background-color: #484b66;
 }
 
 #T_table-metadata {
@@ -66,7 +66,7 @@ body {
 }
 
 .dark-mode #T_table-metadata {
-  background-color: #15172b;
+  background-color: #484b66;
 }
 
 .light-mode #T_search-metadata {
@@ -74,7 +74,7 @@ body {
 }
 
 .dark-mode #T_search-metadata {
-  background-color: #15172b;
+  background-color: #484b66;
 }
 
 .light-mode #T_repo-metadata {
@@ -82,7 +82,7 @@ body {
 }
 
 .dark-mode #T_repo-metadata {
-  background-color: #15172b;
+  background-color: #484b66;
 }
 
 #T_search-metadata th.col2, td.col2 {
@@ -140,7 +140,7 @@ table {
   margin-bottom: 10px;
   font-size: 0.9em;
   border-width: 2px;
-  width: 80%;
+  width: 500px;
   align-items: center;
   justify-content: center;
 }
@@ -373,7 +373,6 @@ img.btn-direction {
 }
 
 .cut {
-  background-color: #15172b;
   border-radius: 10px;
   height: 20px;
   left: 20px;
