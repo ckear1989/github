@@ -499,6 +499,10 @@ li.dropdown {
   display: inline-block;
 }
 
+.vega-embed summary {
+  z-index: 0;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
@@ -648,6 +652,7 @@ div.warning {
 input.nbr-input {
   width: 40px;
   text-align: right;
+}
 
 div.invalid-feedback {
   font-size: 12px;
