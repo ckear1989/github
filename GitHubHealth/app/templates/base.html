@@ -9,7 +9,7 @@
 
     {% block csrf %}
         <!-- may be overkill but we want to "protect" every view regarless of having a form -->
-        <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
     {% endblock %}
 
     {% block title %}

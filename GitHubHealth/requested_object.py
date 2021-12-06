@@ -2,6 +2,7 @@
 RequesteObject class define attributes for easily retrieval.
 """
 
+import logging
 import warnings
 
 import pandas as pd
@@ -25,6 +26,9 @@ from .utils import (
     render_metadata_html_table,
     render_single_repo_html_table,
 )
+
+logger = logging.getLogger(__name__)
+logger.setLevel("INFO")
 
 
 # pylint: disable=too-many-arguments
@@ -113,38 +117,40 @@ class SearchResults:
         """
         user_results = self.ghh.con.search_users(self.search_request)
         repo_results = self.ghh.con.search_repositories(self.search_request)
+        logger.info("search user_results count: %s", user_results.totalCount)
+        logger.info("search repo_results count: %s", repo_results.totalCount)
+        if user_results.totalCount > self.results_limit:
+            user_results = user_results[: self.results_limit]
+        if repo_results.totalCount > self.results_limit:
+            repo_results = repo_results[: self.results_limit]
         metadata_dict = {
             "resource": [],
             "name": [],
             "url": [],
             "health": [],
         }
-        i = 0
         for user in user_results:
-            i += 1
-            if i <= self.results_limit:
-                if isinstance(user, NamedUser):
-                    if user.login not in self.ignore:
-                        metadata_dict["resource"].append("user")
-                        metadata_dict["name"].append(user.login)
-                        metadata_dict["url"].append(user.html_url)
-                        metadata_dict["health"].append("health")
-                else:
-                    warnings.warn(
-                        f"unexpected search result found: {type(user)} {user.login}"
-                    )
+            if isinstance(user, NamedUser):
+                if user.login not in self.ignore:
+                    metadata_dict["resource"].append("user")
+                    metadata_dict["name"].append(user.login)
+                    metadata_dict["url"].append(user.html_url)
+                    metadata_dict["health"].append("health")
+            else:
+                warnings.warn(
+                    f"unexpected search result found: {type(user)} {user.login}"
+                )
         for repo in repo_results:
-            if i <= self.results_limit:
-                if isinstance(repo, Repository):
-                    if repo.name not in self.ignore:
-                        metadata_dict["resource"].append("repo")
-                        metadata_dict["name"].append(repo.name)
-                        metadata_dict["url"].append(repo.html_url)
-                        metadata_dict["health"].append("health")
-                else:
-                    warnings.warn(
-                        f"unexpected search result found: {type(repo)} {repo.name}"
-                    )
+            if isinstance(repo, Repository):
+                if repo.name not in self.ignore:
+                    metadata_dict["resource"].append("repo")
+                    metadata_dict["name"].append(repo.name)
+                    metadata_dict["url"].append(repo.html_url)
+                    metadata_dict["health"].append("health")
+            else:
+                warnings.warn(
+                    f"unexpected search result found: {type(repo)} {repo.name}"
+                )
         table = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
         html_table = render_metadata_html_table(table, table_id="search-metadata")
         setattr(self, "table_df", table)
@@ -215,8 +221,6 @@ class RequestedObject:
         # resource_type, resource_name
         # url is external link to github
         # health is internal link dynamically created by javascript in user.html
-        i = 0
-        # limit results to 10 with option to get more
         metadata_dict = {
             "resource": [],
             "owner": [],
@@ -224,36 +228,38 @@ class RequestedObject:
             "url": [],
             "health": [],
         }
-        for repo in self.obj.get_repos():
-            i += 1
-            if i <= limit:
-                metadata_dict["resource"].append("repo")
-                metadata_dict["owner"].append(repo.owner.login)
-                metadata_dict["name"].append(repo.name)
-                metadata_dict["url"].append(repo.html_url)
-                metadata_dict["health"].append("health")
-        for resource in self.obj.get_orgs():
-            i += 1
-            if i <= limit:
-                metadata_dict["resource"].append("org")
-                metadata_dict["owner"].append(resource.owner.login)
-                metadata_dict["name"].append(resource.name)
-                metadata_dict["url"].append(resource.html_url)
-                metadata_dict["health"].append("health")
-        for resource in self.obj.get_teams():
-            i += 1
-            if i <= limit:
-                metadata_dict["resource"].append("team")
-                metadata_dict["owner"].append(resource.owner.login)
-                metadata_dict["name"].append(resource.name)
-                try:
-                    metadata_dict["url"].append(resource.html_url)
-                except AttributeError:
-                    warnings.warn("team html_url not found")
-                    metadata_dict["url"].append(resource.members_url)
-                metadata_dict["health"].append("health")
+        metadata_limit_reached = False
+        repos = self.obj.get_repos()
+        if repos.totalCount > limit:
+            metadata_limit_reached = True
+            repos = repos[:limit]
+        orgs = self.obj.get_orgs()
+        if orgs.totalCount > limit:
+            metadata_limit_reached = True
+            orgs = orgs[:limit]
+        teams = self.obj.get_teams()
+        if teams.totalCount > limit:
+            metadata_limit_reached = True
+            teams = teams[:limit]
+        for repo in repos:
+            metadata_dict["resource"].append("repo")
+            metadata_dict["owner"].append(repo.owner.login)
+            metadata_dict["name"].append(repo.name)
+            metadata_dict["url"].append(repo.html_url)
+            metadata_dict["health"].append("health")
+        for org in orgs:
+            metadata_dict["resource"].append("org")
+            metadata_dict["owner"].append(org.owner.login)
+            metadata_dict["name"].append(org.name)
+            metadata_dict["url"].append(org.html_url)
+            metadata_dict["health"].append("health")
+        for team in teams:
+            metadata_dict["resource"].append("team")
+            metadata_dict["owner"].append(team.owner.login)
+            metadata_dict["name"].append(team.name)
+            metadata_dict["url"].append(team.members_url)
+            metadata_dict["health"].append("health")
         metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
-        metadata_limit_reached = i > limit
         setattr(self, "metadata_df", metadata_df)
         setattr(self, "metadata_limit_reached", metadata_limit_reached)
 
