@@ -4,10 +4,13 @@ Helper functions for GitHubHealth class and app.
 
 from copy import deepcopy
 from datetime import datetime
+import logging
 
 import altair as alt
 import pandas as pd
 from requests.exceptions import ReadTimeout
+
+from github.GithubException import GithubException
 
 BRANCH_DF_COLUMNS = ["branch", "age"]
 BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
@@ -26,16 +29,35 @@ REPOS_DF_COLUMNS = [
 REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
 TIMEOUT = 2
 
+logger = logging.getLogger(__name__)
+logger.setLevel("INFO")
+
 
 def get_branch_details(branch):
     """
     Get information on branch from PyGitHub API and format in pandas DataFrame.
     """
     commit = branch.commit
-    date = commit.raw_data["commit"]["author"]["date"]
-    date = datetime.strptime(date, DATE_FORMAT)
+    date = commit.commit.author.date
     age = (DATE_NOW - date).days
-    branch_dict = {"branch": [branch.name], "age": [age]}
+    author = commit.commit.author.name
+    try:
+        enforcement = branch.get_admin_enforcement()
+    except GithubException:
+        enforcement = "not enforced"
+    logger.info("branch enforcement: %s", enforcement)
+    try:
+        status = branch.get_required_status_checks()
+    except GithubException:
+        status = "not protected"
+    logger.info("branch status: %s", status)
+    branch_dict = {
+        "branch": [branch.name],
+        "age": [age],
+        "last_commit_author": [author],
+        "enforcement": [enforcement],
+        "status": [status],
+    }
     branch_df = pd.DataFrame.from_dict(branch_dict)
     return branch_df
 

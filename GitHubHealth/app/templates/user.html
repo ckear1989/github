@@ -30,7 +30,6 @@
             <div id="user-table">
                 {{ ghh.user.metadata_html|safe }}
             </div>
-            <p>or seach for more resources (users, orgs, repos):</p>
             {% if ghh.user.metadata_limit_reached %}
                 <form action="" method="post" class="limit" id="limit_form" role="form">
                     {{ more_form.csrf_token() }}
@@ -39,6 +38,7 @@
                     <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
                 </form>
             {% endif %}
+            <p>or seach for more resources (users, orgs, repos):</p>
             <form action="" method="post" class="form search-request" id="search_form" role="form">
                 {{ search_form.csrf_token() }}
                 <div class="form-group" id="search-request">
