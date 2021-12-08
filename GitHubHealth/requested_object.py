@@ -125,6 +125,7 @@ class SearchResults:
             repo_results = repo_results[: self.results_limit]
         metadata_dict = {
             "resource": [],
+            "owner": [],
             "name": [],
             "url": [],
             "health": [],
@@ -133,6 +134,7 @@ class SearchResults:
             if isinstance(user, NamedUser):
                 if user.login not in self.ignore:
                     metadata_dict["resource"].append("user")
+                    metadata_dict["owner"].append(user.login)
                     metadata_dict["name"].append(user.login)
                     metadata_dict["url"].append(user.html_url)
                     metadata_dict["health"].append("health")
@@ -144,6 +146,7 @@ class SearchResults:
             if isinstance(repo, Repository):
                 if repo.name not in self.ignore:
                     metadata_dict["resource"].append("repo")
+                    metadata_dict["owner"].append(repo.owner.login)
                     metadata_dict["name"].append(repo.name)
                     metadata_dict["url"].append(repo.html_url)
                     metadata_dict["health"].append("health")
@@ -324,9 +327,11 @@ class RequestedRepo(RequestedObject):
         """
         Get plots from repo df.
         """
-        branch_age_plot = get_ghh_repo_plot(self.repo_df, "age")
+        branch_age_plot = get_ghh_repo_plot(self.repo_df, "age (days)")
+        protected_plot = get_ghh_repo_plot(self.repo_df, "protected")
         plots = [
             branch_age_plot,
+            protected_plot,
         ]
         plots = [x.configure_view(discreteWidth=300).to_json() for x in plots]
         setattr(self, "plots", plots)

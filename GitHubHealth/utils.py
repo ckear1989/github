@@ -10,9 +10,16 @@ import altair as alt
 import pandas as pd
 from requests.exceptions import ReadTimeout
 
-from github.GithubException import GithubException
-
-BRANCH_DF_COLUMNS = ["branch", "age"]
+BRANCH_DF_COLUMNS = [
+    "branch",
+    "url",
+    "sha",
+    "last_modified",
+    "age (days)",
+    "protected",
+    "author",
+    "committer",
+]
 BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
@@ -40,23 +47,15 @@ def get_branch_details(branch):
     commit = branch.commit
     date = commit.commit.author.date
     age = (DATE_NOW - date).days
-    author = commit.commit.author.name
-    try:
-        enforcement = branch.get_admin_enforcement()
-    except GithubException:
-        enforcement = "not enforced"
-    logger.info("branch enforcement: %s", enforcement)
-    try:
-        status = branch.get_required_status_checks()
-    except GithubException:
-        status = "not protected"
-    logger.info("branch status: %s", status)
     branch_dict = {
         "branch": [branch.name],
-        "age": [age],
-        "last_commit_author": [author],
-        "enforcement": [enforcement],
-        "status": [status],
+        "url": [commit.html_url],
+        "sha": [commit.sha],
+        "last_modified": [commit.last_modified],
+        "age (days)": [age],
+        "protected": [branch.protected],
+        "author": [commit.author.login],
+        "comitter": [commit.committer.login],
     }
     branch_df = pd.DataFrame.from_dict(branch_dict)
     return branch_df
@@ -91,8 +90,8 @@ def get_repo_details(repo):
         "repo_url": [repo.html_url],
         "private": [repo.private],
         "branch_count": [len(branch_df)],
-        "min_branch_age_days": [branch_df["age"].min()],
-        "max_branch_age_days": [branch_df["age"].max()],
+        "min_branch_age_days": [branch_df["age (days)"].min()],
+        "max_branch_age_days": [branch_df["age (days)"].max()],
         "issues": [issues],
         "pull_requests": [pull_requests],
     }
@@ -136,7 +135,8 @@ def get_paginated_list_len(pl_obj):
     No inbuilt method to get length so iterate through?
     """
     try:
-        this_len = sum([1 for i in pl_obj])
+        # this_len = sum([1 for i in pl_obj])
+        this_len = pl_obj.totalCount
         error_message = None
     except ReadTimeout as to_error:
         this_len = None
@@ -174,6 +174,11 @@ def render_single_repo_html_table(repo_df, table_id=None):
     format repo_df to html.
     """
     repo_df_cpy = deepcopy(repo_df)
+    if len(repo_df_cpy) > 0:
+        repo_df_cpy["branch"] = repo_df_cpy.apply(
+            lambda x: link_repo_name_url(x["branch"], x["url"]), axis=1
+        )
+        repo_df_cpy.drop("url", axis=1, inplace=True)
     repo_html = repo_df_cpy.style.hide_index()
     if table_id is not None:
         repo_html.set_uuid(table_id)

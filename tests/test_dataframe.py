@@ -10,6 +10,11 @@ from GitHubHealth import (
     GitHubHealth,
     ACCESS_TOKEN_VAR_NAME,
 )
+from GitHubHealth.utils import (
+    BRANCH_DF_COLUMNS,
+    REPOS_DF_COLUMNS,
+    get_single_repo_details,
+)
 from GitHubHealth.requested_object import SearchResults
 
 
@@ -28,12 +33,21 @@ def test_repo_df_columns(ghh):
     ghh.get_requested_object("ckear1989")
     ghh.requested_object.get_repos()
     ghh.requested_object.get_repo_df()
-    assert "private" in ghh.requested_object.repo_df.columns
-    assert "branch_count" in ghh.requested_object.repo_df.columns
-    assert "max_branch_age_days" in ghh.requested_object.repo_df.columns
-    assert "primary_language" in ghh.requested_object.repo_df.columns
-    assert "issues" in ghh.requested_object.repo_df.columns
-    assert "pull_requests" in ghh.requested_object.repo_df.columns
+    for column in REPOS_DF_COLUMNS:
+        assert column in ghh.requested_object.repo_df.columns
+
+
+def test_branch_df_columns(ghh):
+    """
+    Get a GithubHealth instance and test repo.  Check repo details (branch) df.
+    """
+    ghh.get_requested_object("ckear1989")
+    ghh.requested_object.get_repos()
+    ghh.requested_object.get_repo_df()
+    test_repo = ghh.requested_object.repos[0]
+    test_repo_df = get_single_repo_details(test_repo)
+    for column in BRANCH_DF_COLUMNS:
+        assert column in test_repo_df.columns
 
 
 def test_metadata_df_columns(ghh):
@@ -42,6 +56,7 @@ def test_metadata_df_columns(ghh):
     """
     ghh.user.get_metadata_df()
     assert "resource" in ghh.user.metadata_df.columns
+    assert "owner" in ghh.user.metadata_df.columns
     assert "name" in ghh.user.metadata_df.columns
     assert "url" in ghh.user.metadata_df.columns
     assert "health" in ghh.user.metadata_df.columns
@@ -54,6 +69,7 @@ def test_search_df_columns(ghh):
     search_results = SearchResults(ghh, "ckear1989")
     search_results.search()
     assert "resource" in search_results.table_df.columns
+    assert "owner" in search_results.table_df.columns
     assert "name" in search_results.table_df.columns
     assert "url" in search_results.table_df.columns
     assert "health" in search_results.table_df.columns
