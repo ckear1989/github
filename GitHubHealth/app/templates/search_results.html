@@ -35,6 +35,7 @@
     {% block scripts %}
         {{ super() }}
         <script>
+            $SCRIPT_ROOT = {{ request.script_root|tojson }};
             // update all table "health" elements to a link for that resource
             $("#T_search-metadata").children("tbody").children("tr").children("td").each(function () {
                 if (this.cellIndex == 3) {
@@ -42,13 +43,13 @@
                         let this_resource_name = this.previousElementSibling.innerText;
                         let this_resource_owner = this.previousElementSibling.previousElementSibling.innerText;
                         let this_resource_type = this.previousElementSibling.previousElementSibling.previousElementSibling.innerText;
+                        let this_img_tag = '<img class="health-icon" src="'.concat($SCRIPT_ROOT, "/static/favicon.ico", '">');
                         if (this_resource_type == "user") {
-                            console.log("debug")
-                            let this_resource_status_url = "/status/".concat(this_resource_name);
-                            this.innerHTML = '<a href="'.concat(this_resource_status_url,  '" class="quicklink" target="_blank"><img class="health-icon" src="/static/favicon.ico"></a>');
+                            let this_resource_status_url = $SCRIPT_ROOT.concat("/status/", this_resource_name);
+                            this.innerHTML = '<a href="'.concat(this_resource_status_url,  '" class="quicklink" target="_blank">', this_img_tag, '</a>');
                         } else if (this_resource_type == "repo" ) {
-                            let this_resource_status_url = "/repo_status/".concat(this_resource_owner).concat("/").concat(this_resource_name);
-                            this.innerHTML = '<a href="'.concat(this_resource_status_url,  '" class="quicklink" target="_blank"><img class="health-icon" src="/static/favicon.ico"></a>');
+                            let this_resource_status_url = $SCRIPT_ROOT.concat("/repo_status/", this_resource_owner, "/", this_resource_name);
+                            this.innerHTML = '<a href="'.concat(this_resource_status_url,  '" class="quicklink" target="_blank">', this_img_tag, '</a>');
                         };
                     };
                 };

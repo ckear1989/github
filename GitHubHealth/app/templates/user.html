@@ -79,14 +79,16 @@
     {% block scripts %}
         {{ super() }}
         <script>
+            $SCRIPT_ROOT = {{ request.script_root|tojson }};
             // update all table "health" elements to a link for that repo status
             $("#user-table").children("table").children("tbody").children("tr").children("td").each(function () {
                 if (this.cellIndex == 3) {
                     if (this.innerText == "health") {
                         let this_repo_owner = this.previousElementSibling.previousElementSibling.innerText;
                         let this_repo_name = this.previousElementSibling.innerText;
-                        let this_repo_status_url="/repo_status/".concat(this_repo_owner).concat("/").concat(this_repo_name);
-                        this.innerHTML = '<a href="'.concat(this_repo_status_url,  '" class="quicklink" target="_blank"><img class="health-icon" src="/static/favicon.ico"></a>');
+                        let this_repo_status_url = $SCRIPT_ROOT.concat("/repo_status/", this_repo_owner, "/", this_repo_name);
+                        let this_img_tag = '<img class="health-icon" src="'.concat($SCRIPT_ROOT, "/static/favicon.ico", '">');
+                        this.innerHTML = '<a href="'.concat(this_repo_status_url,  '" class="quicklink" target="_blank">', this_img_tag, '</a>');
                     };
                 };
             });
