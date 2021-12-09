@@ -20,9 +20,6 @@ BRANCH_DF_COLUMNS = [
     "author",
     "committer",
 ]
-BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
-DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
-DATE_NOW = datetime.now()
 REPOS_DF_COLUMNS = [
     "repo",
     "repo_url",
@@ -33,7 +30,18 @@ REPOS_DF_COLUMNS = [
     "issues",
     "pull_requests",
 ]
+SEARCH_DF_COLUMNS = [
+    "resource",
+    "owner",
+    "name",
+    "url",
+    "health",
+]
+BRANCH_TEMPLATE_DF = pd.DataFrame(columns=BRANCH_DF_COLUMNS)
 REPOS_TEMPLATE_DF = pd.DataFrame(columns=REPOS_DF_COLUMNS)
+SEARCH_TEMPLATE_DF = pd.DataFrame(columns=SEARCH_DF_COLUMNS)
+DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DATE_NOW = datetime.now()
 TIMEOUT = 2
 
 logger = logging.getLogger(__name__)
@@ -61,7 +69,7 @@ def get_branch_details(branch):
     return branch_df
 
 
-def get_single_repo_details(repo):
+def get_branch_df(repo):
     """
     Get information on repo from PyGitHub API and format in pandas DataFrame.
     """

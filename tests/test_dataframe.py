@@ -13,7 +13,8 @@ from GitHubHealth import (
 from GitHubHealth.utils import (
     BRANCH_DF_COLUMNS,
     REPOS_DF_COLUMNS,
-    get_single_repo_details,
+    SEARCH_DF_COLUMNS,
+    get_branch_df,
 )
 from GitHubHealth.requested_object import SearchResults
 
@@ -45,7 +46,7 @@ def test_branch_df_columns(ghh):
     ghh.requested_object.get_repos()
     ghh.requested_object.get_repo_df()
     test_repo = ghh.requested_object.repos[0]
-    test_repo_df = get_single_repo_details(test_repo)
+    test_repo_df = get_branch_df(test_repo)
     for column in BRANCH_DF_COLUMNS:
         assert column in test_repo_df.columns
 
@@ -55,11 +56,8 @@ def test_metadata_df_columns(ghh):
     Get a GithubHealth instance and check that expected columns are in DataFrame.
     """
     ghh.user.get_metadata_df()
-    assert "resource" in ghh.user.metadata_df.columns
-    assert "owner" in ghh.user.metadata_df.columns
-    assert "name" in ghh.user.metadata_df.columns
-    assert "url" in ghh.user.metadata_df.columns
-    assert "health" in ghh.user.metadata_df.columns
+    for column in SEARCH_DF_COLUMNS:
+        assert column in ghh.user.metadata_df.columns
 
 
 def test_search_df_columns(ghh):
@@ -68,8 +66,5 @@ def test_search_df_columns(ghh):
     """
     search_results = SearchResults(ghh, "ckear1989")
     search_results.search()
-    assert "resource" in search_results.table_df.columns
-    assert "owner" in search_results.table_df.columns
-    assert "name" in search_results.table_df.columns
-    assert "url" in search_results.table_df.columns
-    assert "health" in search_results.table_df.columns
+    for column in SEARCH_DF_COLUMNS:
+        assert column in search_results.table_df.columns

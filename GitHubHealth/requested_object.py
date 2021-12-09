@@ -22,7 +22,7 @@ from .utils import (
     get_ghh_plot,
     get_ghh_repo_plot,
     get_repo_details,
-    get_single_repo_details,
+    get_branch_df,
     render_metadata_html_table,
     render_single_repo_html_table,
 )
@@ -320,7 +320,7 @@ class RequestedRepo(RequestedObject):
         """
         Main method to parse repo details into pandas DataFrame.
         """
-        repo_df = get_single_repo_details(self.obj)
+        repo_df = get_branch_df(self.obj)
         setattr(self, "repo_df", repo_df)
 
     def get_plots(self):
