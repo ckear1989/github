@@ -30,9 +30,8 @@ import os
 from GitHubHealth.main import ACCESS_TOKEN_VAR_NAME
 from GitHubHealth import GitHubHealth
 my_repo_health = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
-my_repo_health.get_repos(user="ckear1989")
-my_repo_health.get_repo_dfs()
-my_repo_health.repo_dfs["user"]
+my_repo_health.user.get_repo_df()
+my_repo_health.user.repo_df
 ```
 
 Launch Flask app to view repo health tables and plots.
