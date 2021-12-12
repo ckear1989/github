@@ -259,27 +259,46 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route("/user/<username>", methods=["POST", "GET"])
+@app.route("/user/<string:username>", methods=["POST", "GET"])
 def user(username):
     """
     Get user page.
     """
+    if username != session["user_login"]:
+        return redirect(url_for("home"))
     ghh, _ = try_ghh(session)
     if ghh is not None:
         search_form = SearchForm()
         more_form = MoreForm()
+        ghh.user.get_metadata()
         ghh.user.get_metadata_html()
-        # this is needed.  how else whould I do it?
+        # this is needed. how else whould I do it?
         # pylint: disable=no-else-return
         if request.method == "POST":
             if search_form.validate():
-                return redirect(url_for("search"))
+                session["search_users"] = search_form.search_users.data
+                session["search_orgs"] = search_form.search_orgs.data
+                session["ignore"] = search_form.ignore.data
+                return redirect(
+                    url_for(
+                        "search_results",
+                        search_request=search_form.search_request.data,
+                    )
+                )
             elif more_form.validate():
                 ghh.user.metadata.set_input_limits(
                     input_from=more_form.results_from.data,
                     input_to=more_form.results_to.data,
                 )
-                return redirect(url_for("user", username=username))
+                ghh.user.metadata.get_metadata()
+                ghh.user.metadata.get_metadata_html()
+                setattr(ghh.user, "metadata_html", ghh.user.metadata.metadata_html)
+                return render_template(
+                    "user.html",
+                    ghh=ghh,
+                    search_form=search_form,
+                    more_form=more_form,
+                )
         return render_template(
             "user.html",
             ghh=ghh,
@@ -289,53 +308,43 @@ def user(username):
     return redirect(url_for("home"))
 
 
-@app.route("/search/")
-def search_results(ghh, search_request, search_users, search_orgs, ignore):
+@app.route("/search/<string:search_request>", methods=["POST", "GET"])
+def search_results(search_request):
     """
     Search results from given search paramaters.
     """
-    search_form = SearchForm()
-    more_form = MoreForm()
-    try:
-        ghh.search(
-            search_request=search_request,
-            users=search_users,
-            orgs=search_orgs,
-            ignore=ignore,
-        )
-    except UnknownObjectException as uoe_error:
+    ghh, _ = try_ghh(session)
+    search_users = session["search_users"]
+    search_orgs = session["search_orgs"]
+    ignore = session["ignore"]
+    if ghh is not None:
+        more_form = MoreForm()
+        try:
+            ghh.search(
+                search_request=search_request,
+                users=search_users,
+                orgs=search_orgs,
+                ignore=ignore,
+            )
+        except UnknownObjectException:
+            return redirect(url_for("user", username=session["login_user"]))
+        except ReadTimeout:
+            return redirect(url_for("user", username=session["login_user"]))
+        if request.method == "POST" and more_form.validate():
+            ghh.search(
+                search_request=search_request,
+                users=search_users,
+                orgs=search_orgs,
+                ignore=ignore,
+                results_from=more_form.results_from.data,
+                results_to=more_form.results_to.data,
+            )
         return render_template(
-            "user.html",
+            "search_results.html",
             ghh=ghh,
             more_form=more_form,
-            search_form=search_form,
-            error=uoe_error,
         )
-    except ReadTimeout as timeout_error:
-        return render_template(
-            "user.html",
-            ghh=ghh,
-            more_form=more_form,
-            search_form=search_form,
-            error=timeout_error,
-        )
-    if request.method == "POST" and more_form.validate():
-        print(more_form)
-        print(more_form.results_from)
-        print(more_form.results_to)
-        ghh.search(
-            search_request=search_request,
-            users=search_users,
-            orgs=search_orgs,
-            ignore=ignore,
-            results_from=more_form.results_from.data,
-            results_to=more_form.results_to.data,
-        )
-    return render_template(
-        "search_results.html",
-        ghh=ghh,
-        more_form=more_form,
-    )
+    return redirect(url_for("user", username=session["login_user"]))
 
 
 @app.route("/status/<string:resource_name>")

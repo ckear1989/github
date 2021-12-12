@@ -44,12 +44,14 @@ def test_results_limit():
     """
     Test get repos from known user with limiting of results.
     """
-    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=2)
+    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
     ghh.user.get_metadata()
+    ghh.user.metadata.set_input_limits(input_from=1, input_to=2)
+    ghh.user.metadata.get_metadata()
     assert len(ghh.user.metadata.metadata_df) <= 2
-    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=4)
-    ghh.user.get_metadata()
+    ghh.user.metadata.set_input_limits(input_from=1, input_to=4)
+    ghh.user.metadata.get_metadata()
     assert len(ghh.user.metadata.metadata_df) <= 4
-    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], results_limit=10)
-    ghh.user.get_metadata()
+    ghh.user.metadata.set_input_limits(input_from=1, input_to=10)
+    ghh.user.metadata.get_metadata()
     assert len(ghh.user.metadata.metadata_df) <= 10

@@ -81,10 +81,20 @@ class SearchForm(FlaskForm):
 
 class MoreForm(FlaskForm):
     """
-    Form for github user class.
+    Form for results shown in user and search results.
     """
 
-    more = SubmitField()
-    increment = IntegerField("increment", [validators.DataRequired()], default=2)
     results_from = IntegerField("from", [validators.DataRequired()], default=1)
     results_to = IntegerField("to", [validators.DataRequired()], default=10)
+    more = SubmitField()
+
+    def validate(self, extra_validators=None):
+        if not super().validate(extra_validators=extra_validators):
+            msg = "super() validate false"
+            self.results_from.errors.append(msg)
+            return False
+        if self.results_to.data < self.results_from.data:
+            msg = "to must be greater than from"
+            self.results_from.errors.append(msg)
+            return False
+        return True

@@ -400,7 +400,7 @@ class RequestedObject:
         """
         Main method to parse object metadata into pandas DataFrame.
         """
-        metadata = Metadata(self, input_from=1, input_to=self.metadata_limit)
+        metadata = Metadata(self)
         metadata.get_metadata()
         setattr(self, "metadata", metadata)
 
@@ -410,7 +410,7 @@ class RequestedObject:
         """
         if self.metadata is None:
             self.get_metadata()
-            self.metadata.get_metadata_html()
+        self.metadata.get_metadata_html()
         setattr(self, "metadata_html", self.metadata.metadata_html)
 
     def get_repo_df(self):

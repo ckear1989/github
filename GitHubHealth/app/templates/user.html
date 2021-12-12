@@ -30,18 +30,16 @@
             <div id="user-table">
                 {{ ghh.user.metadata_html|safe }}
             </div>
-            {% if ghh.user.metadata.retrieved < ghh.user.metadata.total %}
-                <form action="" method="post" class="limit" id="more_form" role="form">
-                    {{ more_form.csrf_token() }}
-                    results
-                    <input class="nbr-input" name="from" required type="number" value={{ ghh.user.metadata.input_from }} data-toggle="tooltip">
-                    to
-                    <input class="nbr-input" name="to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
-                    of
-                    {{ ghh.user.metadata.total }}
-                    <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
-                </form>
-            {% endif %}
+            <form action="" method="post" class="limit" id="more_form" role="form">
+                {{ more_form.csrf_token() }}
+                results
+                <input class="nbr-input" name="results_from" required type="number" value={{ ghh.user.metadata.input_from }} data-toggle="tooltip">
+                to
+                <input class="nbr-input" name="results_to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
+                of
+                {{ ghh.user.metadata.total }}
+                <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
+            </form>
             <p>or seach for more resources (users, orgs, repos):</p>
             <form action="" method="post" class="form search-request" id="search_form" role="form">
                 {{ search_form.csrf_token() }}
