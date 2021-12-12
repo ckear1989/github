@@ -30,12 +30,15 @@
             <div id="user-table">
                 {{ ghh.user.metadata_html|safe }}
             </div>
-            {% if ghh.user.search_results.retrieved < ghh.user.search_results.total %}
+            {% if ghh.user.metadata.retrieved < ghh.user.metadata.total %}
                 <form action="" method="post" class="limit" id="more_form" role="form">
                     {{ more_form.csrf_token() }}
-                    <label>results {{ ghh.user.search_results.input_from }} to {{ ghh.user.search_results.input_to }} of {{ ghh.user.search_results.total }}</label>
-                    <input class="nbr-input" name="from" required type="number" value={{ ghh.user.search_results.input_from }} data-toggle="tooltip">
-                    <input class="nbr-input" name="to" required type="number" value={{ ghh.user.search_results.input_to }} data-toggle="tooltip">
+                    results
+                    <input class="nbr-input" name="from" required type="number" value={{ ghh.user.metadata.input_from }} data-toggle="tooltip">
+                    to
+                    <input class="nbr-input" name="to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
+                    of
+                    {{ ghh.user.metadata.total }}
                     <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
                 </form>
             {% endif %}

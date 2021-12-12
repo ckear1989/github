@@ -76,6 +76,96 @@ def get_connection(
     return github_con, this_user
 
 
+class Metadata:
+    """
+    Class for holding metadata from a requested object.
+    """
+
+    def __init__(self, requested_object, input_from=1, input_to=10):
+        """
+        Set self up like search results.
+        """
+        self.requested_object = requested_object
+        self.input_from = input_from
+        self.input_to = input_to
+        self.retrieved = -1
+        self.total = -1
+        self.metadata_df = pd.DataFrame()
+        self.metadata_html = None
+
+    def set_input_limits(self, input_from, input_to):
+        """
+        Increase or decrease input limits.
+        """
+        if input_to < input_from:
+            raise ValueError("input_to must be greater than input_from")
+        setattr(self, "input_from", input_from)
+        setattr(self, "input_to", input_to)
+
+    def get_metadata(self):
+        """
+        resource_type, resource_name
+        url is external link to github
+        health is internal link dynamically created by javascript in user.html
+        """
+        metadata_dict = {
+            "resource": [],
+            "owner": [],
+            "name": [],
+            "url": [],
+            "health": [],
+        }
+        i = 0
+        self.requested_object.get_repos()
+        self.requested_object.get_orgs()
+        self.requested_object.get_teams()
+        for repo in self.requested_object.repos:
+            i += 1
+            if self.input_from <= i <= self.input_to:
+                metadata_dict["resource"].append("repo")
+                metadata_dict["owner"].append(repo.owner.login)
+                metadata_dict["name"].append(repo.name)
+                metadata_dict["url"].append(repo.html_url)
+                metadata_dict["health"].append("health")
+        for org in self.requested_object.orgs:
+            i += 1
+            if self.input_from <= i <= self.input_to:
+                metadata_dict["resource"].append("org")
+                metadata_dict["owner"].append(org.owner.login)
+                metadata_dict["name"].append(org.name)
+                metadata_dict["url"].append(org.html_url)
+                metadata_dict["health"].append("health")
+        for team in self.requested_object.teams:
+            i += 1
+            if self.input_from <= i <= self.input_to:
+                metadata_dict["resource"].append("team")
+                metadata_dict["owner"].append(team.owner.login)
+                metadata_dict["name"].append(team.name)
+                metadata_dict["url"].append(team.members_url)
+                metadata_dict["health"].append("health")
+        metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
+        retrieved = self.input_to - self.input_from
+        total = (
+            len(self.requested_object.repos)
+            + len(self.requested_object.orgs)
+            + len(self.requested_object.teams)
+        )
+        setattr(self, "metadata_df", metadata_df)
+        setattr(self, "retrieved", retrieved)
+        setattr(self, "total", total)
+
+    def get_metadata_html(self):
+        """
+        Main method to parse object metadata into pandas DataFrame.
+        """
+        if self.metadata_df is None:
+            self.get_metadata()
+        metadata_html = render_metadata_html_table(
+            self.metadata_df, table_id="table-metadata"
+        )
+        setattr(self, "metadata_html", metadata_html)
+
+
 # pylint: disable=too-many-instance-attributes
 class SearchResults:
     """
@@ -193,11 +283,6 @@ class SearchResults:
         # pylint: disable=unsubscriptable-object
         logger.info("user_start: %s, user_end: %s", user_start, user_end)
         logger.info("repo_start: %s, repo_end: %s", user_start, user_end)
-        # print("user_start,user_end,user_count")
-        # print(f"{user_start},{user_end},{self.user_results.totalCount}")
-        # print("repo_start,repo_end,repo_count")
-        # print(f"{repo_start},{repo_end},{self.repo_results.totalCount}")
-        # print(self.repo_results[repo_start:repo_end])
         # slicing returns Slice object and not PaginatedList
         if user_start is None and user_end is None:
             user_results = []
@@ -267,20 +352,12 @@ class RequestedObject:
         elif isinstance(obj, Repository):
             self.name = self.obj.name
         self.url = url
-        self.metadata_df = None
+        self.metadata = None
         self.metadata_limit = results_limit
-        self.metadata_limit_reached = False
         self.metadata_html = None
         self.repos = []
         self.repo_df = None
         self.plots = []
-
-    def increase_metadata_limit(self, increment=2):
-        """
-        Add more to metadata limit.
-        """
-        increment = max(0, increment)
-        self.metadata_limit += increment
 
     def get_repos(self, ignore=None):
         """
@@ -290,6 +367,24 @@ class RequestedObject:
             ignore = []
         repos = [x for x in self.obj.get_repos() if x.name not in ignore]
         setattr(self, "repos", repos)
+
+    def get_orgs(self, ignore=None):
+        """
+        Get repos of requested object.
+        """
+        if ignore is None:
+            ignore = []
+        orgs = [x for x in self.obj.get_orgs() if x.name not in ignore]
+        setattr(self, "orgs", orgs)
+
+    def get_teams(self, ignore=None):
+        """
+        Get repos of requested object.
+        """
+        if ignore is None:
+            ignore = []
+        teams = [x for x in self.obj.get_teams() if x.name not in ignore]
+        setattr(self, "teams", teams)
 
     def return_repos(self, ignore=None):
         """
@@ -301,66 +396,22 @@ class RequestedObject:
             self.get_repos(ignore=ignore)
         return self.repos
 
-    def get_metadata_df(self):
+    def get_metadata(self):
         """
         Main method to parse object metadata into pandas DataFrame.
         """
-        limit = self.metadata_limit
-        # resource_type, resource_name
-        # url is external link to github
-        # health is internal link dynamically created by javascript in user.html
-        metadata_dict = {
-            "resource": [],
-            "owner": [],
-            "name": [],
-            "url": [],
-            "health": [],
-        }
-        metadata_limit_reached = False
-        repos = self.obj.get_repos()
-        if repos.totalCount > limit:
-            metadata_limit_reached = True
-            repos = repos[:limit]
-        orgs = self.obj.get_orgs()
-        if orgs.totalCount > limit:
-            metadata_limit_reached = True
-            orgs = orgs[:limit]
-        teams = self.obj.get_teams()
-        if teams.totalCount > limit:
-            metadata_limit_reached = True
-            teams = teams[:limit]
-        for repo in repos:
-            metadata_dict["resource"].append("repo")
-            metadata_dict["owner"].append(repo.owner.login)
-            metadata_dict["name"].append(repo.name)
-            metadata_dict["url"].append(repo.html_url)
-            metadata_dict["health"].append("health")
-        for org in orgs:
-            metadata_dict["resource"].append("org")
-            metadata_dict["owner"].append(org.owner.login)
-            metadata_dict["name"].append(org.name)
-            metadata_dict["url"].append(org.html_url)
-            metadata_dict["health"].append("health")
-        for team in teams:
-            metadata_dict["resource"].append("team")
-            metadata_dict["owner"].append(team.owner.login)
-            metadata_dict["name"].append(team.name)
-            metadata_dict["url"].append(team.members_url)
-            metadata_dict["health"].append("health")
-        metadata_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
-        setattr(self, "metadata_df", metadata_df)
-        setattr(self, "metadata_limit_reached", metadata_limit_reached)
+        metadata = Metadata(self, input_from=1, input_to=self.metadata_limit)
+        metadata.get_metadata()
+        setattr(self, "metadata", metadata)
 
     def get_metadata_html(self):
         """
         Main method to parse object metadata into pandas DataFrame.
         """
-        if self.metadata_df is None:
-            self.get_metadata_df()
-        metadata_html = render_metadata_html_table(
-            self.metadata_df, table_id="table-metadata"
-        )
-        setattr(self, "metadata_html", metadata_html)
+        if self.metadata is None:
+            self.get_metadata()
+            self.metadata.get_metadata_html()
+        setattr(self, "metadata_html", self.metadata.metadata_html)
 
     def get_repo_df(self):
         """

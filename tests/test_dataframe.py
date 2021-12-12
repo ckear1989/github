@@ -39,9 +39,9 @@ def test_metadata_df_columns(ghh):
     """
     Get a GithubHealth instance and check that expected columns are in DataFrame.
     """
-    ghh.user.get_metadata_df()
+    ghh.user.get_metadata()
     for column in SEARCH_DF_COLUMNS:
-        assert column in ghh.user.metadata_df.columns
+        assert column in ghh.user.metadata.metadata_df.columns
 
 
 def test_search_df_columns(ghh):
