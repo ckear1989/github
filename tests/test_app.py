@@ -5,29 +5,12 @@ Test functions for app object.
 import unittest
 
 import flask
-import pytest
 
-from GitHubHealth import app
+from conftest import app
+
 
 # pylint: disable=redefined-outer-name
-
-
-@pytest.fixture
-def client():
-    """
-    Flask client for testing.
-    """
-    app.config["TESTING"] = True
-
-    with app.test_client() as client:
-        with app.app_context():
-            # no db yet
-            # app.init_db()
-            pass
-        yield client
-
-
-def test_app_creation():
+def test_app_creation(app):
     """
     App can be created from importing module.
     """

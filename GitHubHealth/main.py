@@ -68,6 +68,7 @@ class GitHubHealth:
         self.requested_object = None
         self.requested_user = None
         self.requested_org = None
+        self.search_results = None
 
     def get_repo(self, repo_owner, repo_name):
         """
@@ -79,7 +80,15 @@ class GitHubHealth:
         )
         return requested_repo
 
-    def search(self, search_request, users=False, orgs=False, ignore=None):
+    def search(
+        self,
+        search_request,
+        users=False,
+        orgs=False,
+        ignore=None,
+        results_from=1,
+        results_to=10,
+    ):
         """
         Search for users and/or orgs and get results table.
         """
@@ -91,10 +100,17 @@ class GitHubHealth:
         assert isinstance(orgs, bool)
         assert isinstance(ignore, str)
         search_results = SearchResults(
-            self, search_request, users, orgs, ignore, self.results_limit
+            self,
+            search_request,
+            users,
+            orgs,
+            ignore,
+            results_from,
+            results_to,
         )
         search_results.search()
-        setattr(self, "search_results_table", search_results.table)
+        search_results.get_output_results()
+        setattr(self, "search_results", search_results)
 
     def get_requested_object(self, resource_name):
         """

@@ -17,9 +17,18 @@
     {% endblock %}
 
     {% block content %}
-        {% if ghh.search_results_table is not none %}
+        {% if ghh.search_results is not none %}
             <div class="user_content">
-                {{ ghh.search_results_table|safe }}
+                {{ ghh.search_results.html|safe }}
+                {% if ghh.search_results.retrieved < ghh.search_results.total %}
+                    <form action="" method="post" class="limit" id="more_form" role="form">
+                        {{ more_form.csrf_token() }}
+                        <label>results {{ ghh.search_results.input_from }} to {{ ghh.search_results.input_to }} of {{ ghh.search_results.total }}</label>
+                        <input class="nbr-input" name="from" required type="number" value={{ ghh.search_results.input_from }} data-toggle="tooltip">
+                        <input class="nbr-input" name="to" required type="number" value={{ ghh.search_results.input_to }} data-toggle="tooltip">
+                        <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
+                    </form>
+                {% endif %}
             </div>
         {% endif %}
     {% endblock %}

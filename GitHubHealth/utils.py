@@ -55,6 +55,12 @@ def get_branch_details(branch):
     commit = branch.commit
     date = commit.commit.author.date
     age = (DATE_NOW - date).days
+    author = None
+    if commit.author is not None:
+        author = commit.author.login
+    committer = None
+    if commit.committer is not None:
+        committer = commit.committer.login
     branch_dict = {
         "branch": [branch.name],
         "url": [commit.html_url],
@@ -62,8 +68,8 @@ def get_branch_details(branch):
         "last_modified": [commit.last_modified],
         "age (days)": [age],
         "protected": [branch.protected],
-        "author": [commit.author.login],
-        "comitter": [commit.committer.login],
+        "author": [author],
+        "comitter": [committer],
     }
     branch_df = pd.DataFrame.from_dict(branch_dict)
     return branch_df

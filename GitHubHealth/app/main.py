@@ -358,9 +358,24 @@ def search_results(ghh, search_request, search_users, search_orgs, ignore):
             search_form=search_form,
             error=timeout_error,
         )
+    if request.method == "POST" and more_form.validate():
+        print(more_form)
+        print(more_form.results_from)
+        print(more_form.results_to)
+        ghh.search(
+            search_request=search_request,
+            users=search_users,
+            orgs=search_orgs,
+            ignore=ignore,
+            results_from=more_form.results_from.data,
+            results_to=more_form.results_to.data,
+        )
+        print("debug1")
+    print("debug2")
     return render_template(
         "search_results.html",
         ghh=ghh,
+        more_form=more_form,
     )
 
 

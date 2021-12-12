@@ -18,6 +18,7 @@ pip install GitHubHealth
 
 ## Usage
 Set access token environment variable.
+<!--pytest-codeblocks:skip-->
 ```bash
 # shell
 export GITHUB_TOKEN=<your github pat>
@@ -29,17 +30,25 @@ Get repo health as pandas DataFrame.
 import os
 from GitHubHealth.main import ACCESS_TOKEN_VAR_NAME
 from GitHubHealth import GitHubHealth
-my_repo_health = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
+my_repo_health = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], timeout=4)
 my_repo_health.user.get_repo_df()
 my_repo_health.user.repo_df
 ```
 
 Launch Flask app to view repo health tables and plots.
 
+
+<!--pytest-codeblocks:skip-->
 ```python
 # python
 from GitHubHealth import app
 app.run()
+```
+
+<!--pytest-codeblocks:expect-error-->
+```python
+# python
+raise Exception
 ```
 
 ## Contributing

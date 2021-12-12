@@ -86,3 +86,5 @@ class MoreForm(FlaskForm):
 
     more = SubmitField()
     increment = IntegerField("increment", [validators.DataRequired()], default=2)
+    results_from = IntegerField("from", [validators.DataRequired()], default=1)
+    results_to = IntegerField("to", [validators.DataRequired()], default=10)

@@ -34,7 +34,7 @@ repos:
         types: [python]
     -   id: pytest
         name: pytest
-        entry: pytest
+        entry: pytest --codeblocks
         language: system
         types: [python]
         pass_filenames: false

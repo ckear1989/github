@@ -89,17 +89,30 @@ class SearchResults:
         users=False,
         orgs=False,
         ignore=None,
-        results_limit=10,
+        input_from=1,
+        input_to=10,
     ):
         self.ghh = ghh
         self.search_request = search_request
         self.users = users
         self.orgs = orgs
         self.ignore = []
+        if (input_to < 1) or (input_from < 1):
+            raise ValueError
+        if input_to < input_from:
+            raise ValueError
+        if (input_to - input_from) > 50:
+            warnings.warn(UserWarning("max number of requested results is 50"))
+            input_to = max((input_to - 50), (input_from + 1))
+        self.input_from = input_from
+        self.input_to = input_to
         self.get_ignore(ignore)
-        self.results_limit = results_limit
+        self.total = -1
+        self.retrieved = -1
         self.table_df = None
-        self.table = None
+        self.html = None
+        self.user_results = None
+        self.repo_results = None
 
     def get_ignore(self, ignore):
         """
@@ -117,12 +130,83 @@ class SearchResults:
         """
         user_results = self.ghh.con.search_users(self.search_request)
         repo_results = self.ghh.con.search_repositories(self.search_request)
-        logger.info("search user_results count: %s", user_results.totalCount)
-        logger.info("search repo_results count: %s", repo_results.totalCount)
-        if user_results.totalCount > self.results_limit:
-            user_results = user_results[: self.results_limit]
-        if repo_results.totalCount > self.results_limit:
-            repo_results = repo_results[: self.results_limit]
+        total = user_results.totalCount + repo_results.totalCount
+        setattr(self, "user_results", user_results)
+        setattr(self, "repo_results", repo_results)
+        setattr(self, "total", total)
+        logger.info("search user_results count: %s", self.user_results.totalCount)
+        logger.info("search repo_results count: %s", self.repo_results.totalCount)
+        logger.info("search total: %s", total)
+
+    def get_slices(self):
+        """
+        Check requested results from and to against retrieved results and return indices.
+        """
+        assert self.input_to >= self.input_from
+        requested_total = self.input_to - self.input_from
+        user_total = self.user_results.totalCount
+        repo_total = self.repo_results.totalCount
+        results_total = user_total + repo_total
+        if self.input_from > results_total:
+            # more requested than exist
+            # shift input_from and input_to by requested_total
+            warnings.warn(
+                UserWarning(
+                    "requested results start out of range.  setting to total - range"
+                )
+            )
+            input_from = max((results_total - requested_total), 1)
+            input_to = self.input_to + requested_total
+            setattr(self, "input_from", input_from)
+            setattr(self, "input_to", input_to)
+        # some of user none of repo
+        if (self.input_from <= user_total) and (self.input_to <= user_total):
+            user_start = self.input_from - 1
+            user_end = self.input_to
+            repo_start = None
+            repo_end = None
+        # some of user some of repo
+        elif self.input_from <= user_total < self.input_to:
+            user_start = self.input_from - 1
+            user_end = user_total
+            remaining = requested_total - user_total
+            repo_start = 0
+            repo_end = remaining - 1
+            if remaining > repo_total:
+                repo_end = repo_total - 1
+        # none of user some of repo
+        elif (self.input_from > user_total) and (self.input_to >= user_total):
+            user_start = None
+            user_end = None
+            repo_start = self.input_from - user_total
+            remaining = requested_total
+            repo_end = repo_start + remaining - 1
+        else:
+            raise Exception("this should not occur")
+        return user_start, user_end, repo_start, repo_end
+
+    def get_output_results(self):
+        """
+        Retrieve slices and use them for temporary results. Use these to get table.
+        """
+        user_start, user_end, repo_start, repo_end = self.get_slices()
+        # pylint: disable=unsubscriptable-object
+        logger.info("user_start: %s, user_end: %s", user_start, user_end)
+        logger.info("repo_start: %s, repo_end: %s", user_start, user_end)
+        # print("user_start,user_end,user_count")
+        # print(f"{user_start},{user_end},{self.user_results.totalCount}")
+        # print("repo_start,repo_end,repo_count")
+        # print(f"{repo_start},{repo_end},{self.repo_results.totalCount}")
+        # print(self.repo_results[repo_start:repo_end])
+        # slicing returns Slice object and not PaginatedList
+        if user_start is None and user_end is None:
+            user_results = []
+        else:
+            user_results = self.user_results[user_start:user_end]
+        if repo_start is None and repo_end is None:
+            repo_results = []
+        else:
+            repo_results = self.repo_results[repo_start:repo_end]
         metadata_dict = {
             "resource": [],
             "owner": [],
@@ -154,10 +238,11 @@ class SearchResults:
                 warnings.warn(
                     f"unexpected search result found: {type(repo)} {repo.name}"
                 )
-        table = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
-        html_table = render_metadata_html_table(table, table_id="search-metadata")
-        setattr(self, "table_df", table)
-        setattr(self, "table", html_table)
+        table_df = pd.DataFrame.from_dict(metadata_dict).reset_index(drop=True)
+        html = render_metadata_html_table(table_df, table_id="search-metadata")
+        setattr(self, "retrieved", len(table_df))
+        setattr(self, "table_df", table_df)
+        setattr(self, "html", html)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -281,6 +366,8 @@ class RequestedObject:
         """
         Main method to parse repo details into pandas DataFrame.
         """
+        if self.repos == []:
+            self.get_repos()
         repo_df = (
             pd.concat(
                 [REPOS_TEMPLATE_DF] + [get_repo_details(repo) for repo in self.repos],

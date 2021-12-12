@@ -2,14 +2,6 @@
 Test pandas DataFrame object of GitHubHealth class.
 """
 
-import os
-
-import pytest
-
-from GitHubHealth import (
-    GitHubHealth,
-    ACCESS_TOKEN_VAR_NAME,
-)
 from GitHubHealth.utils import (
     BRANCH_DF_COLUMNS,
     REPOS_DF_COLUMNS,
@@ -17,14 +9,6 @@ from GitHubHealth.utils import (
     get_branch_df,
 )
 from GitHubHealth.requested_object import SearchResults
-
-
-@pytest.fixture(name="ghh")
-def fixture_ghh():
-    """
-    reusable ghh object.
-    """
-    return GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
 
 
 def test_repo_df_columns(ghh):
@@ -66,5 +50,7 @@ def test_search_df_columns(ghh):
     """
     search_results = SearchResults(ghh, "ckear1989")
     search_results.search()
+    search_results.get_output_results()
+    assert search_results.table_df is not None
     for column in SEARCH_DF_COLUMNS:
         assert column in search_results.table_df.columns

@@ -56,6 +56,7 @@ setuptools.setup(
             "pytest>=6.2.5",
             "subx>=2020.42.0",
             "docutils>=0.18",
+            "pytest_codeblocks>=0.12.0",
         ],
     },
     packages=setuptools.find_packages(),
