@@ -264,7 +264,7 @@ def user(username):
     """
     Get user page.
     """
-    if username != session["user_login"]:
+    if username != session["login_user"]:
         return redirect(url_for("home"))
     ghh, _ = try_ghh(session)
     if ghh is not None:
@@ -287,8 +287,8 @@ def user(username):
                 )
             elif more_form.validate():
                 ghh.user.metadata.set_input_limits(
-                    input_from=more_form.results_from.data,
-                    input_to=more_form.results_to.data,
+                    input_from=more_form.input_from.data,
+                    input_to=more_form.input_to.data,
                 )
                 ghh.user.metadata.get_metadata()
                 ghh.user.metadata.get_metadata_html()
@@ -331,14 +331,11 @@ def search_results(search_request):
         except ReadTimeout:
             return redirect(url_for("user", username=session["login_user"]))
         if request.method == "POST" and more_form.validate():
-            ghh.search(
-                search_request=search_request,
-                users=search_users,
-                orgs=search_orgs,
-                ignore=ignore,
-                results_from=more_form.results_from.data,
-                results_to=more_form.results_to.data,
+            ghh.search_results.set_input_limits(
+                input_from=more_form.input_from.data,
+                input_to=more_form.input_to.data,
             )
+            ghh.search_results.get_output_results()
         return render_template(
             "search_results.html",
             ghh=ghh,

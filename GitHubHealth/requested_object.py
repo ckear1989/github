@@ -86,6 +86,13 @@ class Metadata:
         Set self up like search results.
         """
         self.requested_object = requested_object
+        if (input_to < 1) or (input_from < 1):
+            raise ValueError
+        if input_to < input_from:
+            raise ValueError
+        if (input_to - input_from) > 50:
+            warnings.warn(UserWarning("max number of requested results is 50"))
+            input_to = max((input_to - 50), (input_from + 1))
         self.input_from = input_from
         self.input_to = input_to
         self.retrieved = -1
@@ -99,6 +106,9 @@ class Metadata:
         """
         if input_to < input_from:
             raise ValueError("input_to must be greater than input_from")
+        if (input_to - input_from) > 50:
+            warnings.warn(UserWarning("max number of requested results is 50"))
+            input_to = max((input_to - 50), (input_from + 1))
         setattr(self, "input_from", input_from)
         setattr(self, "input_to", input_to)
 
@@ -150,6 +160,12 @@ class Metadata:
             + len(self.requested_object.orgs)
             + len(self.requested_object.teams)
         )
+        if total < self.input_to:
+            warnings.warn(UserWarning("more results requested than available"))
+            setattr(self, "input_to", total)
+        if self.input_from > self.input_to:
+            warnings.warn(UserWarning("results start greater than results end"))
+            setattr(self, "input_from", self.input_to)
         setattr(self, "metadata_df", metadata_df)
         setattr(self, "retrieved", retrieved)
         setattr(self, "total", total)
@@ -204,6 +220,18 @@ class SearchResults:
         self.user_results = None
         self.repo_results = None
 
+    def set_input_limits(self, input_from, input_to):
+        """
+        Increase or decrease input limits.
+        """
+        if input_to < input_from:
+            raise ValueError("input_to must be greater than input_from")
+        if (input_to - input_from) > 50:
+            warnings.warn(UserWarning("max number of requested results is 50"))
+            input_to = max((input_to - 50), (input_from + 1))
+        setattr(self, "input_from", input_from)
+        setattr(self, "input_to", input_to)
+
     def get_ignore(self, ignore):
         """
         format ignore string to list.
@@ -221,6 +249,12 @@ class SearchResults:
         user_results = self.ghh.con.search_users(self.search_request)
         repo_results = self.ghh.con.search_repositories(self.search_request)
         total = user_results.totalCount + repo_results.totalCount
+        if total < self.input_to:
+            warnings.warn(UserWarning("more results requested than available"))
+            setattr(self, "input_to", total)
+        if self.input_from > self.input_to:
+            warnings.warn(UserWarning("results start greater than results end"))
+            setattr(self, "input_from", self.input_to)
         setattr(self, "user_results", user_results)
         setattr(self, "repo_results", repo_results)
         setattr(self, "total", total)

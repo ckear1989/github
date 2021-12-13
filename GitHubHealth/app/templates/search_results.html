@@ -23,9 +23,9 @@
                 <form action="" method="post" class="limit" id="more_form" role="form">
                     {{ more_form.csrf_token() }}
                     results
-                    <input class="nbr-input" name="results_from" required type="number" value={{ ghh.search_results.input_from }} data-toggle="tooltip">
+                    <input class="nbr-input" name="input_from" required type="number" value={{ ghh.search_results.input_from }} data-toggle="tooltip">
                     to
-                    <input class="nbr-input" name="results_to" required type="number" value={{ ghh.search_results.input_to }} data-toggle="tooltip">
+                    <input class="nbr-input" name="input_to" required type="number" value={{ ghh.search_results.input_to }} data-toggle="tooltip">
                     of
                     {{ ghh.search_results.total }}
                     <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">

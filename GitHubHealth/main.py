@@ -86,8 +86,8 @@ class GitHubHealth:
         users=False,
         orgs=False,
         ignore=None,
-        results_from=1,
-        results_to=10,
+        input_from=1,
+        input_to=10,
     ):
         """
         Search for users and/or orgs and get results table.
@@ -105,8 +105,8 @@ class GitHubHealth:
             users,
             orgs,
             ignore,
-            results_from,
-            results_to,
+            input_from,
+            input_to,
         )
         search_results.search()
         search_results.get_output_results()
