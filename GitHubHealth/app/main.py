@@ -165,6 +165,16 @@ def page_not_found(error_message):
     )
 
 
+@app.errorhandler(KeyError)
+def internal_key_error(error_message):
+    """
+    Handle a key error.
+    """
+    LOG.debug("debug key error: %s", error_message)
+    session["error"] = "KeyError"
+    return redirect(url_for("home"))
+
+
 # who knows how this works?
 # pylint: disable=assigning-non-slot
 @app.route("/", methods=["POST", "GET"])
@@ -174,6 +184,8 @@ def home():
     """
     Get home page.
     """
+    if "error" not in session:
+        session["error"] = ""
     login_form = LoginForm()
     if "login_user" in request.form.keys():
         if request.method == "POST" and login_form.validate():
@@ -200,6 +212,7 @@ def home():
     return render_template(
         "index.html",
         login_form=login_form,
+        error=session["error"],
     )
 
 

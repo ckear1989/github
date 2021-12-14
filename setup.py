@@ -29,6 +29,7 @@ setuptools.setup(
         "flask-wtf==1.0.0",
         "Flask-Bootstrap4==4.0.2",
         "altair==4.1.0",
+        "setuptools_scm>=6.3.2",
     ],
     extras_require={
         "deploy": [

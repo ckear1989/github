@@ -267,7 +267,7 @@ class SearchResults:
         Check requested results from and to against retrieved results and return indices.
         """
         assert self.input_to >= self.input_from
-        requested_total = self.input_to - self.input_from
+        requested_total = self.input_to - self.input_from + 1
         user_total = self.user_results.totalCount
         repo_total = self.repo_results.totalCount
         results_total = user_total + repo_total
@@ -293,18 +293,19 @@ class SearchResults:
         elif self.input_from <= user_total < self.input_to:
             user_start = self.input_from - 1
             user_end = user_total
-            remaining = requested_total - user_total
+            user_retrieved = user_end - user_start
+            remaining = requested_total - user_retrieved
             repo_start = 0
-            repo_end = remaining - 1
+            repo_end = remaining
             if remaining > repo_total:
-                repo_end = repo_total - 1
+                repo_end = repo_total
         # none of user some of repo
         elif (self.input_from > user_total) and (self.input_to >= user_total):
             user_start = None
             user_end = None
-            repo_start = self.input_from - user_total
+            repo_start = self.input_from - user_total - 1
             remaining = requested_total
-            repo_end = repo_start + remaining - 1
+            repo_end = repo_start + remaining
         else:
             raise Exception("this should not occur")
         return user_start, user_end, repo_start, repo_end
