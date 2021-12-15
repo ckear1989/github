@@ -42,11 +42,13 @@
                 <li class="menu-title"><a class="image-link" href="{{ url_for("home") }}">{{ images.banner()  }}</a></li>
                 <li>
                     <div class="dropdown">
-                        {% if ghh is defined %}
-                            {{ images.user_avatar() }}
-                        {% else %}
-                            {{ images.user_blank() }}
-                        {% endif %}
+                        <a class="quicklink" id="user-icon" href="{{ url_for("login") }}">
+                            {% if ghh is defined %}
+                                {{ images.user_avatar(ghh) }}
+                            {% else %}
+                                {{ images.user_blank() }}
+                            {% endif %}
+                        </a>
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
                             <a class="quicklink" href="{{ url_for("logout") }}">logout</a>

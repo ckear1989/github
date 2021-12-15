@@ -38,7 +38,7 @@
             <input class="nbr-input" name="input_to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
             of
             {{ ghh.user.metadata.total }}
-            <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
+            <input class="btn btn-more" id="metadata-more" name="more" onclick="loading_search()" type="submit" value="more...">
         </form>
         <form action="" method="post" class="form search-request" id="search_form" role="form">
             <p>or seach for more resources (users, orgs, repos):</p>

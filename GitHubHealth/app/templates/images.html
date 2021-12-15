@@ -11,7 +11,7 @@
 <img class="menu-banner" src="{{ url_for('static', filename='assets/banner.png') }}">
 {% endmacro %}
 
-{% macro user_avatar() %}
+{% macro user_avatar(ghh) %}
 <img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
 {% endmacro %}
 
@@ -25,4 +25,16 @@
 
 {% macro dark_theme() %}
 <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='assets/moon.svg') }}">
+{% endmacro %}
+
+{% macro direction_button(target, dir) %}
+{% if dir == 'left' %}
+    <button class="btn-direction" id="left" onclick="showPlotLeft()">
+        <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
+    </button>
+{% elif dir == 'right' %}
+    <button class="btn-direction" id="right" onclick="showPlotRight()">
+        <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
+    </button>
+{% endif %}
 {% endmacro %}

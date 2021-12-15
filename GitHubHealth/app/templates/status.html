@@ -7,18 +7,6 @@
     {% endblock %}
 {% endblock %}
 
-{% macro direction_button_left(target) %}
-<button class="btn-direction" id="left" onclick="showPlotLeft()">
-    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
-</button>
-{% endmacro %}
-
-{% macro direction_button_right(target) %}
-<button class="btn-direction" id="right" onclick="showPlotRight()">
-    <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
-</button>
-{% endmacro %}
-
 {% block body %}
 
     {% block navbar %}
@@ -35,24 +23,17 @@
                 <a class="header" href={{ ghh.requested_object.url }}>{{ ghh.requested_object.name }}</a>
             </div>
             {{ ghh.repo_html|safe }}
-            <ul class="plots">
-                <li class="btn-direction">
-                    {{ direction_button_left("image-prev") }}
-                </li>
-                <li>
-                    <!-- create divs where plot will be embedded -->
-                    {% for plot in ghh.plots %}
-                        {% if loop.index == 1 %}
-                            <div id="vis_plot_{{loop.index}}" class="plot" style="display: block"></div>
-                        {% else %}
-                            <div id="vis_plot_{{loop.index}}" class="plot" style="display: none"></div>
-                        {% endif %}
-                    {% endfor %}
-                </li>
-                <li class="btn-direction">
-                    {{ direction_button_right("image-next") }}
-                </li>
-            </ul>
+            <span class="plots">
+                {{ images.direction_button("image-prev", "left") }}
+                {% for plot in ghh.plots %}
+                    {% if loop.index == 1 %}
+                        <div id="vis_plot_{{loop.index}}" class="plot" style="display: block"></div>
+                    {% else %}
+                        <div id="vis_plot_{{loop.index}}" class="plot" style="display: none"></div>
+                    {% endif %}
+                {% endfor %}
+                {{ images.direction_button("image-next", "right") }}
+            </span>
         {% endif %}
 
     {% endblock %}

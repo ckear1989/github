@@ -227,6 +227,10 @@ a:active {
   color: inherit;
 }
 
+a#user-icon:hover {
+  background-color: inherit;
+}
+
 p {
   margin: 20px;
   margin-top: 10px;
@@ -369,14 +373,30 @@ ul.plots {
   display: flex;
 }
 
-div.plot {
-  width: 400px;
+span.plots {
+  display: flex;
+  flex-direction: row;
 }
 
-li.btn-direction {
+div.plot {
+  width: 400px;
+  min-width: 400px;
+  min-height: 400px;
+}
+
+.btn-direction {
+  position: relative;
+}
+
+#left .btn-direction {
+  position: relative;
+  right: 10px;
+  top: 150px;
+}
+
+#right .btn-direction {
   position: relative;
   top: 150px;
-  right: 25px;
 }
 
 button.btn-direction {
@@ -692,10 +712,9 @@ form.limit {
 div#loading {
   display: none;
   cursor: wait;
-  z-index: 9;
+  z-index: 2;
   position: absolute;
-  top: 200px;
-  left: 200px;
+  margin: 210px;
 }
 
 img.loading {
