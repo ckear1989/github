@@ -1,0 +1,28 @@
+
+{% macro user_blank() %}
+<img class="menu-icon user-icon" id="user-icon-nouser" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
+{% endmacro %}
+
+{% macro site_icon() %}
+<img class="main-icon" src="{{ url_for('static', filename='assets/apple-touch-icon.png') }}">
+{% endmacro %}
+
+{% macro banner() %}
+<img class="menu-banner" src="{{ url_for('static', filename='assets/banner.png') }}">
+{% endmacro %}
+
+{% macro user_avatar() %}
+<img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
+{% endmacro %}
+
+{% macro loading_gif() %}
+<img class="loading" src="{{ url_for('static', filename='assets/loadingimage.gif') }}">
+{% endmacro %}
+
+{% macro light_theme() %}
+<img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='assets/sun.svg') }}">
+{% endmacro %}
+
+{% macro dark_theme() %}
+<img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='assets/moon.svg') }}">
+{% endmacro %}

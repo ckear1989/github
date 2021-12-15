@@ -4,7 +4,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  margin-left: 20px;
+  max-width: 500px;
+  margin: auto;
 }
 
 .form {
@@ -167,6 +168,10 @@ table tr:last-child td:last-child {
 
 .light-mode .dropdown:hover {
   background-color: #dcdcdc;
+}
+
+.light-mode .dropdown-content a {
+  color: black;
 }
 
 button.theme-pick {

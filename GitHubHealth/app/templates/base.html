@@ -1,4 +1,5 @@
 {% extends 'bootstrap/base.html' %}
+{% import 'images.html' as images %}
 
 {% block head %}
 
@@ -37,23 +38,23 @@
     {% block header %}
         <span class="header">
             <ul class="header">
-                <li id="header"><a class="image-link" href="{{ url_for("home") }}"><img class="main-icon" src="{{ url_for('static', filename='assets/apple-touch-icon.png') }}"></a></li>
-                <li class="menu-title"><a class="image-link" href="{{ url_for("home") }}"><img class="menu-banner" src="{{ url_for('static', filename='assets/banner.png') }}"></a></li>
+                <li id="header"><a class="image-link" href="{{ url_for("home") }}">{{ images.site_icon() }}</a></li>
+                <li class="menu-title"><a class="image-link" href="{{ url_for("home") }}">{{ images.banner()  }}</a></li>
                 <li>
                     <div class="dropdown">
                         {% if ghh is defined %}
-                            <img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
+                            {{ images.user_avatar() }}
                         {% else %}
-                            <img class="menu-icon user-icon" id="user-icon-nouser" src="{{ url_for('static', filename='assets/person-fill.svg') }}">
+                            {{ images.user_blank() }}
                         {% endif %}
                         <div id="settingsDropdown" class="dropdown-content">
                             <a class="quicklink" href="{{ url_for("login") }}">login</a>
                             <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
                             <button class="theme-pick" onclick="activateLightMode()">
-                                <img class="theme-pick" id="lightMode" src="{{ url_for('static', filename='assets/sun.svg') }}">
+                                {{ images.light_theme() }}
                             </button>
                             <button class="theme-pick" onclick="activateDarkMode()">
-                                <img class="theme-pick" id="darkMode" src="{{ url_for('static', filename='assets/moon.svg') }}">
+                                {{ images.dark_theme() }}
                             </button>
                         </div>
                     </div>
@@ -64,7 +65,7 @@
 
     {% block loading %}
         <div id="loading">
-            <img class="loading" src="{{ url_for('static', filename='assets/loadingimage.gif') }}">
+            {{ images.loading_gif() }}
         </div>
     {% endblock %}
 
