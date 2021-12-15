@@ -23,10 +23,12 @@
     {% endblock %}
 
     {% block content %}
-        <p>
-            Welcome to GitHubHealth.com!
-            This web app allows you to query the GitHub api and view formatted results and plots.
-        </p>
+        <div class="user-content">
+            <p>
+                Welcome to GitHubHealth.com!
+                This web app allows you to query the GitHub api and view formatted results and plots.
+            </p>
+        </div>
         {% if login_form is defined %}
             <form action="" method="post" class="form login" id="login_form" role="form">
                 {{ login_form.csrf_token() }}

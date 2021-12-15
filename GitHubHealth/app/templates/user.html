@@ -23,48 +23,48 @@
     {% endblock %}
 
     {% block content %}
-        <div class="user_content">
+        <div class="user-content">
             <p>Logged in as <a href="{{ ghh.user.url }}">{{ ghh.user.name }}</a>.</p>
             <p>Here are the resources associated with your account.  You can browse them on GitHub or check their health status here.</p>
-            <div id="user-table">
-                {{ ghh.user.metadata_html|safe }}
-            </div>
-            <form action="" method="post" class="limit" id="more_form" role="form">
-                {{ more_form.csrf_token() }}
-                results
-                <input class="nbr-input" name="input_from" required type="number" value={{ ghh.user.metadata.input_from }} data-toggle="tooltip">
-                to
-                <input class="nbr-input" name="input_to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
-                of
-                {{ ghh.user.metadata.total }}
-                <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
-            </form>
-            <p>or seach for more resources (users, orgs, repos):</p>
-            <form action="" method="post" class="form search-request" id="search_form" role="form">
-                {{ search_form.csrf_token() }}
-                <div class="form-group" id="search-request">
-                    <input id="search_request" name="search_request" type="text" value data-toggle="tooltip" title="Enter a search term.">
-                    <button class="btn-search" id="search" name="search" onclick="loading_search()" type="submit" value="Search" data-toggle="tooltip" title="search!">
-                        <img class="search" src="{{ url_for('static', filename='assets/search.svg') }}">
-                    </button>
-                </div>
-                <div class="form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" id="search_users" name="search_users" type="checkbox" value="y" data-toggle="tooltop" title="include users in search?"> users
-                    </label>
-                </div>
-                <div class="form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" id="search_orgs" name="search_orgs" type="checkbox" value="y" data-toggle="tooltip" title="include orgs in search?"> orgs
-                    </label>
-                </div>
-                <div class="form-group" id="ignore">
-                    <label class="form-control-label ignore" for="ignore">ignore</label>
-                    <input id="ignore" name="ignore" type="text" value data-toggle="tooltip" title="exclude from search results. Separate with comma (,).">
-                </div>
-                <input class="btn btn-primary" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
-            </form>
         </div>
+        <div id="user-table">
+            {{ ghh.user.metadata_html|safe }}
+        </div>
+        <form action="" method="post" class="form limit" id="more_form" role="form">
+            {{ more_form.csrf_token() }}
+            results
+            <input class="nbr-input" name="input_from" required type="number" value={{ ghh.user.metadata.input_from }} data-toggle="tooltip">
+            to
+            <input class="nbr-input" name="input_to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
+            of
+            {{ ghh.user.metadata.total }}
+            <input class="btn btn-more" id="metadata-more" name="more" type="submit" value="more...">
+        </form>
+        <form action="" method="post" class="form search-request" id="search_form" role="form">
+            <p>or seach for more resources (users, orgs, repos):</p>
+            {{ search_form.csrf_token() }}
+            <div class="form-group" id="search-request">
+                <input id="search_request" name="search_request" type="text" value data-toggle="tooltip" title="Enter a search term.">
+                <button class="btn-search" id="search" name="search" onclick="loading_search()" type="submit" value="Search" data-toggle="tooltip" title="search!">
+                    <img class="search" src="{{ url_for('static', filename='assets/search.svg') }}">
+                </button>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" id="search_users" name="search_users" type="checkbox" value="y" data-toggle="tooltop" title="include users in search?"> users
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" id="search_orgs" name="search_orgs" type="checkbox" value="y" data-toggle="tooltip" title="include orgs in search?"> orgs
+                </label>
+            </div>
+            <div class="form-group" id="ignore">
+                <label class="form-control-label ignore" for="ignore">ignore</label>
+                <input id="ignore" name="ignore" type="text" value data-toggle="tooltip" title="exclude from search results. Separate with comma (,).">
+            </div>
+            <input class="btn btn-primary" id="search" name="search" onclick="loading_search()" type="submit" value="Search">
+        </form>
         {{ super() }}
     {% endblock %}
 

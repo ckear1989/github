@@ -31,29 +31,28 @@
     {% block content %}
 
         {% if repo is not none %}
-            <div class="repo_content">
-                <!-- embed table -->
+            <div class="user-content">
                 <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
-                {{ repo.html_table|safe }}
-                <ul class="plots">
-                    <li class="btn-direction">
-                        {{ direction_button_left("image-prev") }}
-                    </li>
-                    <li>
-                        <!-- create divs where plot will be embedded -->
-                        {% for plot in repo.plots %}
-                            {% if loop.index == 1 %}
-                                <div id="vis_repo_{{loop.index}}" class="plot" style="display: block"></div>
-                            {% else %}
-                                <div id="vis_repo_{{loop.index}}" class="plot" style="display: none"></div>
-                            {% endif %}
-                        {% endfor %}
-                    </li>
-                    <li class="btn-direction">
-                        {{ direction_button_right("image-next") }}
-                    </li>
-                </ul>
             </div>
+            {{ repo.html_table|safe }}
+            <ul class="plots">
+                <li class="btn-direction">
+                    {{ direction_button_left("image-prev") }}
+                </li>
+                <li>
+                    <!-- create divs where plot will be embedded -->
+                    {% for plot in repo.plots %}
+                        {% if loop.index == 1 %}
+                            <div id="vis_repo_{{loop.index}}" class="plot" style="display: block"></div>
+                        {% else %}
+                            <div id="vis_repo_{{loop.index}}" class="plot" style="display: none"></div>
+                        {% endif %}
+                    {% endfor %}
+                </li>
+                <li class="btn-direction">
+                    {{ direction_button_right("image-next") }}
+                </li>
+            </ul>
         {% endif %}
 
     {% endblock %}

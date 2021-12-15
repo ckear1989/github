@@ -19,7 +19,6 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
 from flask_bootstrap import Bootstrap
 import pkg_resources
-import setuptools_scm
 from requests.exceptions import (
     ReadTimeout,
     ConnectionError as RequestsConnectionError,
@@ -39,10 +38,6 @@ from GitHubHealth.app.forms import (
 )
 
 # pylint: disable=invalid-name
-try:
-    version_scm = setuptools_scm.get_version()
-except LookupError:
-    version_scm = "?"
 REQUIREMENTS = str(
     pkg_resources.resource_stream("GitHubHealth", "app/requirements.txt").read()
 )
@@ -51,7 +46,7 @@ version_requirements = [
     for x in REQUIREMENTS.split("\\n")
     if "GitHubHealth" in x
 ][0]
-VERSION = "|".join(list(set([version_scm, version_requirements])))
+VERSION = version_requirements
 
 dictConfig(
     {
