@@ -242,7 +242,7 @@ def get_ghh_plot(plot_df, var):
             tooltip=var,
         )
         .interactive()
-        .properties(title=f"{var.replace('_', ' ')} by repo")
+        .properties(title=f"{var.replace('_', ' ')} by repo", width=300, height=300)
     )
     return plot
 
@@ -260,6 +260,6 @@ def get_ghh_repo_plot(plot_df, var):
             tooltip=var,
         )
         .interactive()
-        .properties(title=f"{var.replace('_', ' ')} by branch")
+        .properties(title=f"{var.replace('_', ' ')} by branch", width=300, height=300)
     )
     return plot

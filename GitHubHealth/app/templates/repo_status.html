@@ -19,7 +19,7 @@
     {% block content %}
 
         {% if repo is not none %}
-            <div class="user-content">
+            <div class="user-content repo-header">
                 <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
             </div>
             {{ repo.html_table|safe }}

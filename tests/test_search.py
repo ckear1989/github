@@ -37,33 +37,30 @@ def test_search_1_result(ghh):
     assert len(ghh.search_results.table_df) == 1
 
 
-def test_search_2_result(ghh):
+def test_search_2_result(ghh_2_search_results):
     """
     Test searching for known repo.
     """
-    ghh.search("pyGitHub", users=True, input_from=1, input_to=2)
-    assert len(ghh.search_results.table_df) == 2
+    assert len(ghh_2_search_results.search_results.table_df) == 2
 
 
-def test_search_update_result(ghh):
+def test_search_update_result(ghh_2_search_results):
     """
     Test searching for known repo.
     """
-    ghh.search("pyGitHub", users=True, input_from=1, input_to=2)
-    assert len(ghh.search_results.table_df) == 2
-    ghh.search_results.set_input_limits(1, 4)
-    ghh.search_results.get_output_results()
-    assert len(ghh.search_results.table_df) == 4
+    assert len(ghh_2_search_results.search_results.table_df) == 2
+    ghh_2_search_results.search_results.set_input_limits(1, 4)
+    ghh_2_search_results.search_results.get_output_results()
+    assert len(ghh_2_search_results.search_results.table_df) == 4
 
 
-def test_search_update_error_result(ghh):
+def test_search_update_error_result(ghh_2_search_results):
     """
     Test searching for known repo.
     """
-    ghh.search("pyGitHub", users=True, input_from=1, input_to=2)
-    assert len(ghh.search_results.table_df) == 2
+    assert len(ghh_2_search_results.search_results.table_df) == 2
     with pytest.raises(ValueError):
-        ghh.search_results.set_input_limits(4, 1)
+        ghh_2_search_results.search_results.set_input_limits(4, 1)
 
 
 def test_search_too_many_results(ghh):

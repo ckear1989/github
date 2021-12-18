@@ -39,6 +39,10 @@ body {
   width: 500px;
 }
 
+.repo-header {
+  width: 100%;
+}
+
 .footer {
   background-color: #3737f0;
   border-width: 2px;
@@ -254,7 +258,7 @@ table.dataframe,
 }
 
 .form.login {
-  height: 270px;
+  height: 290px;
 }
 
 .form-group {
@@ -262,20 +266,17 @@ table.dataframe,
   box-sizing: border-box;
   flex-direction: row;
   align-items: center;
-  margin: 15px;
+  margin: 10px;
   justify-content: center;
-  height: 20px;
-  padding: 10px;
-  padding-left: 20px;
-  padding-right: 20px;
+  height: 34px;
   width: 90%;
 }
 
 .form-control-label {
   box-sizing: border-box;
   border-width: 5px;
-  width: 40%;
-  padding-right: 10px;
+  border-color: inherit;
+  width: 20%;
   display: inline-block;
 }
 
@@ -334,7 +335,8 @@ img.search {
   color: dimgray;
   border-radius: 10px;
   justify-content: right;
-  width: 40%;
+  width: 60%;
+  height: 34px;
   display: inline-block;
 }
 
@@ -353,8 +355,6 @@ img.search {
   font-size: 18px;
   border-radius: 10px;
   background-color: inherit;
-  margin: 15px;
-  margin-left: 20px;
   width: 200px;
   height: 40px;
 }
@@ -717,9 +717,28 @@ div#loading {
   margin: 210px;
 }
 
-img.loading {
+div.loading0 {
+  width: 100%;
+  height: 100%;
+}
+
+div.loading1 {
   width: 100px;
   height: 100px;
+}
+
+.loading1 {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .flashes {

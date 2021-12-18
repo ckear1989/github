@@ -30,6 +30,15 @@ def fixture_ghh():
     return GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
 
 
+@pytest.fixture(name="ghh_2_search_results")
+def fixture_ghh_2_search_results(ghh):
+    """
+    reusable ghh object with pre-populated search results.
+    """
+    ghh.search("pyGitHub", users=True, input_from=1, input_to=2)
+    return ghh
+
+
 @pytest.fixture(name="client")
 def fixture_client():
     """
