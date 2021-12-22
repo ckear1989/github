@@ -98,7 +98,12 @@
 
     {% block scripts %}
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/base.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/buttons.js') }}"></script>
     {% endblock %}
 
 {% endblock %}

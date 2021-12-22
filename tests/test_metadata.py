@@ -26,10 +26,18 @@ def test_get_metadata_default(ghh):
 def test_get_metadata_increased_limit(ghh):
     """
     create class object from ghh user.
+    in the unlikely event others are using this,
+    adjust test if you have more or less than 12 results.
     """
-    metadata = Metadata(ghh.user, input_to=12)
-    metadata.get_metadata()
-    assert len(metadata.metadata_df) <= 12
+    if ghh.user.name == "ckear1989":
+        with pytest.warns(UserWarning):
+            metadata = Metadata(ghh.user, input_to=12)
+            metadata.get_metadata()
+            assert len(metadata.metadata_df) <= 12
+    else:
+        metadata = Metadata(ghh.user, input_to=12)
+        metadata.get_metadata()
+        assert len(metadata.metadata_df) <= 12
 
 
 def test_get_metadata_decreased_limit(ghh):

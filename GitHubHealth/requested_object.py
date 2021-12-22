@@ -38,7 +38,6 @@ def get_connection(
     password=None,
     gat=None,
     timeout=TIMEOUT,
-    results_limit=None,
 ):
     """
     Get connection and login.
@@ -49,9 +48,6 @@ def get_connection(
         base_url = MainClass.DEFAULT_BASE_URL
     else:
         base_url = f"https://{hostname}/api/v3"
-    if results_limit is None:
-        results_limit = 10
-    assert isinstance(results_limit, int)
     if gat is not None:
         github_con = Github(
             base_url=base_url,
@@ -72,7 +68,7 @@ def get_connection(
         raise Exception("provide either user+password or gat")
     this_user = github_con.get_user()
     _ = this_user.login
-    this_user = RequestedObject(this_user, this_user.html_url, results_limit)
+    this_user = RequestedObject(this_user, this_user.html_url)
     return github_con, this_user
 
 
@@ -198,6 +194,9 @@ class SearchResults:
         input_from=1,
         input_to=10,
     ):
+        """
+        Filter and repos bool will be added.  Avoid the dodo word.
+        """
         self.ghh = ghh
         self.search_request = search_request
         self.users = users
@@ -249,12 +248,13 @@ class SearchResults:
         user_results = self.ghh.con.search_users(self.search_request)
         repo_results = self.ghh.con.search_repositories(self.search_request)
         total = user_results.totalCount + repo_results.totalCount
+        requested = self.input_to - self.input_from + 1
         if total < self.input_to:
             warnings.warn(UserWarning("more results requested than available"))
             setattr(self, "input_to", total)
         if self.input_from > self.input_to:
             warnings.warn(UserWarning("results start greater than results end"))
-            setattr(self, "input_from", self.input_to)
+            setattr(self, "input_from", max((self.input_to - requested), 1))
         setattr(self, "user_results", user_results)
         setattr(self, "repo_results", repo_results)
         setattr(self, "total", total)
@@ -371,7 +371,7 @@ class RequestedObject:
     Container for requested objects.
     """
 
-    def __init__(self, obj, url, results_limit):
+    def __init__(self, obj, url):
         self.obj = obj
         self.name = None
         self.avatar_url = None
@@ -388,7 +388,6 @@ class RequestedObject:
             self.name = self.obj.name
         self.url = url
         self.metadata = None
-        self.metadata_limit = results_limit
         self.metadata_html = None
         self.repos = []
         self.repo_df = None

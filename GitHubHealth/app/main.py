@@ -81,14 +81,13 @@ def try_ghh(this_session):
     Try ghh object.
     Useful for quickly verifying if credentials can be used to login.
     """
-    required = ["login_user", "gat", "hostname", "results_limit", "timeout"]
+    required = ["login_user", "gat", "hostname", "timeout"]
     if all(x in this_session for x in required):
         try:
             ghh = get_ghh(
                 this_session["login_user"],
                 this_session["gat"],
                 this_session["hostname"],
-                this_session["results_limit"],
                 this_session["timeout"],
             )
         except (
@@ -103,7 +102,7 @@ def try_ghh(this_session):
     return None, error_msg
 
 
-def get_ghh(login_user, gat, hostname, results_limit, timeout):
+def get_ghh(login_user, gat, hostname, timeout):
     """
     Get ghh object.
     Useful for quickly verifying if credentials can be used to login.
@@ -112,7 +111,6 @@ def get_ghh(login_user, gat, hostname, results_limit, timeout):
         login=login_user,
         gat=gat,
         hostname=hostname,
-        results_limit=results_limit,
         timeout=timeout,
     )
     return ghh
@@ -187,7 +185,6 @@ def home():
             session["login_user"] = login_form.login_user.data
             session["gat"] = login_form.gat.data
             session["hostname"] = login_form.hostname.data
-            session["results_limit"] = login_form.results_limit.data
             session["timeout"] = login_form.timeout.data
             ghh, error_message = try_ghh(session)
             if ghh is not None:
@@ -245,7 +242,6 @@ def login():
         session["login_user"] = login_form.login_user.data
         session["gat"] = login_form.gat.data
         session["hostname"] = login_form.hostname.data
-        session["results_limit"] = login_form.results_limit.data
         session["timeout"] = login_form.timeout.data
         ghh, _ = try_ghh(session)
         if ghh is not None:

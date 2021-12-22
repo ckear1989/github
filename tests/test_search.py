@@ -25,7 +25,6 @@ def test_search_default_result(ghh):
     Test searching for known repo.
     """
     ghh.search("pyGitHub", users=True)
-    print(ghh.search_results.table_df)
 
 
 def test_search_1_result(ghh):
@@ -76,4 +75,4 @@ def test_search_result_out_of_range(ghh):
     Test searching for known repo.
     """
     with pytest.warns(UserWarning):
-        ghh.search("pyGitHub", users=True, input_from=1000, input_to=1010)
+        ghh.search("pyGitHub", users=True, input_from=1001, input_to=1002)

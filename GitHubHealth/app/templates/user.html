@@ -39,7 +39,7 @@
                 <input class="nbr-input" name="input_to" required type="number" value={{ ghh.user.metadata.input_to }} data-toggle="tooltip">
                 of
                 {{ ghh.user.metadata.total }}
-                <input class="btn btn-more" id="metadata-more" name="more" onclick="loading_search()" type="submit" value="more...">
+                <input class="btn btn-more btn-primary" id="metadata-more" name="more" onclick="loading_search()" type="submit" value="more...">
             </div>
         </form>
         <form action="" method="post" class="form search-request" id="search_form" role="form">
@@ -82,11 +82,9 @@
         {{ super() }}
         <script>
             $SCRIPT_ROOT = {{ request.script_root|tojson }};
-            console.log(this);
             // update all table "health" elements to a link for that repo status
             $("#T_user-metadata").children("tbody").children("tr").children("td").each(function () {
                 if (this.cellIndex == 3) {
-                    console.log(this);
                     if (this.innerText == "health") {
                         let this_repo_owner = this.previousElementSibling.previousElementSibling.innerText;
                         let this_repo_name = this.previousElementSibling.innerText;

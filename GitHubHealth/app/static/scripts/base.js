@@ -1,4 +1,5 @@
 function loading_login(){
+    $("body").addClass("cursor-wait");
     for (const el of document.getElementById("login_form").querySelectorAll("[required]")) {
         if (!el.reportValidity()) {
             return;
@@ -8,6 +9,7 @@ function loading_login(){
 }
 
 function loading_search(){
+    $("body").addClass("cursor-wait");
     for (const el of document.getElementById("search_form").querySelectorAll("[required]")) {
         if (!el.reportValidity()) {
             return;

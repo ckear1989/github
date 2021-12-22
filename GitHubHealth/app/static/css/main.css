@@ -226,14 +226,12 @@ thead > tr > th.col_heading.col0 {
   border-bottom-right-radius: 10px;
 }
 
-
 table tbody tr {
   border-bottom: 1px solid #dddddd;
 }
 
 table thead tr {
   background-color: #1818ab;
-  color: #ffffff;
   text-align: left;
 }
 
@@ -718,37 +716,31 @@ form.limit {
 }
 
 .btn-more {
-  color: #fff;
-  text-shadow: 0 -1px 0 rgba(0,0,0,.15);
-  background-color: #60b044;
-  background-image: linear-gradient(#8add6d,#60b044);
-  border-color: #5ca941;
   font-size: 12px;
   width: 60px;
   height: 40px;
-  padding: 5px;
-  border-radius: 10px;
-}
-
-div#loading {
-  display: none;
-  cursor: wait;
-  z-index: 2;
-  position: absolute;
+  padding: 0;
 }
 
 div.loading {
-  width: 100px;
-  height: 100px;
-}
-
-.loading {
+  display: none;
+  z-index: 2;
+  min-width: 100px;
+  max-width: 100px;
+  min-height: 100px;
+  max-height: 100px;
+  position: fixed;
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+  margin: auto;
   border: 16px solid #f3f3f3; /* Light grey */
   border-top: 16px solid #3498db; /* Blue */
   border-radius: 50%;
-  width: 120px;
-  height: 120px;
   animation: spin 2s linear infinite;
+}
+
+.cursor-wait {
+  cursor: wait;
 }
 
 @keyframes spin {
@@ -856,4 +848,9 @@ div.snippet {
   width: 100%;
   min-width: 525px;
   max-width: 700px;
+}
+
+div.vg-tooltip {
+  min-width: 20px;
+  max-width: 100px;
 }

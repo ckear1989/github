@@ -39,7 +39,6 @@ class GitHubHealth:
         login=None,
         password=None,
         gat=None,
-        results_limit=None,
         timeout=TIMEOUT,
     ):
         """
@@ -52,11 +51,12 @@ class GitHubHealth:
         else:
             self.base_url = f"https://{hostname}/api/v3"
         self.public_url = f"https://{hostname}/"
-        if results_limit is None:
-            results_limit = 10
-        self.results_limit = results_limit
         self.con, self.user = get_connection(
-            hostname, login, password, gat, timeout, self.results_limit
+            hostname,
+            login,
+            password,
+            gat,
+            timeout,
         )
         self.username = self.user.name
         self.user_url = self.user.url
@@ -76,7 +76,8 @@ class GitHubHealth:
         """
         this_repo = self.con.get_repo(f"{repo_owner}/{repo_name}")
         requested_repo = RequestedRepo(
-            this_repo, this_repo.html_url, self.results_limit
+            this_repo,
+            this_repo.html_url,
         )
         return requested_repo
 
@@ -119,13 +120,13 @@ class GitHubHealth:
         try:
             this_user = self.con.get_user(resource_name)
             requested_user = RequestedObject(
-                this_user, this_user.html_url, self.results_limit
+                this_user,
+                this_user.html_url,
             )
         except UnknownObjectException:
             requested_user = RequestedObject(
                 None,
                 f"{self.public_url}/{resource_name}",
-                None,
             )
         setattr(self, "requested_object", requested_user)
 
