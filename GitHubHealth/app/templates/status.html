@@ -19,11 +19,11 @@
     {% block content %}
 
         {% if ghh.requested_object.obj is not none %}
-            <div class="user-content">
+            <div class="user-content repo-status">
                 <a class="header" href={{ ghh.requested_object.url }}>{{ ghh.requested_object.name }}</a>
             </div>
             {{ ghh.repo_html|safe }}
-            <span class="plots">
+            <span class="plots repo-status">
                 {{ images.direction_button("image-prev", "left") }}
                 {% for plot in ghh.plots %}
                     {% if loop.index == 1 %}
@@ -49,7 +49,7 @@
     {% block scripts %}
         {{ super() }}
         <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/buttons.js') }}"></script>

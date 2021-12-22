@@ -14,21 +14,21 @@ BRANCH_DF_COLUMNS = [
     "branch",
     "url",
     "sha",
-    "last_modified",
+    "last modified",
     "age (days)",
     "protected",
-    "author",
     "committer",
 ]
 REPOS_DF_COLUMNS = [
     "repo",
     "repo_url",
     "private",
-    "branch_count",
-    "min_branch_age_days",
-    "max_branch_age_days",
+    "branch count",
+    "min branch age (days)",
+    "max branch age (days)",
     "issues",
-    "pull_requests",
+    "pull requests",
+    "primary language",
 ]
 SEARCH_DF_COLUMNS = [
     "resource",
@@ -55,21 +55,17 @@ def get_branch_details(branch):
     commit = branch.commit
     date = commit.commit.author.date
     age = (DATE_NOW - date).days
-    author = None
-    if commit.author is not None:
-        author = commit.author.login
     committer = None
     if commit.committer is not None:
         committer = commit.committer.login
     branch_dict = {
         "branch": [branch.name],
         "url": [commit.html_url],
-        "sha": [commit.sha],
-        "last_modified": [commit.last_modified],
+        "sha": [commit.sha[:7]],  # short sha should work
+        "last modified": [commit.last_modified],
         "age (days)": [age],
         "protected": [branch.protected],
-        "author": [author],
-        "comitter": [committer],
+        "committer": [committer],
     }
     branch_df = pd.DataFrame.from_dict(branch_dict)
     return branch_df
@@ -103,11 +99,11 @@ def get_repo_details(repo):
         "repo": [repo.name],
         "repo_url": [repo.html_url],
         "private": [repo.private],
-        "branch_count": [len(branch_df)],
-        "min_branch_age_days": [branch_df["age (days)"].min()],
-        "max_branch_age_days": [branch_df["age (days)"].max()],
+        "branch count": [len(branch_df)],
+        "min branch age (days)": [branch_df["age (days)"].min()],
+        "max branch age (days)": [branch_df["age (days)"].max()],
         "issues": [issues],
-        "pull_requests": [pull_requests],
+        "pull requests": [pull_requests],
     }
     languages = repo.get_languages()
     primary_language = None
@@ -115,7 +111,7 @@ def get_repo_details(repo):
         primary_language = sorted(languages.items(), key=lambda x: x[1], reverse=True)[
             0
         ][0]
-    repo_dict["primary_language"] = primary_language
+    repo_dict["primary language"] = primary_language
     repo_df = pd.DataFrame.from_dict(repo_dict)
     return repo_df
 
@@ -171,6 +167,12 @@ def render_metadata_html_table(metadata_df, table_id=None):
     """
     metadata_df_cpy = deepcopy(metadata_df)
     if len(metadata_df_cpy) > 0:
+        metadata_df_cpy["owner"] = metadata_df_cpy.apply(
+            lambda x: link_repo_name_url(
+                x["owner"], "/".join(x["url"].split("/")[:-1])
+            ),
+            axis=1,
+        )
         metadata_df_cpy["name"] = metadata_df_cpy.apply(
             lambda x: link_repo_name_url(x["name"], x["url"]), axis=1
         )
@@ -190,7 +192,19 @@ def render_single_repo_html_table(repo_df, table_id=None):
     repo_df_cpy = deepcopy(repo_df)
     if len(repo_df_cpy) > 0:
         repo_df_cpy["branch"] = repo_df_cpy.apply(
-            lambda x: link_repo_name_url(x["branch"], x["url"]), axis=1
+            lambda x: link_repo_name_url(
+                x["branch"], "/".join(x["url"].split("/")[:-2] + ["tree", x["branch"]])
+            ),
+            axis=1,
+        )
+        repo_df_cpy["sha"] = repo_df_cpy.apply(
+            lambda x: link_repo_name_url(x["sha"], x["url"]), axis=1
+        )
+        repo_df_cpy["committer"] = repo_df_cpy.apply(
+            lambda x: link_repo_name_url(
+                x["committer"], "/".join(x["url"].split("/")[:-4] + [x["committer"]])
+            ),
+            axis=1,
         )
         repo_df_cpy.drop("url", axis=1, inplace=True)
     repo_html = repo_df_cpy.style.hide_index()
@@ -206,7 +220,7 @@ def render_repo_html_table(repo_df, table_id=None):
     """
     repo_df_cpy = deepcopy(repo_df)
     repo_df_cpy["issues"] = repo_df_cpy["issues"].astype(int)
-    repo_df_cpy["pull_requests"] = repo_df_cpy["pull_requests"].astype(int)
+    repo_df_cpy["pull requests"] = repo_df_cpy["pull requests"].astype(int)
     if len(repo_df_cpy) > 0:
         repo_df_cpy["repo"] = repo_df_cpy.apply(
             lambda x: link_repo_name_url(x["repo"], x["repo_url"]), axis=1
@@ -219,9 +233,9 @@ def render_repo_html_table(repo_df, table_id=None):
             lambda x: "font-weight: bold" if x is False else None,
             subset=["private"],
         )
-        .applymap(lambda x: format_gt_red(x, 45), subset=["min_branch_age_days"])
-        .applymap(lambda x: format_gt_red(x, 90), subset=["max_branch_age_days"])
-        .applymap(lambda x: format_gt_red(x, 3), subset=["branch_count"])
+        .applymap(lambda x: format_gt_red(x, 45), subset=["min branch age (days)"])
+        .applymap(lambda x: format_gt_red(x, 90), subset=["max branch age (days)"])
+        .applymap(lambda x: format_gt_red(x, 3), subset=["branch count"])
     )
     if table_id is not None:
         repo_html.set_uuid(table_id)

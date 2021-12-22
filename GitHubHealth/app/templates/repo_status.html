@@ -19,7 +19,7 @@
     {% block content %}
 
         {% if repo is not none %}
-            <div class="user-content repo-header">
+            <div class="user-content repo-status">
                 <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
             </div>
             {{ repo.html_table|safe }}
@@ -49,7 +49,7 @@
     {% block scripts %}
         {{ super() }}
         <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.2.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/plots.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='scripts/buttons.js') }}"></script>

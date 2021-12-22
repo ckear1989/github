@@ -148,7 +148,7 @@ class GitHubHealth:
         Render pandas df to html with formatting of cells etc.
         """
         requested_html = render_repo_html_table(
-            self.requested_df, table_id="repo-metadata"
+            self.requested_df, table_id="requested-obj-metadata"
         )
         setattr(self, "repo_html", requested_html)
 

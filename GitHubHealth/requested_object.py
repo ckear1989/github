@@ -177,7 +177,7 @@ class Metadata:
         if self.metadata_df is None:
             self.get_metadata()
         metadata_html = render_metadata_html_table(
-            self.metadata_df, table_id="table-metadata"
+            self.metadata_df, table_id="user-metadata"
         )
         setattr(self, "metadata_html", metadata_html)
 
@@ -468,11 +468,11 @@ class RequestedObject:
         """
         Get plots from repo df.
         """
-        branch_count_plot = get_ghh_plot(self.repo_df, "branch_count")
-        branch_age_max_plot = get_ghh_plot(self.repo_df, "max_branch_age_days")
-        branch_age_min_plot = get_ghh_plot(self.repo_df, "min_branch_age_days")
+        branch_count_plot = get_ghh_plot(self.repo_df, "branch count")
+        branch_age_max_plot = get_ghh_plot(self.repo_df, "max branch age (days)")
+        branch_age_min_plot = get_ghh_plot(self.repo_df, "min branch age (days)")
         issues_plot = get_ghh_plot(self.repo_df, "issues")
-        pr_plot = get_ghh_plot(self.repo_df, "pull_requests")
+        pr_plot = get_ghh_plot(self.repo_df, "pull requests")
         plots = [
             branch_count_plot,
             branch_age_max_plot,

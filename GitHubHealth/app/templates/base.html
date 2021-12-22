@@ -27,56 +27,48 @@
 
 {% endblock %}
 
-{% macro footer_space() %}
-<li class="footer-space">|</li>
-{% endmacro %}
-
 {% block body %}
     {% block navbar %}
     {% endblock %}
 
     {% block header %}
         <span class="header">
-            <ul class="header">
-                <li id="header"><a class="image-link" href="{{ url_for("home") }}">{{ images.site_icon() }}</a></li>
-                <li class="menu-title"><a class="image-link" href="{{ url_for("home") }}">{{ images.banner()  }}</a></li>
-                <li>
-                    <div class="dropdown">
-                        <a class="quicklink" id="user-icon" href="{{ url_for("login") }}">
-                            {% if ghh is defined %}
-                                {{ images.user_avatar(ghh) }}
-                            {% else %}
-                                {{ images.user_blank() }}
-                            {% endif %}
-                        </a>
-                        <div id="settingsDropdown" class="dropdown-content">
-                            <a class="quicklink" href="{{ url_for("login") }}">login</a>
-                            <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
-                            <button class="theme-pick" onclick="activateLightMode()">
-                                {{ images.light_theme() }}
-                            </button>
-                            <button class="theme-pick" onclick="activateDarkMode()">
-                                {{ images.dark_theme() }}
-                            </button>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+            <a class="image-link" href="{{ url_for("home") }}">{{ images.site_icon() }}</a>
+            <a class="image-link" href="{{ url_for("home") }}">{{ images.banner()  }}</a>
+            <div class="dropdown">
+                <a class="quicklink" id="user-icon" href="{{ url_for("login") }}">
+                    {% if ghh is defined %}
+                        {{ images.user_avatar(ghh) }}
+                    {% else %}
+                        {{ images.user_blank() }}
+                    {% endif %}
+                </a>
+                <div id="settingsDropdown" class="dropdown-content">
+                    <a class="quicklink" href="{{ url_for("login") }}">login</a>
+                    <a class="quicklink" href="{{ url_for("logout") }}">logout</a>
+                    <button class="theme-pick" onclick="activateLightMode()">
+                        {{ images.light_theme() }}
+                    </button>
+                    <button class="theme-pick" onclick="activateDarkMode()">
+                        {{ images.dark_theme() }}
+                    </button>
+                </div>
+            </div>
         </span>
     {% endblock %}
 
     {% block loading %}
-        <div class="loading0" id="loading"><div class="loading1"></div></div>
+        <div class="loading" id="loading"></div>
     {% endblock %}
 
     {% block content %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-                <ul class=flashes>
+                <span class=flashes>
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                        <p>{{ message }}</p>
                     {% endfor %}
-                </ul>
+                </span>
             {% endif %}
         {% endwith %}
     {% endblock %}
@@ -97,15 +89,10 @@
 
     {% block footer %}
         <div class="footer" id="footer">
-            <ul>
-                <li><a target="_blank" href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a></li>
-                {{ footer_space() }}
-                <li><a href="mailto:support@githubhealth.com" class="quicklink">support</a></li>
-                {{ footer_space() }}
-                <li><a target="_blank" class="quicklink" href="https://pypi.org/project/GitHubHealth/">pypi</a></li>
-                {{ footer_space() }}
-                <li><a target="_blank" href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a></li>
-            </ul>
+            <a target="_blank" href="{{ url_for('about', filename='templates/about.html') }}" class="quicklink">about</a> |
+            <a href="mailto:support@githubhealth.com" class="quicklink">support</a> |
+            <a target="_blank" class="quicklink" href="https://pypi.org/project/GitHubHealth/">pypi</a> |
+            <a target="_blank" href="https://www.github.com/ckear1989/github/#contributing" class="quicklink">contribute</a>
         </div>
     {% endblock %}
 
