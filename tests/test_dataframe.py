@@ -51,7 +51,7 @@ def test_search_df_columns(ghh):
     """
     Get a GithubHealth instance and check that expected columns are in DataFrame.
     """
-    search_results = SearchResults(ghh, "ckear1989", input_to=1)
+    search_results = SearchResults(ghh, "ckear1989", users=True, input_to=1)
     search_results.search()
     search_results.get_output_results()
     assert search_results.table_df is not None

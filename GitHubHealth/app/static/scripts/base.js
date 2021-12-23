@@ -18,6 +18,16 @@ function loading_search(){
     $("#loading").show();
 }
 
+function loading_more(){
+    $("body").addClass("cursor-wait");
+    for (const el of document.getElementById("more_form").querySelectorAll("[required]")) {
+        if (!el.reportValidity()) {
+            return;
+        }
+    }
+    $("#loading").show();
+}
+
 function settings() {
     document.getElementById("settingsDropdown").classList.toggle("show");
 }

@@ -2,7 +2,9 @@
 Module for flask app.
 """
 
+import logging
 from logging.config import dictConfig
+from logging.handlers import SMTPHandler
 import os
 
 from flask import (
@@ -28,6 +30,7 @@ from github.GithubException import (
     UnknownObjectException,
     BadCredentialsException,
     GithubException,
+    RateLimitExceededException,
 )
 
 from GitHubHealth import GitHubHealth
@@ -65,6 +68,17 @@ dictConfig(
         },
         "root": {"level": "INFO", "handlers": ["wsgi"]},
     }
+)
+
+mail_handler = SMTPHandler(
+    mailhost="127.0.0.1",
+    fromaddr="server-error@githubhealth.com",
+    toaddrs=["support@GitHubHealth.com"],
+    subject="Application Error",
+)
+mail_handler.setLevel(logging.ERROR)
+mail_handler.setFormatter(
+    logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
 )
 
 
@@ -122,6 +136,23 @@ csrf = CSRFProtect()
 csrf.init_app(app)
 LOG = create_logger(app)
 Bootstrap(app)
+
+
+@app.errorhandler(RateLimitExceededException)
+def handle_rate_limit_error(error_message):
+    """
+    Handle a CSRF error.
+    """
+    LOG.debug("debugCSRF: %s", error_message)
+    login_form = LoginForm()
+    return (
+        render_template(
+            "index.html",
+            login_form=login_form,
+            error=error_message,
+        ),
+        400,
+    )
 
 
 @app.errorhandler(CSRFError)
@@ -282,6 +313,7 @@ def user(username):
             if search_form.validate():
                 session["search_users"] = search_form.search_users.data
                 session["search_orgs"] = search_form.search_orgs.data
+                session["search_repos"] = search_form.search_repos.data
                 session["ignore"] = search_form.ignore.data
                 return redirect(
                     url_for(
@@ -320,6 +352,7 @@ def search_results(search_request):
     ghh, _ = try_ghh(session)
     search_users = session["search_users"]
     search_orgs = session["search_orgs"]
+    search_repos = session["search_repos"]
     ignore = session["ignore"]
     if ghh is not None:
         more_form = MoreForm()
@@ -328,6 +361,7 @@ def search_results(search_request):
                 search_request=search_request,
                 users=search_users,
                 orgs=search_orgs,
+                repos=search_repos,
                 ignore=ignore,
             )
         except UnknownObjectException:
@@ -406,4 +440,6 @@ def repo_status(repo_owner, repo_name):
 
 
 if __name__ == "__main__":
+    if not app.debug:
+        app.logger.addHandler(mail_handler)
     app.run(debug=True)

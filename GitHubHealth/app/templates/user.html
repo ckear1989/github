@@ -25,7 +25,13 @@
     {% block content %}
         <div class="user-content">
             <p>Logged in as <a href="{{ ghh.user.url }}">{{ ghh.user.name }}</a>.</p>
-            <p>Here are the resources associated with your account.  You can browse them on GitHub or check their health status here.</p>
+            <div class="health-link">
+                <p style="width: 280px; margin: 0px;">Check out the health of your repos (combined) here</p>
+                <a style="position: relative; top: -5px; left: -5px;" href="{{ url_for('status', resource_name=ghh.user.name) }}" class="quicklink" target="_blank">
+                    <img class="health-icon" src="{{ url_for('static', filename='favicon.ico') }}">
+                </a>
+            </div>
+            <p style="position: relative; top: -5px;">Or you can browse the resources you have liked or contributed to.  Here are the links to their GitHub pages and their health statuses.</p>
         </div>
         <div class="user-table">
             {{ ghh.user.metadata_html|safe }}
@@ -43,7 +49,7 @@
             </div>
         </form>
         <form action="" method="post" class="form search-request" id="search_form" role="form">
-            or seach for more resources (users, orgs, repos):
+            You can also search for other resources you haven't liked or contributed to (users, orgs, repos):
             {{ search_form.csrf_token() }}
             <div class="form-group" id="search-request">
                 <input id="search_request" name="search_request" type="text" value data-toggle="tooltip" title="Enter a search term.">
@@ -53,11 +59,15 @@
             </div>
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" id="search_users" name="search_users" type="checkbox" value="y" data-toggle="tooltop" title="include users in search?"> users
+                    <input class="form-check-input" checked id="search_users" name="search_users" type="checkbox" value="y" data-toggle="tooltop" title="include users in search?"> users
                 </label>
                 <div style="min-width: 10px; max-width: 10px;"></div>
                 <label class="form-check-label">
-                    <input class="form-check-input" id="search_orgs" name="search_orgs" type="checkbox" value="y" data-toggle="tooltip" title="include orgs in search?"> orgs
+                    <input class="form-check-input" checked id="search_orgs" name="search_orgs" type="checkbox" value="y" data-toggle="tooltip" title="include orgs in search?"> orgs
+                </label>
+                <div style="min-width: 10px; max-width: 10px;"></div>
+                <label class="form-check-label">
+                    <input class="form-check-input" checked id="search_repos" name="search_repos" type="checkbox" value="y" data-toggle="tooltip" title="include repos in search?"> repos
                 </label>
             </div>
             <div class="form-group" id="ignore">

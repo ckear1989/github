@@ -49,6 +49,7 @@ class SearchForm(FlaskForm):
     search_request = StringField()
     search_users = BooleanField("users")
     search_orgs = BooleanField("orgs")
+    search_repos = BooleanField("repos")
     ignore = StringField("ignore", id="ignore")
     search = SubmitField(render_kw={"onclick": "loading_search()"})
 
@@ -65,7 +66,11 @@ class SearchForm(FlaskForm):
             msg = "Please enter longer search term."
             self.search_request.errors.append(msg)
             return False
-        if self.search_users.data is False and self.search_orgs.data is False:
+        if (
+            self.search_users.data is False
+            and self.search_orgs.data is False
+            and self.search_repos.data is False
+        ):
             msg = "Please choose users, orgs or both"
             self.search_request.errors.append(msg)
             return False

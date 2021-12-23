@@ -31,25 +31,7 @@ def fixture_ghh():
     """
     reusable ghh object.
     """
-    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME])
-    rate_limit = ghh.con.get_rate_limit()
-    logger.info("rate limit core: %s", rate_limit.raw_data["core"])
-    logger.info("rate limit search: %s", rate_limit.raw_data["search"])
-    logger.info("rate limit graphql: %s", rate_limit.raw_data["graphql"])
-    logger.info(
-        "rate limit integration_manifest: %s",
-        rate_limit.raw_data["integration_manifest"],
-    )
-    logger.info("rate limit source_import: %s", rate_limit.raw_data["source_import"])
-    logger.info(
-        "rate limit code_scanning_upload: %s",
-        rate_limit.raw_data["code_scanning_upload"],
-    )
-    logger.info(
-        "rate limit actions_runner_registration: %s",
-        rate_limit.raw_data["actions_runner_registration"],
-    )
-    logger.info("rate limit scim: %s", rate_limit.raw_data["scim"])
+    ghh = GitHubHealth(gat=os.environ[ACCESS_TOKEN_VAR_NAME], timeout=4)
     return ghh
 
 
@@ -198,3 +180,27 @@ def fixture_test_median_user():
         "primary language": ["n/a", "n/a"],
     }
     return this_user
+
+
+def test_rate(ghh):
+    """
+    can run this test individually to see how many requests are remaining.
+    """
+    rate_limit = ghh.con.get_rate_limit()
+    logger.info("rate limit core: %s", rate_limit.raw_data["core"])
+    logger.info("rate limit search: %s", rate_limit.raw_data["search"])
+    logger.info("rate limit graphql: %s", rate_limit.raw_data["graphql"])
+    logger.info(
+        "rate limit integration_manifest: %s",
+        rate_limit.raw_data["integration_manifest"],
+    )
+    logger.info("rate limit source_import: %s", rate_limit.raw_data["source_import"])
+    logger.info(
+        "rate limit code_scanning_upload: %s",
+        rate_limit.raw_data["code_scanning_upload"],
+    )
+    logger.info(
+        "rate limit actions_runner_registration: %s",
+        rate_limit.raw_data["actions_runner_registration"],
+    )
+    logger.info("rate limit scim: %s", rate_limit.raw_data["scim"])

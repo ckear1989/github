@@ -49,6 +49,11 @@ div {
   max-width: 700px;
 }
 
+.health-link {
+  display: flex;
+  flex-direction: row;
+}
+
 .footer {
   background-color: #3737f0;
   border-width: 2px;
@@ -108,7 +113,7 @@ div {
 
 thead {
   background-color: inherit;
-  font-size: 2em;
+  font-size: 1.6em;
 }
 
 tbody {
@@ -212,27 +217,22 @@ table {
 
 thead > tr > th.col_heading.col0 {
   border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
 }
 
 #T_user-metadata > thead > tr > th.col_heading.col3 {
   border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
-#T_requested-obj-metadata > thead > tr > th.col_heading.col7 {
+#T_requested-obj-metadata > thead > tr > th.col_heading.col8 {
   border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
 #T_search-metadata > thead > tr > th.col_heading.col3 {
   border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
 #T_repo-metadata > thead > tr > th.col_heading.col5 {
   border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
 table tbody tr {

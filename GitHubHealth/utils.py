@@ -7,8 +7,12 @@ from datetime import datetime
 import logging
 
 import altair as alt
+import numpy as np
 import pandas as pd
 from requests.exceptions import ReadTimeout
+
+from github.Repository import Repository
+from github.NamedUser import NamedUser
 
 BRANCH_DF_COLUMNS = [
     "branch",
@@ -29,6 +33,7 @@ REPOS_DF_COLUMNS = [
     "issues",
     "pull requests",
     "primary language",
+    "score",
 ]
 SEARCH_DF_COLUMNS = [
     "resource",
@@ -43,6 +48,12 @@ SEARCH_TEMPLATE_DF = pd.DataFrame(columns=SEARCH_DF_COLUMNS)
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DATE_NOW = datetime.now()
 TIMEOUT = 2
+MIN_BR_LIMIT = 45
+MAX_BR_LIMIT = 90
+BC_LIMIT = 3
+I_LIMIT = 1
+PR_LIMIT = 1
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel("INFO")
@@ -55,7 +66,7 @@ def get_branch_details(branch):
     commit = branch.commit
     date = commit.commit.author.date
     age = (DATE_NOW - date).days
-    committer = None
+    committer = "unknown_user"
     if commit.committer is not None:
         committer = commit.committer.login
     branch_dict = {
@@ -112,6 +123,7 @@ def get_repo_details(repo, output="df"):
             0
         ][0]
     repo_dict["primary language"] = [primary_language]
+    repo_dict["score"] = [get_health(repo_dict)]
     repo_df = pd.DataFrame.from_dict(repo_dict)
     if output == "df":
         return_obj = repo_df
@@ -133,10 +145,9 @@ def get_user_gh_df(user):
     """
     Main method to parse repo details into pandas DataFrame.
     """
-    template_df = pd.DataFrame(columns=REPOS_DF_COLUMNS)
     repo_df = (
         pd.concat(
-            [template_df]
+            [REPOS_TEMPLATE_DF]
             + [get_repo_details(repo) for repo in user.get_repos() if user is not None],
             ignore_index=True,
         )
@@ -239,15 +250,19 @@ def render_repo_html_table(repo_df, table_id=None):
             lambda x: "font-weight: bold" if x is False else None,
             subset=["private"],
         )
-        .applymap(lambda x: format_gt_red(x, 45), subset=["min branch age (days)"])
-        .applymap(lambda x: format_gt_red(x, 90), subset=["max branch age (days)"])
-        .applymap(lambda x: format_gt_red(x, 3), subset=["branch count"])
-        .applymap(lambda x: format_gt_red(x, 1), subset=["issues"])
-        .applymap(lambda x: format_gt_red(x, 1), subset=["pull requests"])
-    )
+        .applymap(
+            lambda x: format_gt_red(x, MIN_BR_LIMIT), subset=["min branch age (days)"]
+        )
+        .applymap(
+            lambda x: format_gt_red(x, MAX_BR_LIMIT), subset=["max branch age (days)"]
+        )
+        .applymap(lambda x: format_gt_red(x, BC_LIMIT), subset=["branch count"])
+        .applymap(lambda x: format_gt_red(x, I_LIMIT), subset=["issues"])
+        .applymap(lambda x: format_gt_red(x, PR_LIMIT), subset=["pull requests"])
+    ).format(precision=0, na_rep="missing", formatter={"score": "{:.2f}"})
     if table_id is not None:
         repo_html.set_uuid(table_id)
-    repo_html = repo_html.render(precision=0)
+    repo_html = repo_html.render()
     return repo_html
 
 
@@ -285,6 +300,28 @@ def get_ghh_repo_plot(plot_df, var):
         .properties(title=f"{var.replace('_', ' ')} by branch", width=300, height=300)
     )
     return plot
+
+
+def get_health_ghh_obj(obj):
+    """
+    get dict with infor for this object.
+    """
+    if isinstance(obj, Repository):
+        this_dict = get_repo_details(obj, "dict")
+        score = this_dict["score"]
+    elif isinstance(obj, NamedUser):
+        repos = list(obj.get_repos())
+        repo_df = (
+            pd.concat(
+                [REPOS_TEMPLATE_DF] + [get_repo_details(repo) for repo in repos],
+                ignore_index=True,
+            )
+            .sort_values(by="repo")
+            .reset_index(drop=True)
+        )
+        this_dict = repo_df.to_dict(orient="list")
+        score = np.mean(this_dict["score"])
+    return score
 
 
 def get_health_single(obj):
@@ -337,21 +374,36 @@ def get_health(obj):
     """
     calculate health from object depending on type.
     """
-    assert all(x in REPOS_DF_COLUMNS for x in obj)
-    if isinstance(obj["repo"], str):
-        denom, branch_count, branch_age, issues, pull_requests = get_health_single(obj)
-    else:
-        denom, branch_count, branch_age, issues, pull_requests = get_health_multiple(
-            obj
-        )
+    if isinstance(obj, dict):
+        assert all(x in REPOS_DF_COLUMNS for x in obj)
+        if "score" in obj:
+            return obj["score"]
+        if isinstance(obj["repo"], str):
+            denom, branch_count, branch_age, issues, pull_requests = get_health_single(
+                obj
+            )
+        else:
+            (
+                denom,
+                branch_count,
+                branch_age,
+                issues,
+                pull_requests,
+            ) = get_health_multiple(obj)
+    elif isinstance(obj, (NamedUser, Repository)):
+        denom, branch_count, branch_age, issues, pull_requests = get_health_ghh_obj(obj)
     # formula heavily modified from pylint https://docs.pylint.org/en/1.6.0/faq.html
-    logging.info("branch_count: %s", branch_count)
-    logging.info("branch_age: %s", branch_age)
-    logging.info("issues: %s", issues)
-    logging.info("pull_requests: %s", pull_requests)
-    neg_score = float(
-        2.5 * (branch_count + branch_age + issues + pull_requests) / denom
-    )
-    logging.info("neg_score: %s", neg_score)
+    logging.debug("branch_count: %s", branch_count)
+    logging.debug("branch_age: %s", branch_age)
+    logging.debug("issues: %s", issues)
+    logging.debug("pull_requests: %s", pull_requests)
+    logging.debug("denom: %s", denom)
+    if denom > 0:
+        neg_score = float(
+            2.5 * (branch_count + branch_age + issues + pull_requests) / denom
+        )
+    else:
+        neg_score = np.nan
+    logging.debug("neg_score: %s", neg_score)
     health = max(10.0 - neg_score, 0.0)
     return health

@@ -84,31 +84,12 @@ class GitHubHealth:
     def search(
         self,
         search_request,
-        users=False,
-        orgs=False,
-        ignore=None,
-        input_from=1,
-        input_to=10,
+        **kwargs,
     ):
         """
         Search for users and/or orgs and get results table.
         """
-        if ignore is None:
-            ignore = ""
-        search_request = search_request.strip("")
-        assert isinstance(search_request, str)
-        assert isinstance(users, bool)
-        assert isinstance(orgs, bool)
-        assert isinstance(ignore, str)
-        search_results = SearchResults(
-            self,
-            search_request,
-            users,
-            orgs,
-            ignore,
-            input_from,
-            input_to,
-        )
+        search_results = SearchResults(self, search_request, **kwargs)
         search_results.search()
         search_results.get_output_results()
         setattr(self, "search_results", search_results)

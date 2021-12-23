@@ -18,6 +18,7 @@ from github.Repository import Repository
 
 from .utils import (
     REPOS_TEMPLATE_DF,
+    SEARCH_DF_COLUMNS,
     TIMEOUT,
     get_ghh_plot,
     get_ghh_repo_plot,
@@ -114,13 +115,7 @@ class Metadata:
         url is external link to github
         health is internal link dynamically created by javascript in user.html
         """
-        metadata_dict = {
-            "resource": [],
-            "owner": [],
-            "name": [],
-            "url": [],
-            "health": [],
-        }
+        metadata_dict = {akey: [] for akey in SEARCH_DF_COLUMNS}
         i = 0
         self.requested_object.get_repos()
         self.requested_object.get_orgs()
@@ -178,6 +173,15 @@ class Metadata:
         setattr(self, "metadata_html", metadata_html)
 
 
+# pylint: disable=too-few-public-methods
+class DummyResults:
+    """
+    Probably a better way of doing this.
+    """
+
+    totalCount = 0
+
+
 # pylint: disable=too-many-instance-attributes
 class SearchResults:
     """
@@ -190,6 +194,7 @@ class SearchResults:
         search_request,
         users=False,
         orgs=False,
+        repos=False,
         ignore=None,
         input_from=1,
         input_to=10,
@@ -197,10 +202,19 @@ class SearchResults:
         """
         Filter and repos bool will be added.  Avoid the dodo word.
         """
+        if ignore is None:
+            ignore = ""
+        search_request = search_request.strip("")
+        assert isinstance(search_request, str)
+        assert isinstance(users, bool)
+        assert isinstance(orgs, bool)
+        assert isinstance(repos, bool)
+        assert isinstance(ignore, str)
         self.ghh = ghh
         self.search_request = search_request
         self.users = users
         self.orgs = orgs
+        self.repos = repos
         self.ignore = []
         if (input_to < 1) or (input_from < 1):
             raise ValueError
@@ -245,8 +259,14 @@ class SearchResults:
         """
         Let's search for some shit.
         """
-        user_results = self.ghh.con.search_users(self.search_request)
-        repo_results = self.ghh.con.search_repositories(self.search_request)
+        if self.users is True:
+            user_results = self.ghh.con.search_users(self.search_request)
+        else:
+            user_results = DummyResults()
+        if self.repos is True:
+            repo_results = self.ghh.con.search_repositories(self.search_request)
+        else:
+            repo_results = DummyResults()
         total = user_results.totalCount + repo_results.totalCount
         requested = self.input_to - self.input_from + 1
         if total < self.input_to:
@@ -327,13 +347,7 @@ class SearchResults:
             repo_results = []
         else:
             repo_results = self.repo_results[repo_start:repo_end]
-        metadata_dict = {
-            "resource": [],
-            "owner": [],
-            "name": [],
-            "url": [],
-            "health": [],
-        }
+        metadata_dict = {akey: [] for akey in SEARCH_DF_COLUMNS}
         for user in user_results:
             if isinstance(user, NamedUser):
                 if user.login not in self.ignore:
