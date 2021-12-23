@@ -116,6 +116,24 @@ tbody {
   font-size: 1.2em;
 }
 
+table,
+th,
+td {
+  table-layout: fixed;
+  align-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+table thead tr {
+  text-align: left;
+  background-color: #3737f0;
+}
+
+table tbody tr:nth-of-type(even) {
+  background-color: #3737f0;
+}
+
 .light-mode table thead tr {
   background-color: #dcdcdc;
 }
@@ -173,15 +191,6 @@ img.theme-pick:hover {
   background-color: rgba(237, 230, 18, 0.7);
 }
 
-table,
-th,
-td {
-  table-layout: fixed;
-  align-content: center;
-  text-align: center;
-  overflow: hidden;
-}
-
 div[id^="vis_user_"] {
   display: flex;
   justify-content: center;
@@ -228,15 +237,6 @@ thead > tr > th.col_heading.col0 {
 
 table tbody tr {
   border-bottom: 1px solid #dddddd;
-}
-
-table thead tr {
-  background-color: #1818ab;
-  text-align: left;
-}
-
-table tbody tr:nth-of-type(even) {
-  background-color: #1818ab;
 }
 
 table tbody tr:last-of-type {

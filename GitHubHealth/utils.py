@@ -83,7 +83,7 @@ def get_branch_df(repo):
     return branch_df
 
 
-def get_repo_details(repo):
+def get_repo_details(repo, output="df"):
     """
     Get information on repo from PyGitHub API and format in pandas DataFrame.
     """
@@ -111,9 +111,15 @@ def get_repo_details(repo):
         primary_language = sorted(languages.items(), key=lambda x: x[1], reverse=True)[
             0
         ][0]
-    repo_dict["primary language"] = primary_language
+    repo_dict["primary language"] = [primary_language]
     repo_df = pd.DataFrame.from_dict(repo_dict)
-    return repo_df
+    if output == "df":
+        return_obj = repo_df
+    elif output == "dict":
+        return_obj = repo_dict
+    else:
+        raise Exception('Expected output="df" or "dict", got {output}.')
+    return return_obj
 
 
 def format_gt_red(val, red_length):
@@ -236,6 +242,8 @@ def render_repo_html_table(repo_df, table_id=None):
         .applymap(lambda x: format_gt_red(x, 45), subset=["min branch age (days)"])
         .applymap(lambda x: format_gt_red(x, 90), subset=["max branch age (days)"])
         .applymap(lambda x: format_gt_red(x, 3), subset=["branch count"])
+        .applymap(lambda x: format_gt_red(x, 1), subset=["issues"])
+        .applymap(lambda x: format_gt_red(x, 1), subset=["pull requests"])
     )
     if table_id is not None:
         repo_html.set_uuid(table_id)
@@ -277,3 +285,73 @@ def get_ghh_repo_plot(plot_df, var):
         .properties(title=f"{var.replace('_', ' ')} by branch", width=300, height=300)
     )
     return plot
+
+
+def get_health_single(obj):
+    """
+    get individual scores for 4 repo components.
+    """
+    branch_count = 0
+    branch_age = 0
+    issues = 0
+    pull_requests = 0
+    denom = 1
+    if obj["branch count"] >= 3:
+        branch_count = 1
+    if obj["min branch age (days)"] >= 90:
+        branch_age = 1
+    if obj["issues"] > 0:
+        issues = 1
+    if obj["pull requests"] > 0:
+        pull_requests = 1
+    return denom, branch_count, branch_age, issues, pull_requests
+
+
+def get_health_multiple(obj):
+    """
+    get individual scores for 4 repo components.
+    """
+    branch_count = 0
+    branch_age = 0
+    issues = 0
+    pull_requests = 0
+    denom = len(obj["repo"])
+    assert all(isinstance(obj[x], list) for x in obj)
+    assert all(len(obj[x]) == denom for x in obj)
+    for brc in obj["branch count"]:
+        if brc >= 3:
+            branch_count += 1
+    for mba in obj["min branch age (days)"]:
+        if mba >= 90:
+            branch_age += 1
+    for i in obj["issues"]:
+        if i > 0:
+            issues += 1
+    for prq in obj["pull requests"]:
+        if prq > 0:
+            pull_requests += 1
+    return denom, branch_count, branch_age, issues, pull_requests
+
+
+def get_health(obj):
+    """
+    calculate health from object depending on type.
+    """
+    assert all(x in REPOS_DF_COLUMNS for x in obj)
+    if isinstance(obj["repo"], str):
+        denom, branch_count, branch_age, issues, pull_requests = get_health_single(obj)
+    else:
+        denom, branch_count, branch_age, issues, pull_requests = get_health_multiple(
+            obj
+        )
+    # formula heavily modified from pylint https://docs.pylint.org/en/1.6.0/faq.html
+    logging.info("branch_count: %s", branch_count)
+    logging.info("branch_age: %s", branch_age)
+    logging.info("issues: %s", issues)
+    logging.info("pull_requests: %s", pull_requests)
+    neg_score = float(
+        2.5 * (branch_count + branch_age + issues + pull_requests) / denom
+    )
+    logging.info("neg_score: %s", neg_score)
+    health = max(10.0 - neg_score, 0.0)
+    return health

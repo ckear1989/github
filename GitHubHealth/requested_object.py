@@ -390,8 +390,15 @@ class RequestedObject:
         self.metadata = None
         self.metadata_html = None
         self.repos = []
+        self.repo_dict = None
         self.repo_df = None
         self.plots = []
+
+    def get_repo(self, repo_name):
+        """
+        Get a specific repo for this object.
+        """
+        return self.obj.get_repo(repo_name)
 
     def get_repos(self, ignore=None):
         """
@@ -461,6 +468,8 @@ class RequestedObject:
             .sort_values(by="repo")
             .reset_index(drop=True)
         )
+        repo_dict = repo_df.to_dict(orient="list")
+        setattr(self, "repo_dict", repo_dict)
         setattr(self, "repo_df", repo_df)
 
     def get_plots(self):
