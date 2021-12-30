@@ -59,6 +59,33 @@ logger = logging.getLogger(__name__)
 logger.setLevel("INFO")
 
 
+def ghh_theme():
+    """
+    define the theme by returning the dictionary of configurations
+    """
+    return {
+        "config": {
+            "view": {
+                "height": 500,
+                "width": 500,
+            },
+            "mark": {
+                "color": "black",
+                "fill": "#1818ab",
+                "stroke": "black",
+                "strokeWidth": 10,
+            },
+            "axis": {
+                "titleFontSize": "20",
+                "labelFontSize": "20",
+            },
+            "title": {
+                "fontSize": "20",
+            },
+        }
+    }
+
+
 def get_branch_details(branch):
     """
     Get information on branch from PyGitHub API and format in pandas DataFrame.
@@ -270,6 +297,10 @@ def get_ghh_plot(plot_df, var):
     """
     Standard formatting of ghh plot.
     """
+    # register the custom theme under a chosen name
+    alt.themes.register("ghh_theme", ghh_theme)
+    # enable the newly registered theme
+    alt.themes.enable("ghh_theme")
     plot = (
         alt.Chart(plot_df)
         .mark_bar()
@@ -279,7 +310,7 @@ def get_ghh_plot(plot_df, var):
             tooltip=var,
         )
         .interactive()
-        .properties(title=f"{var.replace('_', ' ')} by repo", width=300, height=300)
+        .properties(title=f"{var.replace('_', ' ')} by repo")
     )
     return plot
 
@@ -288,6 +319,10 @@ def get_ghh_repo_plot(plot_df, var):
     """
     Standard formatting of ghh plot.
     """
+    # register the custom theme under a chosen name
+    alt.themes.register("ghh_theme", ghh_theme)
+    # enable the newly registered theme
+    alt.themes.enable("ghh_theme")
     plot = (
         alt.Chart(plot_df)
         .mark_bar()
@@ -297,7 +332,7 @@ def get_ghh_repo_plot(plot_df, var):
             tooltip=var,
         )
         .interactive()
-        .properties(title=f"{var.replace('_', ' ')} by branch", width=300, height=300)
+        .properties(title=f"{var.replace('_', ' ')} by branch")
     )
     return plot
 

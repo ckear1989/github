@@ -1,0 +1,67 @@
+{# this is needed to test repo status outside of app context #}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="GitHubHealth/app/static/favicon.ico">
+
+    {% block styles %}
+        <link rel="stylesheet" href="https://clipboardjs.com/bower_components/primer-css/css/primer.css">
+        <link rel="stylesheet" href="https://clipboardjs.com/bower_components/highlightjs/styles/github.css">
+        <link rel="stylesheet" href="GitHubHealth/app/static/css/main.css">
+    {% endblock %}
+
+    {% block onload %}
+        <script type="text/javascript" src="GitHubHealth/app/static/scripts/check_theme.js"></script>
+    {% endblock %}
+    {% block title %}
+        <title>GitHubHealth: {{ repo.name }}</title>
+    {% endblock %}
+{% endblock %}
+
+{% block body %}
+
+    {% block content %}
+
+        {% if repo is not none %}
+            <div class="user-content repo-status">
+                <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
+                <form id="plot-control-form">
+                    <select id="select-var" name="select-var" onclick="selectVar(this.value)"></select>
+                </form>
+            </div>
+            {{ repo.html_table|safe }}
+            <span class="plots">
+                <button class="direction" id="left" onclick="fillPlotLeft()">
+                    <img class="direction" src="GitHubHealth/app/static/assets/arrow-left-circle-fill.svg">
+                </button>
+                <div id="vis_repo" class="plot" style="display: block"></div>
+                <button class="direction" id="right" onclick="fillPlotRight()">
+                    <img class="direction" src="GitHubHealth/app/static/assets/arrow-right-circle-fill.svg">
+                </button>
+            </span>
+            <div id="vis_error"></div>
+        {% endif %}
+
+    {% endblock %}
+
+
+    {% block scripts %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega@5.21.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.8.1"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.20.4"></script>
+        <script type="text/javascript" src="GitHubHealth/app/static/scripts/base.js"></script>
+        <script type="text/javascript" src="GitHubHealth/app/static/scripts/plots.js"></script>
+        <script type="text/javascript" src="GitHubHealth/app/static/scripts/buttons.js"></script>
+        {% if repo is not none %}
+            <script>
+                var plots = {{ repo.plots }} ;
+                vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
+                prefillDropdown(plots);
+            </script>
+        {% endif %}
+    {% endblock %}
+
+{% endblock %}

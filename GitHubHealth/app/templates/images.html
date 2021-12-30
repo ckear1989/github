@@ -29,12 +29,12 @@
 
 {% macro direction_button(target, dir) %}
 {% if dir == 'left' %}
-    <button class="btn-direction" id="left" onclick="showPlotLeft()">
-        <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
+    <button class="direction" id="left" onclick="showPlotLeft()">
+        <img class="direction" src="{{ url_for('static', filename='assets/arrow-left-circle-fill.svg') }}">
     </button>
 {% elif dir == 'right' %}
-    <button class="btn-direction" id="right" onclick="showPlotRight()">
-        <img class="btn-direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
+    <button class="direction" id="right" onclick="showPlotRight()">
+        <img class="direction" src="{{ url_for('static', filename='assets/arrow-right-circle-fill.svg') }}">
     </button>
 {% endif %}
 {% endmacro %}

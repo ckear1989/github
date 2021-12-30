@@ -418,36 +418,52 @@ span.plots {
   max-width: 700px;
 }
 
-div.plot {
-  width: 400px;
-  min-width: 400px;
-  min-height: 400px;
+/*
+* div.plot {
+*   width: 440px;
+*   min-width: 400px;
+*   min-height: 400px;
+* }
+*/
+
+div.vega-embed.has-actions {
+  padding-right: 0px;
 }
 
-.btn-direction {
+.vega-embed summary {
+  z-index: 0;
   position: relative;
 }
 
-#left .btn-direction {
-  position: relative;
+
+#vg-tooltip-element {
+  width: 50px;
+  min-width: 10px;
+  max-width: 40px;
+  font-size: 16px;
+  padding: 2px;
+  font-family: inherit;
+}
+
+#left.direction {
   right: 10px;
-  top: 150px;
 }
 
-#right .btn-direction {
-  position: relative;
-  top: 150px;
+#right.direction {
+  left: 10px;
 }
 
-button.btn-direction {
+button.direction {
   padding: 0px;
   width: 55px;
   height: 55px;
   background-color: transparent;
   border: none;
+  position: relative;
+  top: 150px;
 }
 
-img.btn-direction {
+img.direction {
   width: 55px;
   height: 55px;
   border-radius: 28px;
@@ -615,10 +631,6 @@ li a:hover,
 
 li.dropdown {
   display: inline-block;
-}
-
-.vega-embed summary {
-  z-index: 0;
 }
 
 div.dropdown {
@@ -848,9 +860,4 @@ div.snippet {
   width: 100%;
   min-width: 525px;
   max-width: 700px;
-}
-
-div.vg-tooltip {
-  min-width: 20px;
-  max-width: 100px;
 }

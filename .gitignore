@@ -12,3 +12,6 @@ node_modules/
 package.json
 package-lock.json
 .eslintrc.js
+
+# locally rendered html for testing plots
+plots.html
