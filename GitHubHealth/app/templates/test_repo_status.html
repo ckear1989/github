@@ -21,17 +21,47 @@
 {% endblock %}
 
 {% block body %}
+    <span class="header">
+        <a class="image-link" href=""><img class="main-icon" src="GitHubHealth/app/static/assets/apple-touch-icon.png"></a>
+        <a class="image-link" href=""><img class="menu-banner" src="GitHubHealth/app/static/assets/banner.png"></a>
+        <div class="dropdown">
+            <a class="quicklink" id="user-icon" href="login">
+                {% if ghh is defined %}
+                    <img class="menu-icon user-icon" id="user-icon-user" src="{{ ghh.user.avatar_url }}">
+                {% else %}
+                    <img class="menu-icon user-icon" id="user-icon-nouser" src="GitHubHealth/app/static/assets/person-fill.svg">
+                {% endif %}
+            </a>
+            <div id="settingsDropdown" class="dropdown-content">
+                <a class="quicklink" href="">login</a>
+                <a class="quicklink" href="">logout</a>
+                <button class="theme-pick" onclick="activateLightMode()">
+                    <img class="theme-pick" id="lightMode" src="GitHubHealth/app/static/assets/sun.svg">
+                </button>
+                <button class="theme-pick" onclick="activateDarkMode()">
+                    <img class="theme-pick" id="darkMode" src="GitHubHealth/app/static/assets/moon.svg">
+                </button>
+            </div>
+        </div>
+    </span>
 
     {% block content %}
 
         {% if repo is not none %}
             <div class="user-content repo-status">
                 <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
-                <form id="plot-control-form">
-                    <select id="select-var" name="select-var" onclick="selectVar(this.value)"></select>
-                </form>
             </div>
             {{ repo.html_table|safe }}
+            <form id="plot-control-form">
+                <select id="select-y" name="select-y" onclick="selectY(this.value)"></select>
+                <div class="multiselect">
+                    <div class="selectBox" onclick="showCheckboxes()">
+                        <select><option>Filter X variable</option></select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="select-x"></div>
+                </div>
+            </form>
             <span class="plots">
                 <button class="direction" id="left" onclick="fillPlotLeft()">
                     <img class="direction" src="GitHubHealth/app/static/assets/arrow-left-circle-fill.svg">
@@ -59,7 +89,7 @@
             <script>
                 var plots = {{ repo.plots }} ;
                 vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
-                prefillDropdown(plots);
+                prefillSelectY();
             </script>
         {% endif %}
     {% endblock %}

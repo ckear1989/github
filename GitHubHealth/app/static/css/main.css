@@ -861,3 +861,46 @@ div.snippet {
   min-width: 525px;
   max-width: 700px;
 }
+
+.multiselect {
+  min-width: 146px;
+  width: 146px;
+}
+
+.selectBox {
+  position: relative;
+  min-width: 146px;
+  width: 146px;
+}
+
+.selectBox select {
+  width: 100%;
+}
+
+.overSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#select-x {
+  display: none;
+  flex-direction: column;
+  border: 1px #dadada solid;
+  justify-content: left;
+  background-color: white;
+  color: black;
+  min-width: 146px;
+  width: 146px;
+  padding: 8px;
+}
+
+#select-x label {
+  display: flex;
+}
+
+#select-x label:hover {
+  background-color: #1e90ff;
+}
