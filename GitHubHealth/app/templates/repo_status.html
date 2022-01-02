@@ -23,17 +23,26 @@
                 <a class="header" href={{ repo.url }} target="_blank">{{ repo.name }}</a>
             </div>
             {{ repo.html_table|safe }}
+            <form id="plot-control-form">
+                <select id="select-y" name="select-y" onclick="selectY(this.value)"></select>
+                <div class="multiselect">
+                    <div class="selectBox" onclick="showCheckboxes()">
+                        <select><option>Filter X variable</option></select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="select-x"></div>
+                </div>
+            </form>
             <span class="plots">
-                {{ images.direction_button("image-prev", "left") }}
-                {% for plot in repo.plots %}
-                    {% if loop.index == 1 %}
-                        <div id="vis_repo_{{loop.index}}" class="plot" style="display: block"></div>
-                    {% else %}
-                        <div id="vis_repo_{{loop.index}}" class="plot" style="display: none"></div>
-                    {% endif %}
-                {% endfor %}
-                {{ images.direction_button("image-prev", "right") }}
+                <button class="direction" id="left" onclick="fillPlotLeft()">
+                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-left-circle-fill.svg') }}">
+                </button>
+                <div id="vis_repo" class="plot" style="display: block"></div>
+                <button class="direction" id="right" onclick="fillPlotRight()">
+                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-right-circle-fill.svg') }}">
+                </button>
             </span>
+            <div id="vis_error"></div>
         {% endif %}
 
     {% endblock %}
@@ -49,11 +58,11 @@
     {% block scripts %}
         {{ super() }}
         {% if repo is not none %}
-            {% for plot in repo.plots %}
-                <script>
-                    vegaEmbedPlot({{ plot|safe }}, "vis{{loop.index}}", "#vis_repo_{{loop.index}}");
-                </script>
-            {% endfor %}
+            <script>
+                var plots = {{ repo.plots|safe }} ;
+                vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
+                prefillSelectY();
+            </script>
         {% endif %}
     {% endblock %}
 

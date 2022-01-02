@@ -18,6 +18,10 @@ div {
   max-width: 700px;
 }
 
+form {
+  margin-block-end: 1em;
+}
+
 .form {
   background-color: #3737f0;
   border-width: 2px;

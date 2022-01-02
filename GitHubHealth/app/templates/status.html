@@ -20,20 +20,29 @@
 
         {% if ghh.requested_object.obj is not none %}
             <div class="user-content repo-status">
-                <a class="header" href={{ ghh.requested_object.url }}>{{ ghh.requested_object.name }}</a>
+                <a class="header" href={{ ghh.requested_object.url }} target="_blank">{{ ghh.requested_object.name }}</a>
             </div>
             {{ ghh.repo_html|safe }}
-            <span class="plots repo-status">
-                {{ images.direction_button("image-prev", "left") }}
-                {% for plot in ghh.plots %}
-                    {% if loop.index == 1 %}
-                        <div id="vis_plot_{{loop.index}}" class="plot" style="display: block"></div>
-                    {% else %}
-                        <div id="vis_plot_{{loop.index}}" class="plot" style="display: none"></div>
-                    {% endif %}
-                {% endfor %}
-                {{ images.direction_button("image-next", "right") }}
+            <form id="plot-control-form">
+                <select id="select-y" name="select-y" onclick="selectY(this.value)"></select>
+                <div class="multiselect">
+                    <div class="selectBox" onclick="showCheckboxes()">
+                        <select><option>Filter X variable</option></select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="select-x"></div>
+                </div>
+            </form>
+            <span class="plots">
+                <button class="direction" id="left" onclick="fillPlotLeft()">
+                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-left-circle-fill.svg') }}">
+                </button>
+                <div id="vis_repo" class="plot" style="display: block"></div>
+                <button class="direction" id="right" onclick="fillPlotRight()">
+                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-right-circle-fill.svg') }}">
+                </button>
             </span>
+            <div id="vis_error"></div>
         {% endif %}
 
     {% endblock %}
@@ -50,11 +59,11 @@
         {{ super() }}
 
         {% if ghh.requested_object.obj is not none %}
-            {% for plot in ghh.plots %}
-                <script>
-                    vegaEmbedPlot({{ plot|safe }}, "vis{{loop.index}}", "#vis_plot_{{loop.index}}");
-                </script>
-            {% endfor %}
+            <script>
+                var plots = {{ ghh.plots|safe }} ;
+                vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
+                prefillSelectY();
+            </script>
         {% endif %}
 
     {% endblock %}
