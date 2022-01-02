@@ -34,13 +34,9 @@
                 </div>
             </form>
             <span class="plots">
-                <button class="direction" id="left" onclick="fillPlotLeft()">
-                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-left-circle-fill.svg') }}">
-                </button>
+                {{ images.direction_button("left") }}
                 <div id="vis_repo" class="plot" style="display: block"></div>
-                <button class="direction" id="right" onclick="fillPlotRight()">
-                    <img class="direction" src="{{ url_for('static', filename='/assets/arrow-right-circle-fill.svg') }}">
-                </button>
+                {{ images.direction_button("right") }}
             </span>
             <div id="vis_error"></div>
         {% endif %}
@@ -60,7 +56,7 @@
         {% if repo is not none %}
             <script>
                 var plots = {{ repo.plots|safe }} ;
-                vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
+                vegaEmbedPlot(plots, "vis_error", "#vis_repo", 0);
                 prefillSelectY();
             </script>
         {% endif %}

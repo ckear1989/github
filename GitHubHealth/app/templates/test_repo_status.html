@@ -88,7 +88,7 @@
         {% if repo is not none %}
             <script>
                 var plots = {{ repo.plots }} ;
-                vegaEmbedPlotNew(plots, "vis_error", "#vis_repo", 0);
+                vegaEmbedPlot(plots, "vis_error", "#vis_repo", 0);
                 prefillSelectY();
             </script>
         {% endif %}

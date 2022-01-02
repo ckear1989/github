@@ -9,13 +9,7 @@ function showError(el, error){
     throw error;
 }
 
-function vegaEmbedPlot(spec, index, div_id) {
-    var embedOpt = {"mode": "vega-lite"};
-    const el = document.getElementById(index);
-    vegaEmbed(div_id, spec, embedOpt).catch(error => showError(el, error));
-}
-
-function vegaEmbedPlotNew(plots, index, div_id, plot_index) {
+function vegaEmbedPlot(plots, index, div_id, plot_index) {
     // make plot index global for left/right fill functions
     plot_index_g = plot_index;
     plots_g = plots;
@@ -31,7 +25,7 @@ function fillPlotLeft() {
     if (plot_index_g > 0) {
         new_index = plot_index_g - 1;
     }
-    vegaEmbedPlotNew(plots, "vis", "#vis_repo", new_index);
+    vegaEmbedPlot(plots, "vis", "#vis_repo", new_index);
 }
 
 function fillPlotRight() {
@@ -39,7 +33,7 @@ function fillPlotRight() {
     if (plot_index_g < (plots.length - 1)) {
         new_index = plot_index_g + 1;
     }
-    vegaEmbedPlotNew(plots, "vis", "#vis_repo", new_index);
+    vegaEmbedPlot(plots, "vis", "#vis_repo", new_index);
 }
 
 function prefillSelectY() {
@@ -112,7 +106,7 @@ function selectY(aval) {
     $.each(plots_g, function (plot) {
         plot_parsed = JSON.parse(plots_g[plot]);
         if (aval == plot_parsed.encoding.y.field) {
-            vegaEmbedPlotNew(plots, "vis", "#vis_repo", new_index);
+            vegaEmbedPlot(plots, "vis", "#vis_repo", new_index);
             prefillSelectY();
         }
         new_index += 1;
@@ -124,7 +118,7 @@ function selectX(aval) {
     $.each(plots_g, function (plot) {
         plot_parsed = JSON.parse(plots_g[plot]);
         if (aval == plot_parsed.encoding.y.field) {
-            vegaEmbedPlotNew(plots, "vis", "#vis_repo", new_index);
+            vegaEmbedPlot(plots, "vis", "#vis_repo", new_index);
         }
         new_index += 1;
     });
